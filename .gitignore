@@ -1,0 +1,5 @@
+.DS_Store
+*.iws
+.gradle/
+.sonar-ide.properties
+build/

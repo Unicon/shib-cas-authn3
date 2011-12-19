@@ -1,0 +1,35 @@
+apply plugin: 'war'
+
+repositories { 
+	mavenRepo name: "Spring Release", urls: ["http://maven.springframework.org/release"]
+	mavenRepo name: "JA-SIG Maven", urls: ["http://developer.jasig.org/repo/content/repositories/m2"]	
+}
+
+def jerseyVersion = '1.11'
+def springVersion = '3.1.0.RELEASE'
+
+dependencies {
+
+    //JAX-RS
+    compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
+
+		//Jersey  
+		compile group: 'com.sun.jersey', name: 'jersey-client', version: jerseyVersion
+    compile group: 'com.sun.jersey', name: 'jersey-server', version: jerseyVersion
+    compile group: 'com.sun.jersey', name: 'jersey-servlet', version: jerseyVersion
+    compile group: 'com.sun.jersey', name: 'jersey-core', version: jerseyVersion
+		compile group: 'com.sun.jersey.contribs', name: 'jersey-spring', version: jerseyVersion
+	
+		//Spring
+		compile group: 'org.springframework', name: 'spring-core', version: springVersion
+    compile group: 'org.springframework', name: 'spring-web', version: springVersion
+    compile group: 'org.springframework', name: 'spring-context', version: springVersion
+	
+		//JA-SIG
+    compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.1.12'
+	  providedCompile "javax.servlet:servlet-api:2.5"
+}
+
+war {
+	archiveName = 'casauth.war'
+}

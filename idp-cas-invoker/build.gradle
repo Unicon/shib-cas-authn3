@@ -1,0 +1,12 @@
+repositories {
+    flatDir name: 'localRepository', dirs: 'lib'
+    localRepository {
+        addArtifactPattern(file('lib').absolutePath + '/[name]-[revision].[ext]')
+    }
+}
+
+dependencies {
+    compile "javax.servlet:servlet-api:2.5"
+    compile ":shibboleth-common:1.3.4"
+    compile ":shibboleth-identityprovider:2.3.5"
+}

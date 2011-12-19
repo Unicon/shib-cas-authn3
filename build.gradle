@@ -1,0 +1,22 @@
+apply plugin: 'idea'
+defaultTasks 'clean', 'build'
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    group = 'net.unicon'
+
+    sourceCompatibility = 1.6
+    version = '0.5'
+
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.8.1'
+    }
+}
