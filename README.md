@@ -1,6 +1,7 @@
 # Shibboleth IDP External Authentication via CAS plugin
 
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to the Central Authentication Server. The plugin consists of 2 components:
+
 * A web resource protected by CAS and acting as an *authentication facade*
 * Shibboleth IDP Servlets acting as a bridge between CAS and IDP  
 
