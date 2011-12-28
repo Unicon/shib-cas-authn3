@@ -2,6 +2,7 @@ package net.unicon.idp.casauth;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import org.jasig.cas.client.util.AbstractCasFilter;
 import org.jasig.cas.client.validation.Assertion;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +18,15 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 /**
- * An HTTP resource protected by CAS and acting as an external authentication facade used by Shibboleth IdP external authentication LoginHandler
+ * A root HTTP resource protected by CAS and acting as an external authentication facade used by Shibboleth IdP external authentication LoginHandler.
+ * <p/>
+ * This root '/facade' resource has four sub-resources representing features of CAS protocol. Namely: <i>renew service</i>,
+ * <i>no renew service</i>, <i>renew as a gateway service</i>, and finally <i>no renew as a gateway service</i>
+ * <p/>
+ * The decision which resource to use will be made on the IdP side based on the SP's configuration trying to authenticate against CAS
  *
  * @author Dmitriy Kopylenko
+ * @since 1.0
  */
 
 @Component
@@ -32,22 +39,32 @@ public class CasAuthenticatorResource {
     @Context
     private HttpServletResponse response;
 
-    private static final String CAS_ASSERTION_KEY = "_const_cas_assertion_";
-
     @GET
     @Path("renew")
-    public Response renewAuth(@QueryParam("idp") final String u) throws IOException {
-        return redirectBackToIdp(u);
+    public Response renewAuth(@QueryParam("idp") final String idpCallbackUrl) throws IOException {
+        return redirectBackToIdp(idpCallbackUrl);
     }
 
     @GET
     @Path("norenew")
-    public Response noRenewAuth(@QueryParam("idp") final String u) throws IOException {
-        return redirectBackToIdp(u);
+    public Response noRenewAuth(@QueryParam("idp") final String idpCallbackUrl) throws IOException {
+        return redirectBackToIdp(idpCallbackUrl);
+    }
+
+    @GET
+    @Path("renewgateway")
+    public Response renewGatewayAuth(@QueryParam("idp") final String idpCallbackUrl) throws IOException {
+        return redirectBackToIdp(idpCallbackUrl);
+    }
+
+    @GET
+    @Path("norenewgateway")
+    public Response noRenewGatewayAuth(@QueryParam("idp") final String idpCallbackUrl) throws IOException {
+        return redirectBackToIdp(idpCallbackUrl);
     }
 
     private Response redirectBackToIdp(String idpCallbackUrl) throws IOException {
-        Assertion casAssertion = (Assertion) this.request.getSession(false).getAttribute(CAS_ASSERTION_KEY);
+        Assertion casAssertion = (Assertion) this.request.getSession(false).getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
         this.response.sendRedirect(this.response.encodeRedirectURL(idpCallbackUrl + "?p=" + casAssertion.getPrincipal().getName()));
         //HTTP 204
         return Response.noContent().build();

@@ -17,6 +17,7 @@ import java.io.IOException;
  * IdP's External Authentication Login Handler.
  *
  * @author Dmitriy Kopylenko
+ * @since 1.0
  */
 public class CasInvokerServlet extends HttpServlet {
 
@@ -35,7 +36,11 @@ public class CasInvokerServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
-        String authnType = (force == Boolean.TRUE) ? "/renew" : "/norenew";
+        Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
+        String authnType = (force) ? "/renew" : "/norenew";
+        if(passive) {
+            authnType += "gateway";
+        }
         response.sendRedirect(response.encodeRedirectURL(this.casProtectedResource + authnType + "?idp=" + this.postAuthnCallbackUrl));
     }
 }

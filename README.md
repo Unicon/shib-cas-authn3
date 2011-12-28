@@ -20,88 +20,129 @@ Example web.xml:
 ```xml
 ...
 <filter>
-	<filter-name>CAS Authentication Filter (Renew)</filter-name>
-	<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
-	<init-param>
-		<param-name>casServerLoginUrl</param-name>
-		<param-value>https://dima767.example.org:9443/cas/login</param-value>
-	</init-param>
-	<init-param>
-		<param-name>serverName</param-name>
-		<param-value>https://dima767.example.org:9443</param-value>
-	</init-param>
-	<init-param>
-		<param-name>renew</param-name>
-		<param-value>true</param-value>
-	</init-param>
-	<init-param>
-		<param-name>gateway</param-name>
-		<param-value>false</param-value>
-	</init-param>
-</filter>
-<filter-mapping>
-	<filter-name>CAS Authentication Filter (No Renew)</filter-name>
-	<url-pattern>/facade/renew/*</url-pattern>
-</filter-mapping>
+		<filter-name>CAS Authentication Filter (Renew)</filter-name>
+		<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+		<init-param>
+			<param-name>casServerLoginUrl</param-name>
+			<param-value>https://dima767.example.org:9443/cas/login</param-value>
+		</init-param>
+		<init-param>
+			<param-name>serverName</param-name>
+			<param-value>https://dima767.example.org:9443</param-value>
+		</init-param>
+		<init-param>
+			<param-name>renew</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+    <filter-mapping>
+		<filter-name>CAS Authentication Filter (Renew)</filter-name>
+		<url-pattern>/facade/renew/*</url-pattern>
+	</filter-mapping>
 
-<filter>
-    <filter-name>CAS Authentication Filter (No Renew)</filter-name>
-    <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
-    <init-param>
-        <param-name>casServerLoginUrl</param-name>
-        <param-value>https://dima767.example.org:9443/cas/login</param-value>
-    </init-param>
-    <init-param>
-        <param-name>serverName</param-name>
-        <param-value>https://dima767.example.org:9443</param-value>
-    </init-param>
-    <init-param>
-        <param-name>renew</param-name>
-        <param-value>false</param-value>
-    </init-param>
-    <init-param>
-        <param-name>gateway</param-name>
-        <param-value>false</param-value>
-    </init-param>
-</filter>
-<filter-mapping>
-    <filter-name>CAS Authentication Filter (Renew)</filter-name>
-    <url-pattern>/facade/norenew/*</url-pattern>
-</filter-mapping>
+    <filter>
+        <filter-name>CAS Authentication Filter (No Renew)</filter-name>
+        <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+        <init-param>
+            <param-name>casServerLoginUrl</param-name>
+            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://dima767.example.org:9443</param-value>
+        </init-param>
+        <init-param>
+            <param-name>renew</param-name>
+            <param-value>false</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CAS Authentication Filter (No Renew)</filter-name>
+        <url-pattern>/facade/norenew/*</url-pattern>
+    </filter-mapping>
 
-<filter>
-	<filter-name>CAS Validation Filter</filter-name>
-	<filter-class>org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter</filter-class>
-	<init-param>
-		<param-name>casServerUrlPrefix</param-name>
-		<param-value>https://dima767.example.org:9443/cas</param-value>
-	</init-param>
-	<init-param>
-		<param-name>serverName</param-name>
-		<param-value>https://dima767.example.org:9443</param-value>
-	</init-param>
-	<init-param>
-		<param-name>redirectAfterValidation</param-name>
-		<param-value>true</param-value>
-	</init-param>
-</filter>
-<filter-mapping>
-	<filter-name>CAS Validation Filter</filter-name>
-	<url-pattern>/facade/renew/*</url-pattern>
-</filter-mapping>
-<filter-mapping>
-    <filter-name>CAS Validation Filter</filter-name>
-    <url-pattern>/facade/norenew/*</url-pattern>
-</filter-mapping>
+    <filter>
+        <filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
+        <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+        <init-param>
+            <param-name>casServerLoginUrl</param-name>
+            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://dima767.example.org:9443</param-value>
+        </init-param>
+        <init-param>
+            <param-name>renew</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>gateway</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
+        <url-pattern>/facade/renewgateway/*</url-pattern>
+    </filter-mapping>
 
-<filter>
-	<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
-	<filter-class>org.jasig.cas.client.util.HttpServletRequestWrapperFilter</filter-class>
-</filter>
-<filter-mapping>
-	<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
-	<url-pattern>/*</url-pattern>
-</filter-mapping>
+    <filter>
+        <filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
+        <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+        <init-param>
+            <param-name>casServerLoginUrl</param-name>
+            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+        </init-param>
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://dima767.example.org:9443</param-value>
+        </init-param>
+        <init-param>
+            <param-name>renew</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>gateway</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
+        <url-pattern>/facade/norenewgateway/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+		<filter-name>CAS Validation Filter</filter-name>
+		<filter-class>org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter</filter-class>
+		<init-param>
+			<param-name>casServerUrlPrefix</param-name>
+			<param-value>https://dima767.example.org:9443/cas</param-value>
+		</init-param>
+		<init-param>
+			<param-name>serverName</param-name>
+			<param-value>https://dima767.example.org:9443</param-value>
+		</init-param>
+		<init-param>
+			<param-name>redirectAfterValidation</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+    <filter-mapping>
+		<filter-name>CAS Validation Filter</filter-name>
+		<url-pattern>/facade/renew/*</url-pattern>
+	</filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Validation Filter</filter-name>
+        <url-pattern>/facade/norenew/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Validation Filter</filter-name>
+        <url-pattern>/facade/renewgateway/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>CAS Validation Filter</filter-name>
+        <url-pattern>/facade/norenewgateway/*</url-pattern>
+    </filter-mapping>
 ...
 ```
 
