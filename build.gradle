@@ -9,7 +9,7 @@ subprojects {
     group = 'net.unicon'
 
     sourceCompatibility = 1.6
-    version = '0.5'
+    version = '1.0-RC1'
 
 
     repositories {
@@ -19,4 +19,8 @@ subprojects {
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.8.1'
     }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.0-milestone-7'
 }
