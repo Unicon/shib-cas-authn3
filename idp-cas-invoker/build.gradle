@@ -1,12 +1,11 @@
+
 repositories {
-    flatDir name: 'localRepository', dirs: 'lib'
-    localRepository {
-        addArtifactPattern(file('lib').absolutePath + '/[name]-[revision].[ext]')
-    }
+    mavenCentral()
+    flatDir dirs: [getShibIdpPath() + '/lib']
 }
 
 dependencies {
     compile "javax.servlet:servlet-api:2.5"
-    compile ":shibboleth-common:1.3.4"
-    compile ":shibboleth-identityprovider:2.3.5"
+    compile "edu.internet2.middleware:shibboleth-common:" + getShibCommonVersion()
+    compile "edu.internet2.middleware:shibboleth-identityprovider:" + getShibIdpVersion()
 }
