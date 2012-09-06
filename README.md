@@ -9,10 +9,6 @@ The plugin consists of 2 components:
 
 This project uses [Gradle](http://gradle.org) build system
 	
-To build
---------
-Simply run `./gradlew`
-
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
 * Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` suitable for your CAS installation
@@ -214,5 +210,19 @@ Example:
 	   </servlet-mapping>
 ```
 
-* Build the jar containing the Servlets: `gradlew`
+To Build
+--------
+
+* In [`gradle.properties`](https://github.com/Unicon/shib-cas-authenticator/blob/master/gradle.properties), adjust
+the property settings for the IdP path, version and Shibboleth common JAR file dependency version:
+
+```properties
+shibIdpVersion=2.3.8
+shibCommonVersion=1.3.7
+shibIdpPath=c:/portal/shibboleth-identityprovider-2.3.8
+```
+
+* From the root directory, simply run `./gradlew`
+
+* Copy `cas-authentication-facade/build/libs/casauth.war` to `$CATALINA_HOME/webapps`
 * Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
