@@ -144,9 +144,6 @@ Example web.xml:
 ...
 ```
 
-* Build the web archive: `gradlew`
-* Deploy the web archive `cas-authentication-facade/build/libs/casauth.war` to a Servlet container
-
 Configure build and deploy IDP external authentication plugin
 -------------------------------------------------------------
 
