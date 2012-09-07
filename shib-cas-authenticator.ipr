@@ -15,6 +15,7 @@
   <component name="CopyrightManager" default="">
     <module2copyright />
   </component>
+  <component name="CppTools.Loader" reportImplicitCastToBool="false" reportNameReferencedOnce="false" version="3" compilerSelect="AUTO" />
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
@@ -23,7 +24,7 @@
     <entry_points version="2.0" />
   </component>
   <component name="GradleSettings">
-    <option name="GRADLE_HOME" value="/usr/local/lib/gradle" />
+    <option name="gradleHome" value="/usr/local/Cellar/gradle/1.1/libexec" />
   </component>
   <component name="GradleUISettings">
     <setting name="root" />
@@ -32,6 +33,14 @@
     <setting name="root" />
   </component>
   <component name="IdProvider" IDEtalkID="11DA1DB66DD62DDA1ED602B7079FE97C" />
+  <component name="IvyIDEA.ProjectSettings">
+    <option name="artifactTypeSettings">
+      <ArtifactTypeSettings />
+    </option>
+    <option name="propertiesSettings">
+      <PropertiesSettings />
+    </option>
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />

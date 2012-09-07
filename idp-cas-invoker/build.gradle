@@ -1,11 +1,9 @@
-
 repositories {
-    mavenCentral()
-    flatDir dirs: [getShibIdpPath() + '/lib']
+    flatDir dir: "$project.shibIdpPath/lib"
 }
 
 dependencies {
-    compile "javax.servlet:servlet-api:2.5"
-    compile "edu.internet2.middleware:shibboleth-common:" + getShibCommonVersion()
-    compile "edu.internet2.middleware:shibboleth-identityprovider:" + getShibIdpVersion()
+    compile "javax.servlet:servlet-api:$project.servletVersion"
+    compile "edu.internet2.middleware:shibboleth-common:$project.shibCommonVersion"
+    compile "edu.internet2.middleware:shibboleth-identityprovider:$project.shibIdpVersion"
 }
