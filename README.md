@@ -1,17 +1,23 @@
 # Shibboleth IDP External Authentication via CAS plugin
 
-This is a Shibboleth IDP external authentication plugin that delegates the authentication to the Central Authentication Server. The biggest advantage of using this component over the plain `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range of native CAS protocol features such as `renew` and `gateway`
+This is a Shibboleth IDP external authentication plugin that delegates the authentication to the 
+Central Authentication Server. The biggest advantage of using this component over the plain 
+`REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
+of native CAS protocol features such as `renew` and `gateway`.
 
 The plugin consists of 2 components:
 
 * A web resource protected by CAS and acting as an *authentication facade*
 * Shibboleth IDP Servlets acting as a bridge between CAS and IDP  
 
-This project uses [Gradle](http://gradle.org) build system
-	
+Software Requirements
+-------------------------------------------------------------
+* This plugin will require Shibboleth Identity Provider v2.3.0 and above.
+
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
-* Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` suitable for your CAS installation
+* Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` 
+suitable for your CAS installation.
 
 Example web.xml:
 
@@ -209,6 +215,8 @@ Example:
 
 To Build
 --------
+
+This project uses [Gradle](http://gradle.org) build system.
 
 * In [`gradle.properties`](https://github.com/Unicon/shib-cas-authenticator/blob/master/gradle.properties), adjust
 the property settings for the IdP path, version and Shibboleth common JAR file dependency version:
