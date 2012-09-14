@@ -55,44 +55,45 @@ Example web.xml:
 	<url-pattern>/facade/renew/*</url-pattern>
 </filter-mapping>
 
-    <filter>
-        <filter-name>CAS Authentication Filter (No Renew)</filter-name>
-        <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
-        <init-param>
-            <param-name>casServerLoginUrl</param-name>
-            <param-value>https://sso.server.edu/cas/login</param-value>
-        </init-param>
-	<!--
-		The value of the serverName parameter should be the FQDN of the application server (tomcat)
-		where the casauth.war application is deployed.
-		
-		This configuration assumes that the WAR file is lives inside the same application instance
-		in which CAS itself is deployed. If your configuration has deployed the WAR file alongside
-		the IdP server, the value should then be changed to be the FQDN of the IdP tomcat server.
-		
-		Note: Use the standard IdP operating port and not the SOAP endpoint.
-	-->
-	<init-param>
-		<param-name>serverName</param-name>
-		<param-value>https://sso.server.edu</param-value>
-	</init-param>
-        <init-param>
-            <param-name>renew</param-name>
-            <param-value>false</param-value>
-        </init-param>
-    </filter>
-    <filter-mapping>
-        <filter-name>CAS Authentication Filter (No Renew)</filter-name>
-        <url-pattern>/facade/norenew/*</url-pattern>
-    </filter-mapping>
+<filter>
+    <filter-name>CAS Authentication Filter (No Renew)</filter-name>
+    <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+    <init-param>
+        <param-name>casServerLoginUrl</param-name>
+        <param-value>https://sso.server.edu/cas/login</param-value>
+    </init-param>
+    <!--
+      The value of the serverName parameter should be the FQDN of the application server (tomcat)
+      where the casauth.war application is deployed.
+      
+      This configuration assumes that the WAR file is lives inside the same application instance
+      in which CAS itself is deployed. If your configuration has deployed the WAR file alongside
+      the IdP server, the value should then be changed to be the FQDN of the IdP tomcat server.
+      
+      Note: Use the standard IdP operating port and not the SOAP endpoint.
+    -->
+    <init-param>
+      <param-name>serverName</param-name>
+      <param-value>https://sso.server.edu</param-value>
+    </init-param>
+    <init-param>
+        <param-name>renew</param-name>
+        <param-value>false</param-value>
+    </init-param>
+</filter>
+    
+<filter-mapping>
+    <filter-name>CAS Authentication Filter (No Renew)</filter-name>
+    <url-pattern>/facade/norenew/*</url-pattern>
+</filter-mapping>
 
-	<filter>
-        	<filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
-        	<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
-        	<init-param>
-         	   <param-name>casServerLoginUrl</param-name>
-         	   <param-value>https://sso.server.edu/cas/login</param-value>
-        	</init-param>
+<filter>
+    <filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
+    <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+    <init-param>
+      <param-name>casServerLoginUrl</param-name>
+      <param-value>https://sso.server.edu/cas/login</param-value>
+    </init-param>
 		<!--
 			The value of the serverName parameter should be the FQDN of the application server (tomcat)
 			where the casauth.war application is deployed.
@@ -107,27 +108,63 @@ Example web.xml:
 			<param-name>serverName</param-name>
 			<param-value>https://sso.server.edu</param-value>
 		</init-param>
-	        <init-param>
-	            <param-name>renew</param-name>
-	            <param-value>true</param-value>
-	        </init-param>
-	        <init-param>
-	            <param-name>gateway</param-name>
-	            <param-value>true</param-value>
-	        </init-param>
-    	</filter>
+    <init-param>
+        <param-name>renew</param-name>
+        <param-value>true</param-value>
+    </init-param>
+    <init-param>
+        <param-name>gateway</param-name>
+        <param-value>true</param-value>
+    </init-param>
+</filter>
     
-   	 <filter-mapping>
-        	<filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
-        	<url-pattern>/facade/renewgateway/*</url-pattern>
-    	</filter-mapping>
+<filter-mapping>
+    <filter-name>CAS Authentication Filter (Renew Gateway)</filter-name>
+    <url-pattern>/facade/renewgateway/*</url-pattern>
+</filter-mapping>
 
-	<filter>
-	<filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
-	<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+<filter>
+    <filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
+    <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
+    <init-param>
+        <param-name>casServerLoginUrl</param-name>
+        <param-value>https://sso.server.edu/cas/login</param-value>
+    </init-param>
+    <!--
+      The value of the serverName parameter should be the FQDN of the application server (tomcat)
+      where the casauth.war application is deployed.
+      
+      This configuration assumes that the WAR file is lives inside the same application instance
+      in which CAS itself is deployed. If your configuration has deployed the WAR file alongside
+      the IdP server, the value should then be changed to be the FQDN of the IdP tomcat server.
+      
+      Note: Use the standard IdP operating port and not the SOAP endpoint.
+    -->
+    <init-param>
+      <param-name>serverName</param-name>
+      <param-value>https://sso.server.edu</param-value>
+    </init-param>
+    <init-param>
+        <param-name>renew</param-name>
+        <param-value>false</param-value>
+    </init-param>
+    <init-param>
+        <param-name>gateway</param-name>
+        <param-value>true</param-value>
+    </init-param>
+ </filter>
+ 
+<filter-mapping>
+    <filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
+    <url-pattern>/facade/norenewgateway/*</url-pattern>
+</filter-mapping>
+
+<filter>
+	<filter-name>CAS Validation Filter</filter-name>
+	<filter-class>org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter</filter-class>
 	<init-param>
-	    <param-name>casServerLoginUrl</param-name>
-	    <param-value>https://sso.server.edu/cas/login</param-value>
+		<param-name>casServerUrlPrefix</param-name>
+		<param-value>https://sso.server.edu/cas</param-value>
 	</init-param>
 	<!--
 		The value of the serverName parameter should be the FQDN of the application server (tomcat)
@@ -144,51 +181,30 @@ Example web.xml:
 		<param-value>https://sso.server.edu</param-value>
 	</init-param>
 	<init-param>
-	    <param-name>renew</param-name>
-	    <param-value>false</param-value>
+		<param-name>redirectAfterValidation</param-name>
+		<param-value>true</param-value>
 	</init-param>
-	<init-param>
-	    <param-name>gateway</param-name>
-	    <param-value>true</param-value>
-	</init-param>
-	</filter>
-    	<filter-mapping>
-        	<filter-name>CAS Authentication Filter (No Renew Gateway)</filter-name>
-        	<url-pattern>/facade/norenewgateway/*</url-pattern>
-    	</filter-mapping>
+</filter>
+  
+<filter-mapping>
+  <filter-name>CAS Validation Filter</filter-name>
+  <url-pattern>/facade/renew/*</url-pattern>
+</filter-mapping>
 
-    	<filter>
-		<filter-name>CAS Validation Filter</filter-name>
-		<filter-class>org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter</filter-class>
-		<init-param>
-			<param-name>casServerUrlPrefix</param-name>
-			<param-value>https://dima767.example.org:9443/cas</param-value>
-		</init-param>
-		<init-param>
-			<param-name>serverName</param-name>
-			<param-value>https://dima767.example.org:9443</param-value>
-		</init-param>
-		<init-param>
-			<param-name>redirectAfterValidation</param-name>
-			<param-value>true</param-value>
-		</init-param>
-	</filter>
-    	<filter-mapping>
-		<filter-name>CAS Validation Filter</filter-name>
-		<url-pattern>/facade/renew/*</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>CAS Validation Filter</filter-name>
-		<url-pattern>/facade/norenew/*</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>CAS Validation Filter</filter-name>
-		<url-pattern>/facade/renewgateway/*</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>CAS Validation Filter</filter-name>
-		<url-pattern>/facade/norenewgateway/*</url-pattern>
-	</filter-mapping>
+<filter-mapping>
+  <filter-name>CAS Validation Filter</filter-name>
+  <url-pattern>/facade/norenew/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+  <filter-name>CAS Validation Filter</filter-name>
+  <url-pattern>/facade/renewgateway/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+  <filter-name>CAS Validation Filter</filter-name>
+  <url-pattern>/facade/norenewgateway/*</url-pattern>
+</filter-mapping>
 ...
 ```
 
@@ -222,15 +238,25 @@ Example:
 	       <servlet-name>External Authn</servlet-name>
 	       <servlet-class>net.unicon.idp.externalauth.CasInvokerServlet</servlet-class>
 
-	       <!-- A URL for CAS-protected resource endpoint -->
+	       <!-- 
+            A URL for CAS-protected resource endpoint  
+            The value of the serverName parameter should be the FQDN of the application server (tomcat)
+            where the casauth.war application is deployed.
+            
+            This configuration assumes that the WAR file is lives inside the same application instance
+            in which CAS itself is deployed. If your configuration has deployed the WAR file alongside
+            the IdP server, the value should then be changed to be the FQDN of the IdP tomcat server.
+            
+            Note: Use the standard IdP operating port and not the SOAP endpoint.
+          -->
 	       <init-param>
 	           <param-name>casProtectedResource</param-name>
-	           <param-value>https://dima767.example.org:9443/casauth/facade</param-value>
+	           <param-value>https://sso.server.edu/casauth/facade</param-value>
 	       </init-param>
 	       <!-- Am IdP URL for the external CAS-protected resource to callback to -->
 	       <init-param>
 	           <param-name>postAuthnCallbackUrl</param-name>
-	           <param-value>https://idp.example.org:8443/idp/externalAuthnCallback</param-value>
+	           <param-value>https://shibidp.server.edu/idp/externalAuthnCallback</param-value>
 	       </init-param>
 
 	       <load-on-startup>2</load-on-startup>
