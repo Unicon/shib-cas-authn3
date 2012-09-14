@@ -240,7 +240,7 @@ Example:
 
 	       <!-- 
             A URL for CAS-protected resource endpoint  
-            The value of the serverName parameter should be the FQDN of the application server (tomcat)
+            The value of the casProtectedResource parameter should be the FQDN of the application server (tomcat)
             where the casauth.war application is deployed.
             
             This configuration assumes that the WAR file is lives inside the same application instance
