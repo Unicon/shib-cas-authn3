@@ -208,7 +208,7 @@ Example `web.xml`:
 ...
 ```
 
-Configure build and deploy IDP external authentication plugin
+Configure build and deploy IdP external authentication plugin
 -------------------------------------------------------------
 
 * Make sure that IDP is deployed and war is exploded as `$CATALINA_HOME/webapps/idp`
