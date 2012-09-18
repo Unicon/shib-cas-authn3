@@ -1,4 +1,4 @@
-# Shibboleth IDP External Authentication via CAS plugin
+# Shibboleth IdP External Authentication via CAS plugin
 
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to the 
 Central Authentication Server. The biggest advantage of using this component over the plain 
@@ -19,7 +19,7 @@ Configure build and deploy cas-authentication-facade resource
 * Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` 
 suitable for your CAS installation.
 
-Example web.xml:
+Example `web.xml`:
 
 ```xml
 ...
@@ -299,3 +299,15 @@ shibIdpPath=c:/portal/shibboleth-identityprovider-2.3.8
 
 * Copy `cas-authentication-facade/build/libs/casauth.war` to `$CATALINA_HOME/webapps`
 * Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
+
+Shibboleth IdP Upgrades
+-------------------------------------------------------------
+
+In order to properly protect the changes to the `web.xml` file of the Shibboleth IdP between upgrades, 
+copy the changed version to the `conf` directory of the main Shib IdP directory (e.g. usually `/opt/shibboleth-idp/conf`).
+Then, rebuild and redeploy the IdP as usual.
+
+See the following links for additional info:
+* https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
+* https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
+
