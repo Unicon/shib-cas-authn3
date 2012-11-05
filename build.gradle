@@ -18,7 +18,15 @@ allprojects {
     dependencies {
         testCompile group: 'junit', name: 'junit', version: project.junitVersion
     }
+
+    idea.project.ipr {
+        beforeMerged { project ->
+            project.modulePaths.clear()
+        }
+    }
 }
+
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion

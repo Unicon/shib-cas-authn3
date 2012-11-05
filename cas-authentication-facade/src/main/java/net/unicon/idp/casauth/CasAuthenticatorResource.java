@@ -1,20 +1,16 @@
 package net.unicon.idp.casauth;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import org.jasig.cas.client.util.AbstractCasFilter;
-import org.jasig.cas.client.validation.Assertion;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 
 /**
@@ -64,8 +60,7 @@ public class CasAuthenticatorResource {
     }
 
     private Response redirectBackToIdp(String idpCallbackUrl) throws IOException {
-        Assertion casAssertion = (Assertion) this.request.getSession(false).getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION);
-        this.response.sendRedirect(this.response.encodeRedirectURL(idpCallbackUrl + "?p=" + casAssertion.getPrincipal().getName()));
+        this.response.sendRedirect(this.response.encodeRedirectURL(idpCallbackUrl + "?p=" + this.request.getRemoteUser()));
         //HTTP 204
         return Response.noContent().build();
     }

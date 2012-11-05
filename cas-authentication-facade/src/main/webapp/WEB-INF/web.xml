@@ -23,11 +23,11 @@
 		<filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
 		<init-param>
 			<param-name>casServerLoginUrl</param-name>
-			<param-value>https://dima767.example.org:9443/cas/login</param-value>
+			<param-value>https://dk.example.org:8143/cas/login</param-value>
 		</init-param>
 		<init-param>
 			<param-name>serverName</param-name>
-			<param-value>https://dima767.example.org:9443</param-value>
+			<param-value>https://dk.example.org:8143</param-value>
 		</init-param>
 		<init-param>
 			<param-name>renew</param-name>
@@ -44,11 +44,11 @@
         <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
         <init-param>
             <param-name>casServerLoginUrl</param-name>
-            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+            <param-value>https://dk.example.org:8143/cas/login</param-value>
         </init-param>
         <init-param>
             <param-name>serverName</param-name>
-            <param-value>https://dima767.example.org:9443</param-value>
+            <param-value>https://dk.example.org:8143</param-value>
         </init-param>
         <init-param>
             <param-name>renew</param-name>
@@ -65,11 +65,11 @@
         <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
         <init-param>
             <param-name>casServerLoginUrl</param-name>
-            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+            <param-value>https://dk.example.org:8143/cas/login</param-value>
         </init-param>
         <init-param>
             <param-name>serverName</param-name>
-            <param-value>https://dima767.example.org:9443</param-value>
+            <param-value>https://dk.example.org:8143</param-value>
         </init-param>
         <init-param>
             <param-name>renew</param-name>
@@ -90,11 +90,11 @@
         <filter-class>org.jasig.cas.client.authentication.AuthenticationFilter</filter-class>
         <init-param>
             <param-name>casServerLoginUrl</param-name>
-            <param-value>https://dima767.example.org:9443/cas/login</param-value>
+            <param-value>https://dk.example.org:8143/cas/login</param-value>
         </init-param>
         <init-param>
             <param-name>serverName</param-name>
-            <param-value>https://dima767.example.org:9443</param-value>
+            <param-value>https://dk.example.org:8143</param-value>
         </init-param>
         <init-param>
             <param-name>renew</param-name>
@@ -115,16 +115,20 @@
 		<filter-class>org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter</filter-class>
 		<init-param>
 			<param-name>casServerUrlPrefix</param-name>
-			<param-value>https://dima767.example.org:9443/cas</param-value>
+			<param-value>https://dk.example.org:8143/cas</param-value>
 		</init-param>
 		<init-param>
 			<param-name>serverName</param-name>
-			<param-value>https://dima767.example.org:9443</param-value>
+			<param-value>https://dk.example.org:8143</param-value>
 		</init-param>
 		<init-param>
-			<param-name>redirectAfterValidation</param-name>
-			<param-value>true</param-value>
+			<param-name>useSession</param-name>
+			<param-value>false</param-value>
 		</init-param>
+        <init-param>
+            <param-name>redirectAfterValidation</param-name>
+            <param-value>false </param-value>
+        </init-param>
 	</filter>
     <filter-mapping>
 		<filter-name>CAS Validation Filter</filter-name>
@@ -151,15 +155,6 @@
 		<filter-name>CAS HttpServletRequest Wrapper Filter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-
-	<!-- <filter>
-		<filter-name>CAS Assertion Thread Local Filter</filter-name>
-		<filter-class>org.jasig.cas.client.util.AssertionThreadLocalFilter</filter-class>
-	</filter>
-    <filter-mapping>
-		<filter-name>CAS Assertion Thread Local Filter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping> -->
 
     <servlet>
         <servlet-name>Jersey Spring Web Application</servlet-name>
