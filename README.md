@@ -5,6 +5,8 @@ Central Authentication Server. The biggest advantage of using this component ove
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`.
 
+Current version is `1.3` which builds on top of shibboleth idp version `2.4.0`
+
 The plugin consists of 2 components:
 
 * A web resource protected by CAS and acting as an *authentication facade*
@@ -12,7 +14,7 @@ The plugin consists of 2 components:
 
 Software Requirements
 -------------------------------------------------------------
-* This plugin will require Shibboleth Identity Provider v2.3.0 and above.
+* This plugin will require Shibboleth Identity Provider v2.4.0 and above.
 
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
