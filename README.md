@@ -5,7 +5,7 @@ Central Authentication Server. The biggest advantage of using this component ove
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`.
 
-Current version is `1.3` which builds on top of shibboleth idp version `2.4.0`
+Current version is `1.3` which is the first arbitrary tag commit. Note that versions 2.3.8 and 2.4.x of Shibboleth IDP are supported.
 
 The plugin consists of 2 components:
 
