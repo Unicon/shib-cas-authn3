@@ -5,16 +5,49 @@ Central Authentication Server. The biggest advantage of using this component ove
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`.
 
-Current version is `1.3` which is the first arbitrary tag commit. Note that versions 2.3.8 and 2.4.x of Shibboleth IDP are supported.
-
 The plugin consists of 2 components:
 
 * A web resource protected by CAS and acting as an *authentication facade*
-* Shibboleth IDP Servlets acting as a bridge between CAS and IDP  
+* Shibboleth IDP Servlets acting as a bridge between CAS and IDP
+
+
+Strategy for sharing staet between CASified resource and IdP
+-------------------------------------------------------------
+The CASified resource uses the Java CAS Client to participate in the CAS protocol to determine the authenticated username.  It then publishes this username into the IdP's `ServletContext` using a cross-context access to put an attribute into that `ServletContext` keyed by the end user session identifier (with a namespacing prefix).  The IdP and the CASified resource have the same session identifier for the user session thanks to the configuration described below.
+
 
 Software Requirements
 -------------------------------------------------------------
+
 * This plugin will require Shibboleth Identity Provider v2.4.0 and above.
+
+* The IdP web application *must* be deployed at `/idp`.  This is hard-coded in `CasAuthenticatorResource.java`, where you can change this value if `/idp` isn't right for your environment. (Yes, this is stupid and should be fixed to instead parse the IDP web application path from the request parameter named `idp`.)
+* The Shibboleth IdP and the web resource protected by CAS (`/casauth`) *must* be deployed alongside one another in the same servlet container
+* The servlet container *must* be configured such that `casauth` is able to do a cross-context request to access the IdP's `ServletContext`. Detailed following.
+* The servlet container *must* be configured such that `/casauth` and `/idp` share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
+
+Servlet Container Configuration
+-------------------------------------------------------------
+
+Here's how you do the cross-context enablement in Tomcat:
+
+* Enable Tomcat's *crosscontext* in `$CATALINA_HOME/conf/context.xml`
+
+```xml
+<Context crossContext="true">
+	...
+</Context>
+```
+
+Here's how you do the empty session path in Tomcat:
+
+* Enable Tomcat's SSL Connector's *emptySessionPath* in `$CATALINA_HOME/conf/server.xml`
+
+```xml
+ <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" emptySessionPath="true" .../>
+```
+
+
 
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
