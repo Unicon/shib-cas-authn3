@@ -41,13 +41,6 @@ public class CasAuthenticatorResource {
     @Context
     private HttpServletResponse response;
 
-    /**
-     * Assumes the IDP is in the same servlet container at the path `/idp`.
-     * This is a pretty safe assumption, but it would be better to parse it from the request parameter
-     * containing the idp redirect URL since we have that handy anyway
-     * TODO: parse the IDP context name from the query parameter named idp
-     */
-    private static final String IDP_CONTEXT_NAME = "/idp";
 
     @GET
     @Path("renew")
@@ -77,8 +70,10 @@ public class CasAuthenticatorResource {
 
         String sessionId = this.request.getSession().getId();
 
+        String idpContextName = this.request.getServletContext().getInitParameter("idPContextName");
 
-        ServletContext idpContext = this.request.getServletContext().getContext("/idp");
+
+        ServletContext idpContext = this.request.getServletContext().getContext(idpContextName);
 
         // put the username into the IDP ServletContext (object shared between this external Resource and the IDP)
         // keyed by the session identifier (unique to this user's session) which is the same as the IDP session

@@ -21,10 +21,9 @@ Software Requirements
 
 * This plugin will require Shibboleth Identity Provider v2.4.0 and above.
 
-* The IdP web application *must* be deployed at `/idp`.  This is hard-coded in `CasAuthenticatorResource.java`, where you can change this value if `/idp` isn't right for your environment. (Yes, this is stupid and should be fixed to instead parse the IDP web application path from the request parameter named `idp`.)
 * The Shibboleth IdP and the web resource protected by CAS (`/casauth`) *must* be deployed alongside one another in the same servlet container
 * The servlet container *must* be configured such that `casauth` is able to do a cross-context request to access the IdP's `ServletContext`. Detailed following.
-* The servlet container *must* be configured such that `/casauth` and `/idp` share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
+* The servlet container *must* be configured such that `/casauth` and the IDP (`/idp` ?) share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
 
 Servlet Container Configuration
 -------------------------------------------------------------
@@ -51,6 +50,20 @@ Here's how you do the empty session path in Tomcat:
 
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
+
+* Configure a `context-param` to tell the facade the path to the IdP
+
+In `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` :
+
+    <context-param>
+        <param-name>idPContextName</param-name>
+        <param-value>/idp</param-value>
+    </context-param>
+
+If you've deployed your IdP as `/samlThing`, then the param-value should be
+
+    <param-value>/samlThing</param-value>
+
 * Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` 
 suitable for your CAS installation.
 
