@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -75,23 +76,32 @@ public class CasAuthenticatorResource {
     }
 
     private Response redirectBackToIdp(String idpCallbackUrl) throws IOException {
-        final String sessionId = this.request.getSession().getId();
-        String idpContextName = this.servletContext.getInitParameter("idPContextName");
 
+        String idpContextName = this.servletContext.getInitParameter("idPContextName");
         // default to /idp
         if (idpContextName == null) {
             idpContextName = "/idp";
         }
 
-        ServletContext idpContext = this.servletContext.getContext(idpContextName);
+        // "cross-context" to share authenticatedPrincipal
+        final ServletContext idpContext = this.servletContext.getContext(idpContextName);
+
+        // username from CAS
+        final String authenticatedPrincipal = Assertion.class.cast(request.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION)).getPrincipal().getName();
+
+        // SessionId is as index into shared state between /idp and /casauth, requires Tomcat emptySessionPath="true"
+        final HttpSession session = this.request.getSession();
 
         // put the username into the IDP ServletContext (object shared between this external Resource and the IDP)
         // keyed by the session identifier (unique to this user's session) which is the same as the IDP session
         // identifier because the servlet container has been configured to set an empty session path
-        final String authenticatedPrincipal = Assertion.class.cast(request.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION)).getPrincipal().getName();
-        idpContext.setAttribute("net.unicon.idp.casauth." + sessionId, authenticatedPrincipal);
+        idpContext.setAttribute("net.unicon.idp.casauth." + session.getId(), authenticatedPrincipal);
 
         this.response.sendRedirect(this.response.encodeRedirectURL(idpCallbackUrl));
+
+        // cleanup casauth session
+        session.invalidate();
+
         //HTTP 204
         return Response.noContent().build();
     }
