@@ -23,7 +23,7 @@ Software Requirements
 
 * The Shibboleth IdP and the web resource protected by CAS (`/casauth`) *must* be deployed alongside one another in the same servlet container
 * The servlet container *must* be configured such that `casauth` is able to do a cross-context request to access the IdP's `ServletContext`. Detailed following.
-* The servlet container *must* be configured such that `/casauth` and the IDP (`/idp` ?) share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
+* The servlet container *must* be configured such that `/casauth` and the IDP (`/idp`) share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
 
 Servlet Container Configuration
 -------------------------------------------------------------
@@ -340,9 +340,9 @@ This project uses [Gradle](http://gradle.org) build system.
 the property settings for the IdP path, version and Shibboleth common JAR file dependency version:
 
 ```properties
-shibIdpVersion=2.3.8
-shibCommonVersion=1.3.7
-shibIdpPath=c:/portal/shibboleth-identityprovider-2.3.8
+shibIdpVersion=2.4.0
+shibCommonVersion=1.4.0
+shibIdpPath=/opt/shibboleth-idp
 ```
 
 * From the root directory, simply run `./gradlew`
