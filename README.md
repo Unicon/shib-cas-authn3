@@ -64,6 +64,8 @@ If you've deployed your IdP as `/samlThing`, then the param-value should be
 
     <param-value>/samlThing</param-value>
 
+Defaults to `/idp`.  If your IDP is at `/idp`, you can omit this `context-param`.
+
 * Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` 
 suitable for your CAS installation.
 

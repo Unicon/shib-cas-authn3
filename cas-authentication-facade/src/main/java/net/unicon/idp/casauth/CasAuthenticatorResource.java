@@ -27,6 +27,8 @@ import java.io.IOException;
  * servlet container is configured (emptySessionPath equal true) so that the IdP and the CASified resource web
  * application share the same session identifier (JSESSIONID cookie).
  *
+ * Configured via context-param idPContextName with context name of IdP (example: /idp ) .  Defaults to /idp.
+ *
  * @author Dmitriy Kopylenko
  * @since 1.0
  */
@@ -72,6 +74,10 @@ public class CasAuthenticatorResource {
 
         String idpContextName = this.request.getServletContext().getInitParameter("idPContextName");
 
+        // default to /idp
+        if (idpContextName == null) {
+            idpContextName = "/idp";
+        }
 
         ServletContext idpContext = this.request.getServletContext().getContext(idpContextName);
 
