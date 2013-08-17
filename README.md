@@ -11,7 +11,7 @@ The plugin consists of 2 components:
 * Shibboleth IDP Servlets acting as a bridge between CAS and IDP
 
 
-Strategy for sharing staet between CASified resource and IdP
+Strategy for sharing state between CASified resource and IdP
 -------------------------------------------------------------
 The CASified resource uses the Java CAS Client to participate in the CAS protocol to determine the authenticated username.  It then publishes this username into the IdP's `ServletContext` using a cross-context access to put an attribute into that `ServletContext` keyed by the end user session identifier (with a namespacing prefix).  The IdP and the CASified resource have the same session identifier for the user session thanks to the configuration described below.
 
