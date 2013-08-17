@@ -499,16 +499,6 @@
         <root url="jar://$USER_HOME$/.gradle/caches/artifacts-23/filestore/org.springframework/spring-web/3.1.0.RELEASE/source/f7d078f44b8c1d77d0b639e74013ceecc1332124/spring-web-3.1.0.RELEASE-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="unresolved dependency - edu.internet2.middleware shibboleth-common 1.3">
-      <CLASSES />
-      <JAVADOC />
-      <SOURCES />
-    </library>
-    <library name="unresolved dependency - edu.internet2.middleware shibboleth-identityprovider 2.3">
-      <CLASSES />
-      <JAVADOC />
-      <SOURCES />
-    </library>
   </component>
   <component name="masterDetails">
     <states>

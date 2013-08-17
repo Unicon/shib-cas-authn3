@@ -350,6 +350,13 @@ shibIdpPath=c:/portal/shibboleth-identityprovider-2.3.8
 * Copy `cas-authentication-facade/build/libs/casauth.war` to `$CATALINA_HOME/webapps`
 * Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
 
+
+To Build in IntelliJ IDE
+-------------------------
+
+The IntelliJ metadata files included declare the Shibboleth IdP .jar dependency as version 2.4.0 obtained from `/opt/shibboleth-idp`.  If you first install the IdP there, then IntelliJ should find the Shibboleth IdP .jar dependency and be able to build in the IDE.  If you want to use a different IdP version or a different IdP location, you'll have some IntelliJ library configuration to do.
+
+
 Shibboleth IdP Upgrades
 -------------------------------------------------------------
 
