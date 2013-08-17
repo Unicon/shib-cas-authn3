@@ -27,10 +27,10 @@ public class CasCallbackServlet extends HttpServlet {
         // retrieve the username from the ServletContext keyed by session identifier,
         // where the CASified resource put it
         String authenticatedPrincipalName =
-                (String) request.getServletContext().getAttribute("net.unicon.idp.casauth." + sessionId);
+                (String) getServletContext().getAttribute("net.unicon.idp.casauth." + sessionId);
 
         // clean up the no-longer-needed shared state
-        request.getServletContext().removeAttribute("net.unicon.idp.casauth." + sessionId);
+        getServletContext().removeAttribute("net.unicon.idp.casauth." + sessionId);
 
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
         AuthenticationEngine.returnToAuthenticationEngine(request, response);

@@ -43,6 +43,9 @@ public class CasAuthenticatorResource {
     @Context
     private HttpServletResponse response;
 
+    @Context
+    private ServletContext servletContext;
+
 
     @GET
     @Path("renew")
@@ -72,14 +75,14 @@ public class CasAuthenticatorResource {
 
         String sessionId = this.request.getSession().getId();
 
-        String idpContextName = this.request.getServletContext().getInitParameter("idPContextName");
+        String idpContextName = this.servletContext.getInitParameter("idPContextName");
 
         // default to /idp
         if (idpContextName == null) {
             idpContextName = "/idp";
         }
 
-        ServletContext idpContext = this.request.getServletContext().getContext(idpContextName);
+        ServletContext idpContext = this.servletContext.getContext(idpContextName);
 
         // put the username into the IDP ServletContext (object shared between this external Resource and the IDP)
         // keyed by the session identifier (unique to this user's session) which is the same as the IDP session
