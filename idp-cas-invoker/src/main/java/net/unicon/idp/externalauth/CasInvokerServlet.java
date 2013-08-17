@@ -1,6 +1,5 @@
 package net.unicon.idp.externalauth;
 
-import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
 
 import javax.servlet.ServletConfig;
