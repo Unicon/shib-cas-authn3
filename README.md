@@ -5,19 +5,67 @@ Central Authentication Server. The biggest advantage of using this component ove
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`.
 
-Current version is `1.3` which is the first arbitrary tag commit. Note that versions 2.3.8 and 2.4.x of Shibboleth IDP are supported.
-
 The plugin consists of 2 components:
 
 * A web resource protected by CAS and acting as an *authentication facade*
-* Shibboleth IDP Servlets acting as a bridge between CAS and IDP  
+* Shibboleth IDP Servlets acting as a bridge between CAS and IDP
+
+
+Strategy for sharing state between CASified resource and IdP
+-------------------------------------------------------------
+The CASified resource uses the Java CAS Client to participate in the CAS protocol to determine the authenticated username.  It then publishes this username into the IdP's `ServletContext` using a cross-context access to put an attribute into that `ServletContext` keyed by the end user session identifier (with a namespacing prefix).  The IdP and the CASified resource have the same session identifier for the user session thanks to the configuration described below.
+
 
 Software Requirements
 -------------------------------------------------------------
+
 * This plugin will require Shibboleth Identity Provider v2.4.0 and above.
+
+* The Shibboleth IdP and the web resource protected by CAS (`/casauth`) *must* be deployed alongside one another in the same servlet container
+* The servlet container *must* be configured such that `casauth` is able to do a cross-context request to access the IdP's `ServletContext`. Detailed following.
+* The servlet container *must* be configured such that `/casauth` and the IDP (`/idp`) share session identifiers.  This is the `emptySessionPath="true"` tomcat feature.  Detailed following.
+
+Servlet Container Configuration
+-------------------------------------------------------------
+
+Here's how you do the cross-context enablement in Tomcat:
+
+* Enable Tomcat's *crosscontext* in `$CATALINA_HOME/conf/context.xml`
+
+```xml
+<Context crossContext="true">
+	...
+</Context>
+```
+
+Here's how you do the empty session path in Tomcat:
+
+* Enable Tomcat's SSL Connector's *emptySessionPath* in `$CATALINA_HOME/conf/server.xml`
+
+```xml
+ <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" emptySessionPath="true" .../>
+```
+
+
 
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
+
+* Configure a `context-param` to tell the facade the path to the IdP
+
+In `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` :
+
+    <context-param>
+        <param-name>idPContextName</param-name>
+        <param-value>/idp</param-value>
+    </context-param>
+
+If you've deployed your IdP as `/samlThing`, then the param-value should be
+
+    <param-value>/samlThing</param-value>
+
+Defaults to `/idp`.  If your IDP is at `/idp`, you can omit this `context-param`.
+
 * Configure CAS filters in `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` 
 suitable for your CAS installation.
 
@@ -292,15 +340,22 @@ This project uses [Gradle](http://gradle.org) build system.
 the property settings for the IdP path, version and Shibboleth common JAR file dependency version:
 
 ```properties
-shibIdpVersion=2.3.8
-shibCommonVersion=1.3.7
-shibIdpPath=c:/portal/shibboleth-identityprovider-2.3.8
+shibIdpVersion=2.4.0
+shibCommonVersion=1.4.0
+shibIdpPath=/opt/shibboleth-idp
 ```
 
 * From the root directory, simply run `./gradlew`
 
 * Copy `cas-authentication-facade/build/libs/casauth.war` to `$CATALINA_HOME/webapps`
 * Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
+
+
+To Build in IntelliJ IDE
+-------------------------
+
+The IntelliJ metadata files included declare the Shibboleth IdP .jar dependency as version 2.4.0 obtained from `/opt/shibboleth-idp`.  If you first install the IdP there, then IntelliJ should find the Shibboleth IdP .jar dependency and be able to build in the IDE.  If you want to use a different IdP version or a different IdP location, you'll have some IntelliJ library configuration to do.
+
 
 Shibboleth IdP Upgrades
 -------------------------------------------------------------

@@ -54,16 +54,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/shibboleth-common-1.3.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../lib/shibboleth-identityprovider-2.3.5.jar!/" />
+          <root url="jar://opt/shibboleth-idp/lib/shibboleth-identityprovider-2.4.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

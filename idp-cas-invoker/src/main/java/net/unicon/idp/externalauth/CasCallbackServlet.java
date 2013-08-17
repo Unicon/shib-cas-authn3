@@ -10,15 +10,30 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * A Servlet that receives a callback from CAS-protected web resource after a successful authentication and continues
- * the IdP login flow by calling <code>AuthenticationEngine#returnToAuthenticationEngine(HttpServletRequest,HttpServletResponse)</code>
+ * A Servlet that retrieves username from where the CAS-protected web resource put it
+ * after a successful authentication and continues the IdP login flow by calling
+ * <code>AuthenticationEngine#returnToAuthenticationEngine(HttpServletRequest,HttpServletResponse)</code>
  *
  * @author Dmitriy Kopylenko
+ * @author Andrew Petro
  */
 public class CasCallbackServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String authenticatedPrincipalName = request.getParameter("p");
+
+        // same session ID as that in the CASified external resource
+        // because session path set to empty at servlet container layer
+        String sessionId = (request.getSession().getId());
+
+        // retrieve the username from the ServletContext keyed by session identifier,
+        // where the CASified resource put it
+        String authenticatedPrincipalName =
+                (String) getServletContext().getAttribute("net.unicon.idp.casauth." + sessionId);
+
+        // clean up the no-longer-needed shared state
+        getServletContext().removeAttribute("net.unicon.idp.casauth." + sessionId);
+
+        //Pass authenticated principal back to IdP to finish its part of authentication request processing
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
         AuthenticationEngine.returnToAuthenticationEngine(request, response);
     }
