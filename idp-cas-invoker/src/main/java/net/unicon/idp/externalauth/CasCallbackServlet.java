@@ -15,6 +15,7 @@ import java.io.IOException;
  * <code>AuthenticationEngine#returnToAuthenticationEngine(HttpServletRequest,HttpServletResponse)</code>
  *
  * @author Dmitriy Kopylenko
+ * @author Andrew Petro
  */
 public class CasCallbackServlet extends HttpServlet {
 
@@ -32,6 +33,7 @@ public class CasCallbackServlet extends HttpServlet {
         // clean up the no-longer-needed shared state
         getServletContext().removeAttribute("net.unicon.idp.casauth." + sessionId);
 
+        //Pass authenticated principal back to IdP to finish its part of authentication request processing
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
         AuthenticationEngine.returnToAuthenticationEngine(request, response);
     }

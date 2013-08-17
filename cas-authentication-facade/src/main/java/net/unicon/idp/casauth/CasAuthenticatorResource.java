@@ -1,5 +1,7 @@
 package net.unicon.idp.casauth;
 
+import org.jasig.cas.client.util.AbstractCasFilter;
+import org.jasig.cas.client.validation.Assertion;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContext;
@@ -30,6 +32,7 @@ import java.io.IOException;
  * Configured via context-param idPContextName with context name of IdP (example: /idp ) .  Defaults to /idp.
  *
  * @author Dmitriy Kopylenko
+ * @author Andrew Petro
  * @since 1.0
  */
 
@@ -72,9 +75,7 @@ public class CasAuthenticatorResource {
     }
 
     private Response redirectBackToIdp(String idpCallbackUrl) throws IOException {
-
-        String sessionId = this.request.getSession().getId();
-
+        final String sessionId = this.request.getSession().getId();
         String idpContextName = this.servletContext.getInitParameter("idPContextName");
 
         // default to /idp
@@ -87,7 +88,8 @@ public class CasAuthenticatorResource {
         // put the username into the IDP ServletContext (object shared between this external Resource and the IDP)
         // keyed by the session identifier (unique to this user's session) which is the same as the IDP session
         // identifier because the servlet container has been configured to set an empty session path
-        idpContext.setAttribute( "net.unicon.idp.casauth." + sessionId, this.request.getRemoteUser());
+        final String authenticatedPrincipal = Assertion.class.cast(request.getAttribute(AbstractCasFilter.CONST_CAS_ASSERTION)).getPrincipal().getName();
+        idpContext.setAttribute("net.unicon.idp.casauth." + sessionId, authenticatedPrincipal);
 
         this.response.sendRedirect(this.response.encodeRedirectURL(idpCallbackUrl));
         //HTTP 204
