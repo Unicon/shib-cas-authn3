@@ -2,7 +2,7 @@
 
 Version `1.3.0.1` of `shib-cas-authenticator` is a **security fix for a critical security vulnerability**.
 
-See `SECURITY-PATCH.md` for information and the `patche` directory for ready-to-install precompiled binary files.
+See `SECURITY-PATCH.md` for information and the `patch` directory for ready-to-install precompiled binary files.
 
 **You must patch immediately**.  This is a serious security vulnerability.  No version of `shib-cas-authenticator` prior to `1.3.0.1` should be used.
 
