@@ -64,14 +64,16 @@ Configure build and deploy cas-authentication-facade resource
 
 In `cas-authentication-facade/src/main/webapp/WEB-INF/web.xml` :
 
-    <context-param>
-        <param-name>idPContextName</param-name>
-        <param-value>/idp</param-value>
-    </context-param>
+```xml
+<context-param>
+   <param-name>idPContextName</param-name>
+   <param-value>/idp</param-value>
+</context-param>
+```
 
 If you've deployed your IdP as `/samlThing`, then the param-value should be
 
-    <param-value>/samlThing</param-value>
+`<param-value>/samlThing</param-value>`
 
 Defaults to `/idp`.  If your IDP is at `/idp`, you can omit this `context-param`.
 
