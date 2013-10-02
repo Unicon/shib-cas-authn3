@@ -2,7 +2,8 @@
 
 Version `1.3.0.1` of `shib-cas-authenticator` is a **security fix for a critical security vulnerability**.
 
-See `SECURITY-PATCH.md` for information and the `patch` directory for ready-to-install precompiled binary files.
+See [`SECURITY-PATCH.md`](https://github.com/Unicon/shib-cas-authenticator/blob/master/SECURITY-PATCH.md)
+for information and the `patch` directory for ready-to-install precompiled binary files.
 
 **You must patch immediately**.  This is a serious security vulnerability.  No version of `shib-cas-authenticator` prior to `1.3.0.1` should be used.
 
@@ -36,7 +37,7 @@ Software Requirements
 Servlet Container Configuration
 -------------------------------------------------------------
 
-Here's how you do the cross-context enablement in Tomcat:
+Here's how you do the cross-context enablement in Tomcat 6:
 
 * Enable Tomcat's *crosscontext* in `$CATALINA_HOME/conf/context.xml`
 
@@ -46,7 +47,7 @@ Here's how you do the cross-context enablement in Tomcat:
 </Context>
 ```
 
-Here's how you do the empty session path in Tomcat:
+Here's how you do the empty session path in Tomcat 6:
 
 * Enable Tomcat's SSL Connector's *emptySessionPath* in `$CATALINA_HOME/conf/server.xml`
 
