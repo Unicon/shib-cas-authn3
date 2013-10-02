@@ -35,19 +35,20 @@ There are a few ways to configure a Shibboleth IdP to rely upon a  CAS server fo
 
 So.  In your Shibboleth IdP's `handlers.xml`, if the `ExternalAuthn` `LoginHandler` is uncommented, you might be affected.
 
-    
-    <ph:LoginHandler xsi:type="ph:ExternalAuthn" externalAuthnPath="/authn/external"
-supportsForcedAuthentication="true">
-      <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</ph:AuthenticationMethod>
-    </ph:LoginHandler>
-    
+
+```xml
+<ph:LoginHandler xsi:type="ph:ExternalAuthn" externalAuthnPath="/authn/external" supportsForcedAuthentication="true">
+  <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</ph:AuthenticationMethod>
+</ph:LoginHandler>
+```   
 
 However, if the `ExternalAuthn` handler is commented out, and you're instead using perhaps `RemoteUser`, you're not affected.
 
-    <ph:LoginHandler xsi:type="ph:RemoteUser">
-      <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
-    </ph:LoginHandler>
-    
+```xml
+<ph:LoginHandler xsi:type="ph:RemoteUser">
+  <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
+</ph:LoginHandler>
+```
 
 ## Using Unicon's implementation of ExternalAuthn
 
