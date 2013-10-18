@@ -55,7 +55,7 @@ Here's how you do the empty session path in Tomcat 6:
  <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" emptySessionPath="true" .../>
 ```
 
-
+For Tomcat 7, see [`SECURITY-PATCH.md`](https://github.com/Unicon/shib-cas-authenticator/blob/master/SECURITY-PATCH.md)
 
 Configure build and deploy cas-authentication-facade resource
 -------------------------------------------------------------
