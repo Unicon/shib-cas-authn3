@@ -3,3 +3,6 @@
 .gradle/
 .sonar-ide.properties
 build/
+/bin
+.classpath
+.project
