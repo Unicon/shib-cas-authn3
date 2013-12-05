@@ -1,2 +1,2 @@
 rootProject.name='shib-cas-authenticator'
-include 'idp-cas-invoker', 'cas-authentication-facade'
+include 'idp-cas-invoker'
