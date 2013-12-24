@@ -1,0 +1,24 @@
+apply plugin: 'idea'
+defaultTasks 'clean', 'build'
+
+allprojects {
+    apply plugin: 'java'
+    group = 'net.unicon'
+
+    sourceCompatibility = 1.6
+    version = project.version
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: project.junitVersion
+    }    
+}
+
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = project.gradleVersion
+}

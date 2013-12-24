@@ -1,0 +1,14 @@
+repositories {
+    flatDir dir: "$project.shibIdpPath/lib"
+}
+
+dependencies {
+    compile "javax.servlet:servlet-api:$project.servletVersion"
+    compile "edu.internet2.middleware:shibboleth-common:$project.shibCommonVersion"
+    compile "edu.internet2.middleware:shibboleth-identityprovider:$project.shibIdpVersion"
+    
+    compile group: 'org.springframework', name: 'spring-core', version: '3.1.1.RELEASE'
+    compile group: 'org.springframework', name: 'spring-beans', version: '3.1.1.RELEASE'    
+    compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.2.1'
+    compile group: 'javax.ws.rs', name: 'jsr311-api', version: '1.1.1'
+}
