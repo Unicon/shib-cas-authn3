@@ -9,25 +9,30 @@ import edu.internet2.middleware.shibboleth.idp.authn.provider.AbstractLoginHandl
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
 
 /**
- * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade). Allows simplification
- * of the SHIB-CAS authenticator by removing the need to configure and deploy a separate war. The configuration is moved/handled 
- * in the SHIB idp web.xml and the idp handler.xml files.
+ * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the earlier implementations. 
+ * Allows simplification of the SHIB-CAS authenticator by removing the need to configure and deploy a separate war.
  * @author chasegawa@unicon.net
  */
 public class CasLoginHandler extends AbstractLoginHandler {
     private String casLoginUrl;
+    private String callbackUrl;
 
     /**
      * All attributes/parameters required
      * @param postAuthnCallbackUrl
      * @param casResourceUrl
      */
-    public CasLoginHandler(String casResourceUrl) {
-        if (isEmpty(casResourceUrl)) {
+    public CasLoginHandler(String casLoginUrl, String callbackUrl) {
+        if (isEmpty(casLoginUrl)) {
             throw new IllegalArgumentException(
-                    "CasLoginHandler missing casResourceUrl attribute in handler configuration.");
+                    "CasLoginHandler missing casLoginUrl attribute in handler configuration.");
         }
-        this.casLoginUrl = casResourceUrl;
+        this.casLoginUrl = casLoginUrl;
+        if (isEmpty(callbackUrl)) {
+            throw new IllegalArgumentException(
+                    "CasLoginHandler missing callbackUrl attribute in handler configuration.");
+        }
+        this.callbackUrl = callbackUrl;
     }
 
     /**
@@ -49,18 +54,18 @@ public class CasLoginHandler extends AbstractLoginHandler {
             force = Boolean.FALSE;
         }
         setSupportsForceAuthentication(force);
-        String authnType = (force) ? "/renew" : "/norenew";
+        String authnType = (force) ? "&renew=false" : "&renew=true";
 
         Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
         if (null != passive) {
             setSupportsPassive(passive);
             if (passive) {
-                authnType += "gateway";
+                authnType += "&gateway=true";
             }
         }
 
         try {
-            response.sendRedirect(response.encodeRedirectURL(this.casLoginUrl + authnType));
+            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType));
         } catch (IOException e) {
             // log this and then what?
         }

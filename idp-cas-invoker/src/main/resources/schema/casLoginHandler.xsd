@@ -10,7 +10,8 @@
     <complexType name="CasLoginHandler">
         <complexContent>
             <extension base="ph:LoginHandlerType">
-                <attribute name="casResourceUrl" type="string" use="required"/>
+                <attribute name="casLoginUrl" type="string" use="required"/>
+                <attribute name="callbackUrl" type="string" use="required"/>
             </extension>
         </complexContent>
     </complexType>
