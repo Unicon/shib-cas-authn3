@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.internet2.middleware.shibboleth.idp.authn.provider.AbstractLoginHandler;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
 
@@ -14,8 +17,9 @@ import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSyste
  * @author chasegawa@unicon.net
  */
 public class CasLoginHandler extends AbstractLoginHandler {
-    private String casLoginUrl;
     private String callbackUrl;
+    private String casLoginUrl;
+    private Logger logger = LoggerFactory.getLogger(CasLoginHandler.class);
 
     /**
      * All attributes/parameters required
@@ -24,11 +28,13 @@ public class CasLoginHandler extends AbstractLoginHandler {
      */
     public CasLoginHandler(String casLoginUrl, String callbackUrl) {
         if (isEmpty(casLoginUrl)) {
+            logger.error("Unable to create CasLoginHandler - missing casLoginUrl parameter. Please check $IDP_HOME/conf/handler.xml");
             throw new IllegalArgumentException(
                     "CasLoginHandler missing casLoginUrl attribute in handler configuration.");
         }
         this.casLoginUrl = casLoginUrl;
         if (isEmpty(callbackUrl)) {
+            logger.error("Unable to create CasLoginHandler - missing callbackUrl parameter. Please check $IDP_HOME/conf/handler.xml");
             throw new IllegalArgumentException(
                     "CasLoginHandler missing callbackUrl attribute in handler configuration.");
         }
@@ -45,6 +51,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
     }
 
     /**
+     * Translate the SHIB request so that cas renew and/or gateway are set properly before handing off to CAS.
      * @see edu.internet2.middleware.shibboleth.idp.authn.LoginHandler#login(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
@@ -67,7 +74,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
         try {
             response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType));
         } catch (IOException e) {
-            // log this and then what?
+            logger.error("Unable to redirect to CAS from LoginHandler", e);
         }
     }
 }

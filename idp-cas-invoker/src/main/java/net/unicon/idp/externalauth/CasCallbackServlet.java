@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.internet2.middleware.shibboleth.idp.authn.AuthenticationEngine;
 import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
@@ -23,9 +25,17 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
  */
 public class CasCallbackServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private Cas20ServiceTicketValidator ticketValidator;
-    private String serverName;
     private String artifactParameterName = "ticket";
+    private Logger logger = LoggerFactory.getLogger(CasCallbackServlet.class);
+    private String serverName;
+    private Cas20ServiceTicketValidator ticketValidator;
+
+    /**
+     * Use the CAS CommonUtils to build the CAS Service URL.
+     */
+    private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
+        return CommonUtils.constructServiceUrl(request, response, null, serverName, artifactParameterName, true);
+    }
 
     /**
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -38,7 +48,8 @@ public class CasCallbackServlet extends HttpServlet {
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
         } catch (TicketValidationException e) {
-            throw new ServletException(e);
+            logger.debug("Unable to validate login attempt.", e);
+            throw new ServletException(e); // Do we throw this or just return control back to SHIB with no auth info?
         }
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
@@ -54,22 +65,17 @@ public class CasCallbackServlet extends HttpServlet {
         ServletConfig servletConfig = getServletConfig();
         String casUrlPrefix = servletConfig.getInitParameter("casServerUrlPrefix");
         if (null == casUrlPrefix) {
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file is configured properly and includes the casServerUrlPrefix init param.");
             throw new ServletException(
                     "Missing initParam \"casServerUrlPrefix\" - this is a required configuration value");
         }
         ticketValidator = new Cas20ServiceTicketValidator(casUrlPrefix);
         serverName = servletConfig.getInitParameter("serverName");
         if (null == serverName) {
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file is configured properly and includes the serverName init param.");
             throw new ServletException("Missing initParam \"serverName\" - this is a required configuration value");
         }
         String apn = servletConfig.getInitParameter("artifactParameterName");
         artifactParameterName = null == apn ? "ticket" : apn;
-    }
-
-    /**
-     * Use the CAS CommonUtils to build the CAS Service URL.
-     */
-    private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        return CommonUtils.constructServiceUrl(request, response, null, serverName, artifactParameterName, true);
     }
 }
