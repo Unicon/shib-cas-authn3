@@ -12,3 +12,6 @@ build/
 /bin
 .classpath
 .project
+.idea
+*.iml
+*.ipr
