@@ -1,7 +1,3 @@
-repositories {
-    flatDir dir: "$project.shibIdpPath/lib"
-}
-
 dependencies {
     compile "javax.servlet:servlet-api:$project.servletVersion"
     compile "edu.internet2.middleware:shibboleth-common:$project.shibCommonVersion"
