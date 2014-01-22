@@ -118,3 +118,7 @@ See the following links for additional info:
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
 
+Additionally Desired Features
+-----------------------------
+
+* Externalize settings to allow for changes to the configuration outside of the deployed application. This allows shared settings/configurations as well as the ability to update without having to stop/restart the IDP
