@@ -1,6 +1,10 @@
 package net.unicon.idp.externalauth;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -63,19 +67,47 @@ public class CasCallbackServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         ServletConfig servletConfig = getServletConfig();
-        String casUrlPrefix = servletConfig.getInitParameter("casServerUrlPrefix");
+
+        String casUrlPrefix = null;
+        String apn = null;
+
+        // Check for the externalized properties first. If this hasn't been set, assume they are set in the web.xml
+        String fileName = servletConfig.getInitParameter("casCallbackServletPropertiesFile");
+        if (null != fileName && !"".equals(fileName.trim())) {
+            Properties props = new Properties();
+            try {
+                FileReader reader = new FileReader(new File(
+                        servletConfig.getInitParameter("casCallbackServletPropertiesFile")));
+                props.load(reader);
+                reader.close();
+            } catch (FileNotFoundException e) {
+                logger.error("Unable to load file described by servlet init param: casCallbackServletPropertiesFile");
+                throw new ServletException(
+                        "Unable to load file described by servlet init param: casCallbackServletPropertiesFile", e);
+            } catch (IOException e) {
+                logger.error("Unable to load file described by servlet init param: casCallbackServletPropertiesFile");
+                throw new ServletException(
+                        "Unable to load file described by servlet init param: casCallbackServletPropertiesFile", e);
+            }
+            casUrlPrefix = props.getProperty("casServerUrlPrefix");
+            serverName = props.getProperty("serverName");
+            apn = props.getProperty("artifactParameterName");
+        } else {
+            casUrlPrefix = servletConfig.getInitParameter("casServerUrlPrefix");
+            serverName = servletConfig.getInitParameter("serverName");
+            apn = servletConfig.getInitParameter("artifactParameterName");
+        }
+
         if (null == casUrlPrefix) {
-            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file is configured properly and includes the casServerUrlPrefix init param.");
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly and includes the casServerUrlPrefix init param.");
             throw new ServletException(
                     "Missing initParam \"casServerUrlPrefix\" - this is a required configuration value");
         }
         ticketValidator = new Cas20ServiceTicketValidator(casUrlPrefix);
-        serverName = servletConfig.getInitParameter("serverName");
         if (null == serverName) {
-            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file is configured properly and includes the serverName init param.");
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly and includes the serverName init param.");
             throw new ServletException("Missing initParam \"serverName\" - this is a required configuration value");
         }
-        String apn = servletConfig.getInitParameter("artifactParameterName");
         artifactParameterName = null == apn ? "ticket" : apn;
     }
 }

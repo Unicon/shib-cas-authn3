@@ -26,6 +26,13 @@ Configure, build, and deploy IdP external authentication plugin
 * Make sure that IDP is deployed and war is exploded as `$CATALINA_HOME/webapps/idp`
 * Add the IDP External Authn Callback Servlet entry in `$CATALINA_HOME/webapps/idp/WEB-INF/web.xml`
 
+The servlet needs to be configured with either the init-param: casCallbackServletPropertiesFile (indicating the path and filename 
+of an external properties file containing the name value parameters needed)
+
+OR
+
+
+
 Example `web.xml`:
 
 ```xml
@@ -34,7 +41,15 @@ Example `web.xml`:
     <servlet-name>External Authn Callback</servlet-name>
     <servlet-class>net.unicon.idp.externalauth.CasCallbackServlet</servlet-class>
     <!--
-      The init paramaters: serverName and casServerUrlPrefix are required, artifactParameterName is OPTIONAL and defaults to "ticket"
+      Parameters: **serverName** and **casServerUrlPrefix** are required, **artifactParameterName** is OPTIONAL and defaults to "ticket"
+    -->
+    <!-- Use this to externalize the properties, or configure the individual items in this web.xml. If this param exists, 
+         other params declared here are IGNORED.
+    <init-param>
+        <param-name>casCallbackServletPropertiesFile</param-name>
+        <!-- This can be any valid path and the name of the file can be whatever you prefer -->
+        <param-value>/opt/shibboleth-idp/conf/casShib.properties</param-value>
+    </init-param>
     -->
     <init-param>
         <param-name>serverName</param-name>
@@ -118,7 +133,7 @@ See the following links for additional info:
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
 
-Additionally Desired Features
+Additional Features
 -----------------------------
-
-* Externalize settings to allow for changes to the configuration outside of the deployed application. This allows shared settings/configurations as well as the ability to update without having to stop/restart the IDP
+* Externalize settings to allow for setting the configuration of the callback servlet outside of the deployed IDP application.
+* Additionally, CAS is now sent the entityId param (relaying party id from Shib).
