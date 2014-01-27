@@ -2,14 +2,17 @@ package net.unicon.idp.authn.provider;
 
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.AbstractLoginHandler;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
+import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
 
 /**
  * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the earlier implementations. 
@@ -70,9 +73,14 @@ public class CasLoginHandler extends AbstractLoginHandler {
                 authnType += "&gateway=true";
             }
         }
-
         try {
-            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType));
+            ServletContext servletContext = request.getSession().getServletContext();
+            LoginContext loginContext = HttpServletHelper.getLoginContext(
+                    HttpServletHelper.getStorageService(servletContext), servletContext, request);
+            String relayingPartyId = loginContext.getRelyingPartyId();
+
+            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType
+                    + "&entityId=" + relayingPartyId));
         } catch (IOException e) {
             logger.error("Unable to redirect to CAS from LoginHandler", e);
         }
