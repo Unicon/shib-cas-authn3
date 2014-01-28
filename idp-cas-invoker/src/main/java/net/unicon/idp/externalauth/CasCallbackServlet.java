@@ -52,7 +52,7 @@ public class CasCallbackServlet extends HttpServlet {
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
         } catch (TicketValidationException e) {
-            logger.debug("Unable to validate login attempt.", e);
+            logger.error("Unable to validate login attempt.", e);
             throw new ServletException(e); // Do we throw this or just return control back to SHIB with no auth info?
         }
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
