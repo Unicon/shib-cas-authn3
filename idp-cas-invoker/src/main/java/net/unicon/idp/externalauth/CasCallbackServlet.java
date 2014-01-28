@@ -29,6 +29,7 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
  */
 public class CasCallbackServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String DEFAULT_CAS_SHIB_PROPS = "/opt/shibboleth-idp/conf/cas-shib.properties";
     private String artifactParameterName = "ticket";
     private Logger logger = LoggerFactory.getLogger(CasCallbackServlet.class);
     private String serverName;
@@ -67,32 +68,36 @@ public class CasCallbackServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         ServletConfig servletConfig = getServletConfig();
-
         String casUrlPrefix = null;
         String apn = null;
 
-        // Check for the externalized properties first. If this hasn't been set, assume they are set in the web.xml
+        // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
+        // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
+        // cause an error - we will not attempt to mix initialization between props and init-params.
         String fileName = servletConfig.getInitParameter("casCallbackServletPropertiesFile");
-        if (null != fileName && !"".equals(fileName.trim())) {
-            Properties props = new Properties();
+        if (null == fileName || "".equals(fileName.trim())) {
+            logger.debug("casCallbackServletPropertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
+            fileName = DEFAULT_CAS_SHIB_PROPS;
+        }
+
+        Properties props = new Properties();
+        try {
             try {
-                FileReader reader = new FileReader(new File(
-                        servletConfig.getInitParameter("casCallbackServletPropertiesFile")));
+                FileReader reader = new FileReader(new File(fileName));
                 props.load(reader);
                 reader.close();
             } catch (FileNotFoundException e) {
-                logger.error("Unable to load file described by servlet init param: casCallbackServletPropertiesFile");
-                throw new ServletException(
-                        "Unable to load file described by servlet init param: casCallbackServletPropertiesFile", e);
+                logger.debug("Unable to locate file: " + fileName);
+                throw e;
             } catch (IOException e) {
-                logger.error("Unable to load file described by servlet init param: casCallbackServletPropertiesFile");
-                throw new ServletException(
-                        "Unable to load file described by servlet init param: casCallbackServletPropertiesFile", e);
+                logger.debug("Error reading file: " + fileName);
+                throw e;
             }
             casUrlPrefix = props.getProperty("casServerUrlPrefix");
             serverName = props.getProperty("serverName");
             apn = props.getProperty("artifactParameterName");
-        } else {
+        } catch (Exception e) {
+            logger.debug("Attempting to load parameters from servlet init-params");
             casUrlPrefix = servletConfig.getInitParameter("casServerUrlPrefix");
             serverName = servletConfig.getInitParameter("serverName");
             apn = servletConfig.getInitParameter("artifactParameterName");
@@ -108,6 +113,6 @@ public class CasCallbackServlet extends HttpServlet {
             logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly and includes the serverName init param.");
             throw new ServletException("Missing initParam \"serverName\" - this is a required configuration value");
         }
-        artifactParameterName = null == apn ? "ticket" : apn;
+        artifactParameterName = (null == apn || "".equals(apn.trim())) ? "ticket" : apn;
     }
 }

@@ -41,28 +41,35 @@ Example `web.xml`:
     <servlet-name>External Authn Callback</servlet-name>
     <servlet-class>net.unicon.idp.externalauth.CasCallbackServlet</servlet-class>
     <!--
-      Parameters: **serverName** and **casServerUrlPrefix** are required, **artifactParameterName** is OPTIONAL and defaults to "ticket"
+        Parameters: **serverName** and **casServerUrlPrefix** are required, **artifactParameterName** is OPTIONAL and defaults to "ticket"
+
+        Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
+        in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
+        will attempt to initialize using defined init-params matching the desired properties.
     -->
-    <!-- Use this to externalize the properties, or configure the individual items in this web.xml. If this param exists, 
-         other params declared here are IGNORED.
     <init-param>
         <param-name>casCallbackServletPropertiesFile</param-name>
-        <!-- This can be any valid path and the name of the file can be whatever you prefer -->
-        <param-value>/opt/shibboleth-idp/conf/casShib.properties</param-value>
+        <!-- 
+            This can be any valid path and the name of the file can be whatever you prefer. Default value used if this parameter
+            is not set is shown here.
+        -->
+        <param-value>/opt/shibboleth-idp/conf/cas-shib.properties</param-value>
     </init-param>
+    
+    <!-- These should be defined in an external properties file for maximum flexibility 
+        <init-param>
+            <param-name>serverName</param-name>
+            <param-value>https://sso.server.edu</param-value>
+        </init-param>
+        <init-param>
+            <param-name>casServerUrlPrefix</param-name>
+            <param-value>https://sso.server.edu/cas</param-value>
+        </init-param>
+        <init-param>
+            <param-name>artifactParameterName</param-name>
+            <param-value>ticket</param-value>
+        </init-param>
     -->
-    <init-param>
-        <param-name>serverName</param-name>
-        <param-value>https://sso.server.edu</param-value>
-    </init-param>
-    <init-param>
-        <param-name>casServerUrlPrefix</param-name>
-        <param-value>https://sso.server.edu/cas</param-value>
-    </init-param>
-       <init-param>
-        <param-name>artifactParameterName</param-name>
-        <param-value>ticket</param-value>
-    </init-param>
     <load-on-startup>2</load-on-startup>
 </servlet>
 
