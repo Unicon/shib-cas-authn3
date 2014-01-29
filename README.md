@@ -20,18 +20,25 @@ Software Requirements
 
 * This plugin will require Shibboleth Identity Provider v2.4.0 and above.
 
-
 Configure, build, and deploy IdP external authentication plugin
--------------------------------------------------------------
-* Make sure that IDP is deployed and war is exploded as `$CATALINA_HOME/webapps/idp`
-* Add the IDP External Authn Callback Servlet entry in `$CATALINA_HOME/webapps/idp/WEB-INF/web.xml`
+---------------------------------------------------------------
+The first step to update your Shib idp deployment with the CasCallbackServlet. This can be done prior to building/deploying the idp war file or
+if preferred, after the build, the files can be modify/update in the war file before deploying to Tomcat. Previous instructions
+were based on the idea that the files would be modified post-deployment. The recommended installation/deployment of the Shib idp suggest 
+not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
+
+Overview of steps:
+1. Update the Shib idb web.xml (adding the CasCallbackServlet). 
+1a. Configure the Shib idb CasCallBackServlet either in the web.xml or in an external properties file (recommended).
+2. Update/configure the handler.xml file by adding the Cas LoginHandler
+3. Build this project
+4. Copy the resulting jar artifact to the idp library
+5. Copy the cas client jar artifact to the idp library
+
+* Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
 
 The servlet needs to be configured with either the init-param: casCallbackServletPropertiesFile (indicating the path and filename 
 of an external properties file containing the name value parameters needed)
-
-OR
-
-
 
 Example `web.xml`:
 
@@ -120,13 +127,8 @@ shibIdpPath=/opt/shibboleth-idp
 ```
 
 * From the root directory, simply run `./gradlew`
-* Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
-* Copy FROM CAS DEPLOYED WAR: `$CATALINA_HOME/webapps/idp/WEB-INF/lib/cas-client-core-[x.x.x].jar` to `$CATALINA_HOME/webapps/idp/WEB-INF/lib`
-
-To Build in IntelliJ IDE
--------------------------
-
-The IntelliJ metadata files included declare the Shibboleth IdP .jar dependency as version 2.4.0 obtained from `/opt/shibboleth-idp`.  If you first install the IdP there, then IntelliJ should find the Shibboleth IdP .jar dependency and be able to build in the IDE.  If you want to use a different IdP version or a different IdP location, you'll have some IntelliJ library configuration to do.
+* Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `idp/WEB-INF/lib`
+* Copy FROM CAS DEPLOYED WAR: `$CATALINA_HOME/webapps/cas/WEB-INF/lib/cas-client-core-[x.x.x].jar` to `idp/WEB-INF/lib`
 
 
 Shibboleth IdP Upgrades
