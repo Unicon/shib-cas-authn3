@@ -22,8 +22,10 @@ public class CasBeanDefinitionParser extends AbstractLoginHandlerBeanDefinitionP
     @Override
     protected void doParse(Element config, BeanDefinitionBuilder builder) {
         super.doParse(config, builder);
-        builder.addPropertyValue("casLoginUrl", safeTrim(config.getAttributeNS(null, "casLoginUrl")));
-        builder.addPropertyValue("callbackUrl", safeTrim(config.getAttributeNS(null, "callbackUrl")));
+        String propertiesFile = safeTrim(config.getAttributeNS(null, "propertiesFile"));
+        if (null != propertiesFile) {
+            builder.addPropertyValue("propertiesFile", propertiesFile);
+        }
     }
 
     private String safeTrim(String s) {

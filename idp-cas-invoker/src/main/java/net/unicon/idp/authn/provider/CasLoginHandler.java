@@ -1,6 +1,10 @@
 package net.unicon.idp.authn.provider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +19,10 @@ import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSyste
 import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
 
 /**
- * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the earlier implementations. 
+ * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the v1.x implementations. 
  * Allows simplification of the SHIB-CAS authenticator by removing the need to configure and deploy a separate war.
+ * 
+ * This LoginHandler handles taking the login request from Shib and translating and sending the request on to the CAS instance.
  * @author chasegawa@unicon.net
  */
 public class CasLoginHandler extends AbstractLoginHandler {
@@ -25,23 +31,51 @@ public class CasLoginHandler extends AbstractLoginHandler {
     private Logger logger = LoggerFactory.getLogger(CasLoginHandler.class);
 
     /**
-     * All attributes/parameters required
-     * @param postAuthnCallbackUrl
-     * @param casResourceUrl
+     * Create a default CasLoginHandler using the default properties file path and name.
      */
-    public CasLoginHandler(String casLoginUrl, String callbackUrl) {
+    public CasLoginHandler() {
+        this("/opt/shibboleth-idp/conf/cas-shib.properties");
+    }
+
+    /**
+     * Create a new instance of the login handler. Read the configuration properties from the properties file indicated as 
+     * a construction argument. 
+     * @param propertiesFile File and path name to the file containing the required properties: 
+     * <li>cas.login.url - login URL for the CAS server
+     * <li>idp.callback.url - URL to the configured CasCallbackServlet
+     */
+    public CasLoginHandler(String propertiesFile) {
+        Properties props = new Properties();
+        try {
+            try {
+                FileReader reader = new FileReader(new File(propertiesFile));
+                props.load(reader);
+                reader.close();
+            } catch (FileNotFoundException e) {
+                logger.debug("Unable to locate properties file: " + propertiesFile);
+                throw e;
+            } catch (IOException e) {
+                logger.debug("Error reading properties file: " + propertiesFile);
+                throw e;
+            }
+            casLoginUrl = props.getProperty("cas.login.url");
+            callbackUrl = props.getProperty("idp.callback.url");
+        } catch (Exception e) {
+            logger.error("Unable to load parameters", e);
+        }
+
         if (isEmpty(casLoginUrl)) {
-            logger.error("Unable to create CasLoginHandler - missing casLoginUrl parameter. Please check $IDP_HOME/conf/handler.xml");
+            logger.error("Unable to create CasLoginHandler - missing cas.login.url property. Please check "
+                    + propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing casLoginUrl attribute in handler configuration.");
         }
-        this.casLoginUrl = casLoginUrl;
         if (isEmpty(callbackUrl)) {
-            logger.error("Unable to create CasLoginHandler - missing callbackUrl parameter. Please check $IDP_HOME/conf/handler.xml");
+            logger.error("Unable to create CasLoginHandler - missing idp.callback.url property. Please check "
+                    + propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing callbackUrl attribute in handler configuration.");
         }
-        this.callbackUrl = callbackUrl;
     }
 
     /**
@@ -60,16 +94,18 @@ public class CasLoginHandler extends AbstractLoginHandler {
     @Override
     public void login(HttpServletRequest request, HttpServletResponse response) {
         Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
-        if (null == force) {
-            force = Boolean.FALSE;
-        }
+        force = (null == force) ? Boolean.FALSE : force;
         setSupportsForceAuthentication(force);
-        String authnType = (force) ? "&renew=false" : "&renew=true";
+
+        // CAS Protocol - http://www.jasig.org/cas/protocol recommends that when this param is set, to set "true"
+        String authnType = (force) ? "&renew=true" : "";
 
         Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
         if (null != passive) {
             setSupportsPassive(passive);
-            if (passive) {
+
+            // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
+            if (passive && "".equals(authnType)) {
                 authnType += "&gateway=true";
             }
         }
@@ -79,6 +115,8 @@ public class CasLoginHandler extends AbstractLoginHandler {
                     HttpServletHelper.getStorageService(servletContext), servletContext, request);
             String relayingPartyId = loginContext.getRelyingPartyId();
 
+            // CAS protocol doesn't currently handle entityId, but by supplying it now, we are hoping to be able to use that
+            // in the next generation of CAS
             response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType
                     + "&entityId=" + relayingPartyId));
         } catch (IOException e) {
