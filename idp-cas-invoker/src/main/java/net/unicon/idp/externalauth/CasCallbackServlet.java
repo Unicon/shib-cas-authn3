@@ -43,18 +43,22 @@ public class CasCallbackServlet extends HttpServlet {
     }
 
     /**
+     * @TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
+     * we can return as well as the best way to know when to do this.
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
-        String authenticatedPrincipalName;  // i.e. username from CAS
+        String authenticatedPrincipalName = null;  // i.e. username from CAS
         try {
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
         } catch (TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
-            throw new ServletException(e); // Do we throw this or just return control back to SHIB with no auth info?
+            // At this point, we likely have an error due to configuration issues. Throw it out and let the admins have a better
+            // idea of what is going on than if we just have Shib show a failed authentication.
+            throw new ServletException(e);
         }
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
@@ -93,14 +97,14 @@ public class CasCallbackServlet extends HttpServlet {
                 logger.debug("Error reading file: " + fileName);
                 throw e;
             }
-            casUrlPrefix = props.getProperty("casServerUrlPrefix");
-            serverName = props.getProperty("serverName");
-            apn = props.getProperty("artifactParameterName");
+            casUrlPrefix = props.getProperty("cas.server.url.prefix");
+            serverName = props.getProperty("idp.server");
+            apn = props.getProperty("artifact.parameter.name");
         } catch (Exception e) {
             logger.debug("Attempting to load parameters from servlet init-params");
-            casUrlPrefix = servletConfig.getInitParameter("casServerUrlPrefix");
-            serverName = servletConfig.getInitParameter("serverName");
-            apn = servletConfig.getInitParameter("artifactParameterName");
+            casUrlPrefix = servletConfig.getInitParameter("cas.server.url.prefix");
+            serverName = servletConfig.getInitParameter("idp.server");
+            apn = servletConfig.getInitParameter("artifact.parameter.name");
         }
 
         if (null == casUrlPrefix) {
