@@ -48,7 +48,7 @@ Example `web.xml`:
     <servlet-name>External Authn Callback</servlet-name>
     <servlet-class>net.unicon.idp.externalauth.CasCallbackServlet</servlet-class>
     <!--
-        Parameters: **serverName** and **casServerUrlPrefix** are required, **artifactParameterName** is OPTIONAL and defaults to "ticket"
+        Parameters: **idp.server** and **cas.server.url.prefix** are required; **artifact.parameter.name** is OPTIONAL and defaults to "ticket"
 
         Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
         in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
@@ -65,15 +65,15 @@ Example `web.xml`:
     
     <!-- These should be defined in an external properties file for maximum flexibility 
         <init-param>
-            <param-name>serverName</param-name>
-            <param-value>https://sso.server.edu</param-value>
+            <param-name>idp.server</param-name>
+            <param-value>https://idp.server.edu</param-value>
         </init-param>
         <init-param>
-            <param-name>casServerUrlPrefix</param-name>
+            <param-name>cas.server.url.prefix</param-name>
             <param-value>https://sso.server.edu/cas</param-value>
         </init-param>
         <init-param>
-            <param-name>artifactParameterName</param-name>
+            <param-name>artifact.parameter.name</param-name>
             <param-value>ticket</param-value>
         </init-param>
     -->
@@ -103,13 +103,13 @@ Example:
 ...
 
     <ph:LoginHandler xsi:type="shib-cas:CasLoginHandler" 
-                     casLoginUrl="https://sso.server.edu/cas/login"
-                     callbackUrl="https://sso.server.edu/idp/Authn/Cas">
+                     propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
     </ph:LoginHandler>
 
 ...
 ```
+* Configure the parameters for the properties file: **cas.login.url** and **idp.callback.url**
 * Add the idp url to the CAS services configuration.
 
 To Build
