@@ -10,7 +10,7 @@
     <complexType name="CasLoginHandler">
         <complexContent>
             <extension base="ph:LoginHandlerType">
-                <attribute name="propertiesFile" type="string" use="required"/>
+                <attribute name="propertiesFile" type="string" use="optional" default="/opt/shibboleth-idp/conf/cas-shib.properties" />
             </extension>
         </complexContent>
     </complexType>
