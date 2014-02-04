@@ -7,7 +7,7 @@ public class CasLoginHandlerFactoryBean extends AbstractLoginHandlerFactoryBean 
 
     @Override
     protected Object createInstance() throws Exception {
-        CasLoginHandler handler = null == propertiesFile ? new CasLoginHandler() : new CasLoginHandler(propertiesFile);
+        CasLoginHandler handler = new CasLoginHandler(propertiesFile);
         populateHandler(handler);
         return handler;
     }

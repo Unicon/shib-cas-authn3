@@ -22,8 +22,8 @@ Software Requirements
 
 Configure, build, and deploy IdP external authentication plugin
 ---------------------------------------------------------------
-The first step to update your Shib idp deployment with the CasCallbackServlet. This can be done prior to building/deploying the idp war file or
-if preferred, after the build, the files can be modify/update in the war file before deploying to Tomcat. Previous instructions
+The first step is to update your Shib idp deployment with the CasCallbackServlet. This can be done prior to building/deploying the idp war file or
+if preferred, after the build, the files can be modified/updated in the war file before deploying to Tomcat. Previous instructions
 were based on the idea that the files would be modified post-deployment. The recommended installation/deployment of the Shib idp suggest 
 not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
@@ -48,7 +48,10 @@ Example `web.xml`:
     <servlet-name>External Authn Callback</servlet-name>
     <servlet-class>net.unicon.idp.externalauth.CasCallbackServlet</servlet-class>
     <!--
-        Parameters: **idp.server** and **cas.server.url.prefix** are required; **artifact.parameter.name** is OPTIONAL and defaults to "ticket"
+        Parameters:
+        **cas.server** is required. **cas.server.protocol** and **cas.server.prefix** are optional and default to "https" and "/cas".
+        **idp.server** is required. **idp.server.protocol** is optional and defaults to "https".
+        **artifact.parameter.name** is optional and defaults to "ticket"
 
         Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
         in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
@@ -62,21 +65,6 @@ Example `web.xml`:
         -->
         <param-value>/opt/shibboleth-idp/conf/cas-shib.properties</param-value>
     </init-param>
-    
-    <!-- These should be defined in an external properties file for maximum flexibility 
-        <init-param>
-            <param-name>idp.server</param-name>
-            <param-value>https://idp.server.edu</param-value>
-        </init-param>
-        <init-param>
-            <param-name>cas.server.url.prefix</param-name>
-            <param-value>https://sso.server.edu/cas</param-value>
-        </init-param>
-        <init-param>
-            <param-name>artifact.parameter.name</param-name>
-            <param-value>ticket</param-value>
-        </init-param>
-    -->
     <load-on-startup>2</load-on-startup>
 </servlet>
 
@@ -101,7 +89,7 @@ Example:
                         http://unicon.net/shib-cas/authn classpath:/schema/casLoginHandler.xsd">
 
 ...
-
+    <!-- propertiesFile is optional - default value show here -->
     <ph:LoginHandler xsi:type="shib-cas:CasLoginHandler" 
                      propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
@@ -109,8 +97,7 @@ Example:
 
 ...
 ```
-* Configure the parameters for the properties file: **cas.login.url** and **idp.callback.url**
-* Add the idp url to the CAS services configuration.
+* Configure the parameters for the properties file. See the cas-shib.properties.sample file in this project for the full list. We suggest using this sample file as your template. Because the login handler and servlet share a set of properties we recommend using the externalized properties file for all your configuration needs.
 
 To Build
 --------
@@ -142,7 +129,8 @@ See the following links for additional info:
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
 
-Additional Features
+Features
 -----------------------------
-* Externalize settings to allow for setting the configuration of the callback servlet outside of the deployed IDP application.
-* Additionally, CAS is now sent the entityId param (relaying party id from Shib).
+* Externalize settings to allow for setting the configuration of the callback servlet and login handler outside of the deployed IDP application.
+* Default settings for as much of the parameters as possible reduceds the amount of items that have to be set. 
+* CAS is now sent an additional parameter in the form of the "entityId" param (relaying party id from Shib).

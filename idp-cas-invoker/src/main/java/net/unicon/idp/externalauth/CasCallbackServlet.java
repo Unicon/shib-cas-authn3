@@ -28,9 +28,14 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
  * @author chasegawa@unicon.net
  */
 public class CasCallbackServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
     private static final String DEFAULT_CAS_SHIB_PROPS = "/opt/shibboleth-idp/conf/cas-shib.properties";
+    private static final long serialVersionUID = 1L;
     private String artifactParameterName = "ticket";
+    private String casPrefix = "/cas";
+    private String casProtocol = "https";
+    private String casServer;
+    private String idpProtocol = "https";
+    private String idpServer;
     private Logger logger = LoggerFactory.getLogger(CasCallbackServlet.class);
     private String serverName;
     private Cas20ServiceTicketValidator ticketValidator;
@@ -66,6 +71,22 @@ public class CasCallbackServlet extends HttpServlet {
     }
 
     /**
+     * @return the init param value or empty string if the key/value isn't found
+     */
+    private String getInitParam(ServletConfig servletConfig, String key) {
+        String result = servletConfig.getInitParameter(key);
+        return null == result ? "" : result;
+    }
+
+    /**
+     * @return the property value or empty string if the key/value isn't found
+     */
+    private String getProperty(Properties props, String key) {
+        String result = props.getProperty(key);
+        return null == result ? "" : result;
+    }
+
+    /**
      * @see javax.servlet.GenericServlet#init()
      */
     @Override
@@ -78,7 +99,7 @@ public class CasCallbackServlet extends HttpServlet {
         // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
         // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
         // cause an error - we will not attempt to mix initialization between props and init-params.
-        String fileName = servletConfig.getInitParameter("casCallbackServletPropertiesFile");
+        String fileName = getInitParam(servletConfig, "casCallbackServletPropertiesFile");
         if (null == fileName || "".equals(fileName.trim())) {
             logger.debug("casCallbackServletPropertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
             fileName = DEFAULT_CAS_SHIB_PROPS;
@@ -97,26 +118,46 @@ public class CasCallbackServlet extends HttpServlet {
                 logger.debug("Error reading file: " + fileName);
                 throw e;
             }
-            casUrlPrefix = props.getProperty("cas.server.url.prefix");
-            serverName = props.getProperty("idp.server");
-            apn = props.getProperty("artifact.parameter.name");
+            String temp = getProperty(props, "cas.server.protocol");
+            casProtocol = "".equals(temp) ? casProtocol : temp;
+            temp = getProperty(props, "cas.application.prefix");
+            casPrefix = "".equals(temp) ? casPrefix : temp;
+            temp = getProperty(props, "cas.server");
+            casServer = "".equals(temp) ? casServer : temp;
+            temp = getProperty(props, "idp.server.protocol");
+            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            temp = getProperty(props, "idp.server");
+            idpServer = "".equals(temp) ? idpServer : temp;
+            apn = getProperty(props, "artifact.parameter.name");
         } catch (Exception e) {
             logger.debug("Attempting to load parameters from servlet init-params");
-            casUrlPrefix = servletConfig.getInitParameter("cas.server.url.prefix");
-            serverName = servletConfig.getInitParameter("idp.server");
-            apn = servletConfig.getInitParameter("artifact.parameter.name");
+            String temp = getInitParam(servletConfig, "cas.server.protocol");
+            casProtocol = "".equals(temp) ? casProtocol : temp;
+            temp = getInitParam(servletConfig, "cas.application.prefix");
+            casPrefix = "".equals(temp) ? casPrefix : temp;
+            temp = getInitParam(servletConfig, "cas.server");
+            casServer = "".equals(temp) ? casServer : temp;
+            temp = getInitParam(servletConfig, "idp.server.protocol");
+            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            temp = getInitParam(servletConfig, "idp.server");
+            idpServer = "".equals(temp) ? idpServer : temp;
+            apn = getInitParam(servletConfig, "artifact.parameter.name");
         }
 
-        if (null == casUrlPrefix) {
-            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly and includes the casServerUrlPrefix init param.");
+        if (null == casServer || "".equals(casServer.trim())) {
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly.");
             throw new ServletException(
-                    "Missing initParam \"casServerUrlPrefix\" - this is a required configuration value");
+                    "Missing casServer parameter to build the cas server URL - this is a required value");
         }
+        casUrlPrefix = casProtocol + "://" + casServer + casPrefix;
         ticketValidator = new Cas20ServiceTicketValidator(casUrlPrefix);
-        if (null == serverName) {
-            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly and includes the serverName init param.");
-            throw new ServletException("Missing initParam \"serverName\" - this is a required configuration value");
+
+        if (null == idpServer || "".equals(idpServer.trim())) {
+            logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly.");
+            throw new ServletException(
+                    "Missing idpServer parameter to build the idp server URL - this is a required value");
         }
-        artifactParameterName = (null == apn || "".equals(apn.trim())) ? "ticket" : apn;
+        serverName = idpProtocol + "://" + idpServer;
+        artifactParameterName = (null == apn || "".equals(apn.trim()) || "null".equals(apn)) ? "ticket" : apn;
     }
 }

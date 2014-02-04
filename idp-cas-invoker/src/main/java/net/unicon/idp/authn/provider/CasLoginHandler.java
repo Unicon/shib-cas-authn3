@@ -29,20 +29,21 @@ public class CasLoginHandler extends AbstractLoginHandler {
     private String callbackUrl;
     private String casLoginUrl;
     private Logger logger = LoggerFactory.getLogger(CasLoginHandler.class);
-
-    /**
-     * Create a default CasLoginHandler using the default properties file path and name.
-     */
-    public CasLoginHandler() {
-        this("/opt/shibboleth-idp/conf/cas-shib.properties");
-    }
+    private Object casProtocol = "https";
+    private String casPrefix = "/cas";
+    private String casServer;
+    private String casLogin = "/login";
+    private Object idpProtocol = "https";
+    private String idpServer;
+    private String idpPrefix = "/idp";
+    private String idpCallback = "/Authn/Cas";
 
     /**
      * Create a new instance of the login handler. Read the configuration properties from the properties file indicated as 
      * a construction argument. 
      * @param propertiesFile File and path name to the file containing the required properties: 
-     * <li>cas.login.url - login URL for the CAS server
-     * <li>idp.callback.url - URL to the configured CasCallbackServlet
+     * <li>cas.server
+     * <li>idp.server
      */
     public CasLoginHandler(String propertiesFile) {
         Properties props = new Properties();
@@ -58,33 +59,50 @@ public class CasLoginHandler extends AbstractLoginHandler {
                 logger.debug("Error reading properties file: " + propertiesFile);
                 throw e;
             }
-            casLoginUrl = props.getProperty("cas.login.url");
-            callbackUrl = props.getProperty("idp.callback.url");
+            String temp = getProperty(props, "cas.server.protocol");
+            casProtocol = "".equals(temp) ? casProtocol : temp;
+            temp = getProperty(props, "cas.application.prefix");
+            casPrefix = "".equals(temp) ? casPrefix : temp;
+            temp = getProperty(props, "cas.server");
+            casServer = "".equals(temp) ? casServer : temp;
+            temp = getProperty(props, "cas.server.login");
+            casLogin = "".equals(temp) ? casLogin : temp;
+            casLoginUrl = casProtocol + "://" + casServer + casPrefix + casLogin;
+
+            temp = getProperty(props, "idp.server.protocol");
+            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            temp = getProperty(props, "idp.server");
+            idpServer = "".equals(temp) ? idpServer : temp;
+            temp = getProperty(props, "idp.application.prefix");
+            idpPrefix = "".equals(temp) ? idpPrefix : temp;
+            temp = getProperty(props, "idp.server.callback");
+            idpCallback = "".equals(temp) ? idpCallback : temp;
+            callbackUrl = idpProtocol + "://" + idpServer + idpPrefix + idpCallback;
         } catch (Exception e) {
             logger.error("Unable to load parameters", e);
+            throw new RuntimeException(e);
         }
 
-        if (isEmpty(casLoginUrl)) {
-            logger.error("Unable to create CasLoginHandler - missing cas.login.url property. Please check "
+        if (null == casLoginUrl || "".equals(casServer.trim())) {
+            logger.error("Unable to create CasLoginHandler - missing cas.server property. Please check "
                     + propertiesFile);
             throw new IllegalArgumentException(
-                    "CasLoginHandler missing casLoginUrl attribute in handler configuration.");
+                    "CasLoginHandler missing properties needed to build the cas login URL in handler configuration.");
         }
-        if (isEmpty(callbackUrl)) {
-            logger.error("Unable to create CasLoginHandler - missing idp.callback.url property. Please check "
+        if (null == idpServer || "".equals(idpServer.trim())) {
+            logger.error("Unable to create CasLoginHandler - missing idp.server property. Please check"
                     + propertiesFile);
             throw new IllegalArgumentException(
-                    "CasLoginHandler missing callbackUrl attribute in handler configuration.");
+                    "CasLoginHandler missing properties needed to build the callback URL in handler configuration.");
         }
     }
 
     /**
-     * Essentially StringUtils.isEmpty, but put this here to avoid another jar/dependency
-     * @param string
-     * @return
+     * @return the property value or empty string if the key/value isn't found
      */
-    private boolean isEmpty(String string) {
-        return null == string || "".equals(string.trim());
+    private String getProperty(Properties props, String key) {
+        String result = props.getProperty(key);
+        return null == result ? "" : result;
     }
 
     /**
