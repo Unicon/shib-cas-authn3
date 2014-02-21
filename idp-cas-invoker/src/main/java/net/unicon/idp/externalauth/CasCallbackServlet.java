@@ -53,13 +53,16 @@ public class CasCallbackServlet extends HttpServlet {
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
+            IOException {
         String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
         String authenticatedPrincipalName = null;  // i.e. username from CAS
         try {
+            Object authnType = request.getSession().getAttribute("authnType");
+            ticketValidator.setRenew(null != authnType && authnType.toString().startsWith("&renew"));
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
-        } catch (TicketValidationException e) {
+        } catch (final TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
             // At this point, we likely have an error due to configuration issues. Throw it out and let the admins have a better
             // idea of what is going on than if we just have Shib show a failed authentication.
@@ -73,7 +76,7 @@ public class CasCallbackServlet extends HttpServlet {
     /**
      * @return the init param value or empty string if the key/value isn't found
      */
-    private String getInitParam(ServletConfig servletConfig, String key) {
+    private String getInitParam(final ServletConfig servletConfig, final String key) {
         String result = servletConfig.getInitParameter(key);
         return null == result ? "" : result;
     }
@@ -81,7 +84,7 @@ public class CasCallbackServlet extends HttpServlet {
     /**
      * @return the property value or empty string if the key/value isn't found
      */
-    private String getProperty(Properties props, String key) {
+    private String getProperty(final Properties props, final String key) {
         String result = props.getProperty(key);
         return null == result ? "" : result;
     }
@@ -111,13 +114,14 @@ public class CasCallbackServlet extends HttpServlet {
                 FileReader reader = new FileReader(new File(fileName));
                 props.load(reader);
                 reader.close();
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 logger.debug("Unable to locate file: " + fileName);
                 throw e;
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.debug("Error reading file: " + fileName);
                 throw e;
             }
+            logger.debug("Attempting to load parameters from properties file");
             String temp = getProperty(props, "cas.server.protocol");
             casProtocol = "".equals(temp) ? casProtocol : temp;
             temp = getProperty(props, "cas.application.prefix");
@@ -129,8 +133,8 @@ public class CasCallbackServlet extends HttpServlet {
             temp = getProperty(props, "idp.server");
             idpServer = "".equals(temp) ? idpServer : temp;
             apn = getProperty(props, "artifact.parameter.name");
-        } catch (Exception e) {
-            logger.debug("Attempting to load parameters from servlet init-params");
+        } catch (final Exception e) {
+            logger.debug("Error reading properties, attempting to load parameters from servlet init-params");
             String temp = getInitParam(servletConfig, "cas.server.protocol");
             casProtocol = "".equals(temp) ? casProtocol : temp;
             temp = getInitParam(servletConfig, "cas.application.prefix");

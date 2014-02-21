@@ -9,6 +9,7 @@ import java.util.Properties;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,17 +46,17 @@ public class CasLoginHandler extends AbstractLoginHandler {
      * <li>cas.server
      * <li>idp.server
      */
-    public CasLoginHandler(String propertiesFile) {
+    public CasLoginHandler(final String propertiesFile) {
         Properties props = new Properties();
         try {
             try {
                 FileReader reader = new FileReader(new File(propertiesFile));
                 props.load(reader);
                 reader.close();
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 logger.debug("Unable to locate properties file: " + propertiesFile);
                 throw e;
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.debug("Error reading properties file: " + propertiesFile);
                 throw e;
             }
@@ -78,7 +79,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
             temp = getProperty(props, "idp.server.callback");
             idpCallback = "".equals(temp) ? idpCallback : temp;
             callbackUrl = idpProtocol + "://" + idpServer + idpPrefix + idpCallback;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Unable to load parameters", e);
             throw new RuntimeException(e);
         }
@@ -100,7 +101,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
     /**
      * @return the property value or empty string if the key/value isn't found
      */
-    private String getProperty(Properties props, String key) {
+    private String getProperty(final Properties props, final String key) {
         String result = props.getProperty(key);
         return null == result ? "" : result;
     }
@@ -110,7 +111,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
      * @see edu.internet2.middleware.shibboleth.idp.authn.LoginHandler#login(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) {
+    public void login(final HttpServletRequest request, final HttpServletResponse response) {
         Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
         force = (null == force) ? Boolean.FALSE : force;
         setSupportsForceAuthentication(force);
@@ -128,7 +129,9 @@ public class CasLoginHandler extends AbstractLoginHandler {
             }
         }
         try {
-            ServletContext servletContext = request.getSession().getServletContext();
+            HttpSession session = request.getSession();
+            ServletContext servletContext = session.getServletContext();
+            session.setAttribute("authnType", authnType);
             LoginContext loginContext = HttpServletHelper.getLoginContext(
                     HttpServletHelper.getStorageService(servletContext), servletContext, request);
             String relayingPartyId = loginContext.getRelyingPartyId();
@@ -137,7 +140,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
             // in the next generation of CAS
             response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType
                     + "&entityId=" + relayingPartyId));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             logger.error("Unable to redirect to CAS from LoginHandler", e);
         }
     }
