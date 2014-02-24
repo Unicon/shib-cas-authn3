@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +31,11 @@ public class CasLoginHandler extends AbstractLoginHandler {
     private String callbackUrl;
     private String casLoginUrl;
     private Logger logger = LoggerFactory.getLogger(CasLoginHandler.class);
-    private Object casProtocol = "https";
+    private String casProtocol = "https";
     private String casPrefix = "/cas";
     private String casServer;
     private String casLogin = "/login";
-    private Object idpProtocol = "https";
+    private String idpProtocol = "https";
     private String idpServer;
     private String idpPrefix = "/idp";
     private String idpCallback = "/Authn/Cas";
@@ -54,30 +55,30 @@ public class CasLoginHandler extends AbstractLoginHandler {
                 props.load(reader);
                 reader.close();
             } catch (final FileNotFoundException e) {
-                logger.debug("Unable to locate properties file: " + propertiesFile);
+                logger.debug("Unable to locate properties file: {}", propertiesFile);
                 throw e;
             } catch (final IOException e) {
-                logger.debug("Error reading properties file: " + propertiesFile);
+                logger.debug("Error reading properties file: {}", propertiesFile);
                 throw e;
             }
             String temp = getProperty(props, "cas.server.protocol");
-            casProtocol = "".equals(temp) ? casProtocol : temp;
+            casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
             temp = getProperty(props, "cas.application.prefix");
-            casPrefix = "".equals(temp) ? casPrefix : temp;
+            casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
             temp = getProperty(props, "cas.server");
-            casServer = "".equals(temp) ? casServer : temp;
+            casServer = StringUtils.isEmpty(temp) ? casServer : temp;
             temp = getProperty(props, "cas.server.login");
-            casLogin = "".equals(temp) ? casLogin : temp;
+            casLogin = StringUtils.isEmpty(temp) ? casLogin : temp;
             casLoginUrl = casProtocol + "://" + casServer + casPrefix + casLogin;
 
             temp = getProperty(props, "idp.server.protocol");
-            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
             temp = getProperty(props, "idp.server");
-            idpServer = "".equals(temp) ? idpServer : temp;
+            idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
             temp = getProperty(props, "idp.application.prefix");
-            idpPrefix = "".equals(temp) ? idpPrefix : temp;
+            idpPrefix = StringUtils.isEmpty(temp) ? idpPrefix : temp;
             temp = getProperty(props, "idp.server.callback");
-            idpCallback = "".equals(temp) ? idpCallback : temp;
+            idpCallback = StringUtils.isEmpty(temp) ? idpCallback : temp;
             callbackUrl = idpProtocol + "://" + idpServer + idpPrefix + idpCallback;
         } catch (final Exception e) {
             logger.error("Unable to load parameters", e);
@@ -85,14 +86,14 @@ public class CasLoginHandler extends AbstractLoginHandler {
         }
 
         if (null == casLoginUrl || "".equals(casServer.trim())) {
-            logger.error("Unable to create CasLoginHandler - missing cas.server property. Please check "
-                    + propertiesFile);
+            logger.error("Unable to create CasLoginHandler - missing cas.server property. Please check {}",
+                    propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing properties needed to build the cas login URL in handler configuration.");
         }
         if (null == idpServer || "".equals(idpServer.trim())) {
-            logger.error("Unable to create CasLoginHandler - missing idp.server property. Please check"
-                    + propertiesFile);
+            logger.error("Unable to create CasLoginHandler - missing idp.server property. Please check {}",
+                    propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing properties needed to build the callback URL in handler configuration.");
         }
@@ -103,7 +104,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
      */
     private String getProperty(final Properties props, final String key) {
         String result = props.getProperty(key);
-        return null == result ? "" : result;
+        return StringUtils.isEmpty(result) ? "" : result;
     }
 
     /**
