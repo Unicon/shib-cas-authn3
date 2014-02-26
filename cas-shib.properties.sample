@@ -3,14 +3,14 @@
 ### to include the port value if the standard ports (80/443) are not being used.
 
 ### cas.server should include any port if the standard protocol ports are not being used
-cas.server=localhost:443
+### These three values put together will makeup the URL to the cas server.
 #cas.server.protocol=https
-#cas.server.prefix=/cas
-#cas.server.login=/login
+cas.server=localhost:443
+#cas.application.prefix=/cas
 
 ### idp.server should include any port if the standard protocol ports are not being used
 idp.server=localhost:443
 #idp.server.protocol=https
-#idp.server.prefix=/idp
+#idp.application.prefix=/idp
 ### This should match the path to the servlet added in the idp's web.xml
 #idp.server.callback=/Authn/Cas

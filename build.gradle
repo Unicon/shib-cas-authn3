@@ -17,10 +17,12 @@ allprojects {
     dependencies {
         testCompile group: 'junit', name: 'junit', version: project.junitVersion
     }    
+    
+    sourceSets.test.runtimeClasspath += files("idp-cas-invoker/src/test/resources") 
 }
-
 
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion
 }
+
