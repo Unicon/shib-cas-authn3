@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
 import net.unicon.idp.authn.provider.extra.IParameterBuilder;
 import net.unicon.idp.externalauth.CasCallbackServlet;
 
@@ -45,6 +46,10 @@ public class CasLoginHandler extends AbstractLoginHandler {
     private String idpPrefix = "/idp";
     private String idpCallback = "/Authn/Cas";
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
+    {
+        // By default, we start with the entity id param builder included
+        parameterBuilders.add(new EntityIdParameterBuilder());
+    }
 
     /**
      * Create a new instance of the login handler. Read the configuration properties from the properties file indicated as 
