@@ -89,10 +89,12 @@ Example:
                         http://unicon.net/shib-cas/authn classpath:/schema/casLoginHandler.xsd">
 
 ...
-    <!-- propertiesFile is optional - default value show here -->
+    <!-- propertiesFile attribute is optional - default value show here -->
     <ph:LoginHandler xsi:type="shib-cas:CasLoginHandler" 
                      propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
+        <!-- There may be 0..N paramBuilder entries. Each must list the fully qualified name of the class to be added. -->
+        <shib-cas:paramBuilder class="net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder" />
     </ph:LoginHandler>
 
 ...
@@ -129,8 +131,8 @@ See the following links for additional info:
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
 
-Features
+New Features
 -----------------------------
-* Externalize settings to allow for setting the configuration of the callback servlet and login handler outside of the deployed IDP application.
-* Default settings for as much of the parameters as possible reduceds the amount of items that have to be set. 
-* CAS is now sent an additional parameter in the form of the "entityId" param (relaying party id from Shib).
+* Externalized settings allow for setting the configuration of the callback servlet and login handler outside of the deployed IDP application.
+* Default settings for as many of the parameters as possible has reduced the amount of items that have to be configured.
+* Architecture now allows for pluggin of additional parameter builders. These builders can be added to send additional parameter information to CAS (such as the parameter in the form of the "entityId" param (relaying party id from Shib)).

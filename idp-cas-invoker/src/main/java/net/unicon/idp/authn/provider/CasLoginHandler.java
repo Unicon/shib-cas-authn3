@@ -4,19 +4,25 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import net.unicon.idp.authn.provider.extra.IParameterBuilder;
+import net.unicon.idp.externalauth.CasCallbackServlet;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.AbstractLoginHandler;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
-import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
 
 /**
  * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the v1.x implementations. 
@@ -26,17 +32,19 @@ import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
  * @author chasegawa@unicon.net
  */
 public class CasLoginHandler extends AbstractLoginHandler {
+    private static final String MISSING_CONFIG_MSG = "Unable to create CasLoginHandler - missing {} property. Please check {}";
+    private static final String LOGIN = "/login";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CasLoginHandler.class);
     private String callbackUrl;
     private String casLoginUrl;
-    private Logger logger = LoggerFactory.getLogger(CasLoginHandler.class);
-    private Object casProtocol = "https";
+    private String casProtocol = "https";
     private String casPrefix = "/cas";
     private String casServer;
-    private String casLogin = "/login";
-    private Object idpProtocol = "https";
+    private String idpProtocol = "https";
     private String idpServer;
     private String idpPrefix = "/idp";
     private String idpCallback = "/Authn/Cas";
+    private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
 
     /**
      * Create a new instance of the login handler. Read the configuration properties from the properties file indicated as 
@@ -44,65 +52,100 @@ public class CasLoginHandler extends AbstractLoginHandler {
      * @param propertiesFile File and path name to the file containing the required properties: 
      * <li>cas.server
      * <li>idp.server
+     * @throws FileNotFoundException 
      */
-    public CasLoginHandler(String propertiesFile) {
+    public CasLoginHandler(final String propertiesFile, final String paramBuilderNames) throws FileNotFoundException {
+        this(new FileReader(new File(propertiesFile)), propertiesFile, paramBuilderNames);
+    }
+    
+    /**
+     * Construct a new instance using the supplied parameters.
+     * @param propertiesFileReader The reader to the properties file
+     * @param propertiesFile The name of the properties file (used for logging and error messages)
+     * @param paramBuilderNames The list of parameter builder names
+     */
+    public CasLoginHandler(final Reader propertiesFileReader, final String propertiesFile, final String paramBuilderNames) {
         Properties props = new Properties();
         try {
+            if (null == propertiesFileReader) {
+                throw new FileNotFoundException("Error reading properties file: " + propertiesFile);
+            }
             try {
-                FileReader reader = new FileReader(new File(propertiesFile));
-                props.load(reader);
-                reader.close();
-            } catch (FileNotFoundException e) {
-                logger.debug("Unable to locate properties file: " + propertiesFile);
-                throw e;
-            } catch (IOException e) {
-                logger.debug("Error reading properties file: " + propertiesFile);
+                props.load(propertiesFileReader);
+                propertiesFileReader.close();
+            } catch (final IOException e) {
+                LOGGER.debug("Error reading properties file: {}", propertiesFile);
                 throw e;
             }
             String temp = getProperty(props, "cas.server.protocol");
-            casProtocol = "".equals(temp) ? casProtocol : temp;
+            casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
             temp = getProperty(props, "cas.application.prefix");
-            casPrefix = "".equals(temp) ? casPrefix : temp;
+            casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
             temp = getProperty(props, "cas.server");
-            casServer = "".equals(temp) ? casServer : temp;
-            temp = getProperty(props, "cas.server.login");
-            casLogin = "".equals(temp) ? casLogin : temp;
-            casLoginUrl = casProtocol + "://" + casServer + casPrefix + casLogin;
+            casServer = StringUtils.isEmpty(temp) ? casServer : temp;
+            casLoginUrl = casProtocol + "://" + casServer + casPrefix + LOGIN;
 
             temp = getProperty(props, "idp.server.protocol");
-            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
             temp = getProperty(props, "idp.server");
-            idpServer = "".equals(temp) ? idpServer : temp;
+            idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
             temp = getProperty(props, "idp.application.prefix");
-            idpPrefix = "".equals(temp) ? idpPrefix : temp;
+            idpPrefix = StringUtils.isEmpty(temp) ? idpPrefix : temp;
             temp = getProperty(props, "idp.server.callback");
-            idpCallback = "".equals(temp) ? idpCallback : temp;
+            idpCallback = StringUtils.isEmpty(temp) ? idpCallback : temp;
             callbackUrl = idpProtocol + "://" + idpServer + idpPrefix + idpCallback;
-        } catch (Exception e) {
-            logger.error("Unable to load parameters", e);
+        } catch (final Exception e) {
+            LOGGER.error("Unable to load parameters", e);
             throw new RuntimeException(e);
         }
 
-        if (null == casLoginUrl || "".equals(casServer.trim())) {
-            logger.error("Unable to create CasLoginHandler - missing cas.server property. Please check "
-                    + propertiesFile);
+        if (StringUtils.isEmpty(casServer)) {
+            LOGGER.error(MISSING_CONFIG_MSG, "cas.server", propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing properties needed to build the cas login URL in handler configuration.");
         }
         if (null == idpServer || "".equals(idpServer.trim())) {
-            logger.error("Unable to create CasLoginHandler - missing idp.server property. Please check"
-                    + propertiesFile);
+            LOGGER.error(MISSING_CONFIG_MSG, "idp.server", propertiesFile);
             throw new IllegalArgumentException(
                     "CasLoginHandler missing properties needed to build the callback URL in handler configuration.");
         }
+
+        createParamBuilders(paramBuilderNames);
+    }
+
+    /**
+     * @param paramBuilderNames The comma separated list of class names to create.
+     */
+    private void createParamBuilders(final String paramBuilderNames) {
+        for (String className : StringUtils.split(paramBuilderNames, ',')) {
+            try {
+                Class<?> c = Class.forName(className);
+                Constructor<?> cons = c.getConstructor();
+                parameterBuilders.add((IParameterBuilder) cons.newInstance());
+            } catch (Exception e) {
+                LOGGER.warn("Unable to create IParameterBuilder with classname {}", className, e);
+            }
+        }
+    }
+
+    /**
+     * @param request The original servlet request
+     * @return
+     */
+    private String getAdditionalParameters(final HttpServletRequest request) {
+        StringBuilder builder = new StringBuilder();
+        for (IParameterBuilder paramBuilder : parameterBuilders) {
+            builder.append(paramBuilder.getParameterString(request));
+        }
+        return builder.toString();
     }
 
     /**
      * @return the property value or empty string if the key/value isn't found
      */
-    private String getProperty(Properties props, String key) {
+    private String getProperty(final Properties props, final String key) {
         String result = props.getProperty(key);
-        return null == result ? "" : result;
+        return StringUtils.isEmpty(result) ? "" : result;
     }
 
     /**
@@ -110,7 +153,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
      * @see edu.internet2.middleware.shibboleth.idp.authn.LoginHandler#login(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
-    public void login(HttpServletRequest request, HttpServletResponse response) {
+    public void login(final HttpServletRequest request, final HttpServletResponse response) {
         Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
         force = (null == force) ? Boolean.FALSE : force;
         setSupportsForceAuthentication(force);
@@ -128,17 +171,15 @@ public class CasLoginHandler extends AbstractLoginHandler {
             }
         }
         try {
-            ServletContext servletContext = request.getSession().getServletContext();
-            LoginContext loginContext = HttpServletHelper.getLoginContext(
-                    HttpServletHelper.getStorageService(servletContext), servletContext, request);
-            String relayingPartyId = loginContext.getRelyingPartyId();
+            HttpSession session = request.getSession();
 
-            // CAS protocol doesn't currently handle entityId, but by supplying it now, we are hoping to be able to use that
-            // in the next generation of CAS
+            // Coupled this attribute to the CasCallbackServlet as that is the type that needs this bit of information
+            session.setAttribute(CasCallbackServlet.AUTHN_TYPE, authnType);
+
             response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType
-                    + "&entityId=" + relayingPartyId));
-        } catch (IOException e) {
-            logger.error("Unable to redirect to CAS from LoginHandler", e);
+                    + getAdditionalParameters(request)));
+        } catch (final IOException e) {
+            LOGGER.error("Unable to redirect to CAS from LoginHandler", e);
         }
     }
 }

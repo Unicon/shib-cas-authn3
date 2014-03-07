@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://unicon.net/shib-cas/authn"
-            xmlns="http://www.w3.org/2001/XMLSchema"
-            xmlns:ph="urn:mace:shibboleth:2.0:idp:profile-handler"
-            elementFormDefault="qualified">
- 
-    <import namespace="urn:mace:shibboleth:2.0:idp:profile-handler"
-            schemaLocation="classpath:/schema/shibboleth-2.0-idp-profile-handler.xsd" />
- 
-    <complexType name="CasLoginHandler">
-        <complexContent>
-            <extension base="ph:LoginHandlerType">
-                <attribute name="propertiesFile" type="string" use="optional" default="/opt/shibboleth-idp/conf/cas-shib.properties" />
-            </extension>
-        </complexContent>
-    </complexType>
+<schema targetNamespace="http://unicon.net/shib-cas/authn" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        xmlns:ph="urn:mace:shibboleth:2.0:idp:profile-handler"   
+        elementFormDefault="qualified">
+        
+   <import namespace="urn:mace:shibboleth:2.0:idp:profile-handler" schemaLocation="classpath:/schema/shibboleth-2.0-idp-profile-handler.xsd" />
+
+   <complexType name="CasLoginHandler">
+      <complexContent>
+         <extension base="ph:LoginHandlerType">
+            <sequence minOccurs="0" maxOccurs="unbounded">
+               <element name="paramBuilder">
+                  <complexType>
+                     <attribute name="class" type="string" use="required" />
+                  </complexType>
+               </element>
+            </sequence>
+            <attribute name="propertiesFile" type="string" use="optional" default="/opt/shibboleth-idp/conf/cas-shib.properties" />
+         </extension>
+      </complexContent>
+   </complexType>
+
 </schema>

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
  * @author chasegawa@unicon.net
  */
 public class CasCallbackServlet extends HttpServlet {
+    public static final String AUTHN_TYPE = "authnType";
     private static final String DEFAULT_CAS_SHIB_PROPS = "/opt/shibboleth-idp/conf/cas-shib.properties";
     private static final long serialVersionUID = 1L;
     private String artifactParameterName = "ticket";
@@ -53,13 +55,16 @@ public class CasCallbackServlet extends HttpServlet {
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
+            IOException {
         String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
         String authenticatedPrincipalName = null;  // i.e. username from CAS
         try {
+            Object authnType = request.getSession().getAttribute(AUTHN_TYPE);
+            ticketValidator.setRenew(null != authnType && authnType.toString().startsWith("&renew=true"));
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
-        } catch (TicketValidationException e) {
+        } catch (final TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
             // At this point, we likely have an error due to configuration issues. Throw it out and let the admins have a better
             // idea of what is going on than if we just have Shib show a failed authentication.
@@ -73,17 +78,17 @@ public class CasCallbackServlet extends HttpServlet {
     /**
      * @return the init param value or empty string if the key/value isn't found
      */
-    private String getInitParam(ServletConfig servletConfig, String key) {
+    private String getInitParam(final ServletConfig servletConfig, final String key) {
         String result = servletConfig.getInitParameter(key);
-        return null == result ? "" : result;
+        return StringUtils.isEmpty(result) ? "" : result;
     }
 
     /**
      * @return the property value or empty string if the key/value isn't found
      */
-    private String getProperty(Properties props, String key) {
+    private String getProperty(final Properties props, final String key) {
         String result = props.getProperty(key);
-        return null == result ? "" : result;
+        return StringUtils.isEmpty(result) ? "" : result;
     }
 
     /**
@@ -94,7 +99,7 @@ public class CasCallbackServlet extends HttpServlet {
         super.init();
         ServletConfig servletConfig = getServletConfig();
         String casUrlPrefix = null;
-        String apn = null;
+        String artifactParamaterName = null;
 
         // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
         // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
@@ -111,40 +116,41 @@ public class CasCallbackServlet extends HttpServlet {
                 FileReader reader = new FileReader(new File(fileName));
                 props.load(reader);
                 reader.close();
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 logger.debug("Unable to locate file: " + fileName);
                 throw e;
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.debug("Error reading file: " + fileName);
                 throw e;
             }
+            logger.debug("Attempting to load parameters from properties file");
             String temp = getProperty(props, "cas.server.protocol");
-            casProtocol = "".equals(temp) ? casProtocol : temp;
+            casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
             temp = getProperty(props, "cas.application.prefix");
-            casPrefix = "".equals(temp) ? casPrefix : temp;
+            casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
             temp = getProperty(props, "cas.server");
-            casServer = "".equals(temp) ? casServer : temp;
+            casServer = StringUtils.isEmpty(temp) ? casServer : temp;
             temp = getProperty(props, "idp.server.protocol");
-            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
             temp = getProperty(props, "idp.server");
-            idpServer = "".equals(temp) ? idpServer : temp;
-            apn = getProperty(props, "artifact.parameter.name");
-        } catch (Exception e) {
-            logger.debug("Attempting to load parameters from servlet init-params");
+            idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
+            artifactParamaterName = getProperty(props, "artifact.parameter.name");
+        } catch (final Exception e) {
+            logger.debug("Error reading properties, attempting to load parameters from servlet init-params");
             String temp = getInitParam(servletConfig, "cas.server.protocol");
-            casProtocol = "".equals(temp) ? casProtocol : temp;
+            casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
             temp = getInitParam(servletConfig, "cas.application.prefix");
-            casPrefix = "".equals(temp) ? casPrefix : temp;
+            casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
             temp = getInitParam(servletConfig, "cas.server");
-            casServer = "".equals(temp) ? casServer : temp;
+            casServer = StringUtils.isEmpty(temp) ? casServer : temp;
             temp = getInitParam(servletConfig, "idp.server.protocol");
-            idpProtocol = "".equals(temp) ? idpProtocol : temp;
+            idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
             temp = getInitParam(servletConfig, "idp.server");
-            idpServer = "".equals(temp) ? idpServer : temp;
-            apn = getInitParam(servletConfig, "artifact.parameter.name");
+            idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
+            artifactParamaterName = getInitParam(servletConfig, "artifact.parameter.name");
         }
 
-        if (null == casServer || "".equals(casServer.trim())) {
+        if (StringUtils.isEmpty(casServer)) {
             logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly.");
             throw new ServletException(
                     "Missing casServer parameter to build the cas server URL - this is a required value");
@@ -152,12 +158,13 @@ public class CasCallbackServlet extends HttpServlet {
         casUrlPrefix = casProtocol + "://" + casServer + casPrefix;
         ticketValidator = new Cas20ServiceTicketValidator(casUrlPrefix);
 
-        if (null == idpServer || "".equals(idpServer.trim())) {
+        if (StringUtils.isEmpty(idpServer)) {
             logger.error("Unable to start CasCallbackServlet. Verify that the IDP's web.xml file OR the external property is configured properly.");
             throw new ServletException(
                     "Missing idpServer parameter to build the idp server URL - this is a required value");
         }
         serverName = idpProtocol + "://" + idpServer;
-        artifactParameterName = (null == apn || "".equals(apn.trim()) || "null".equals(apn)) ? "ticket" : apn;
+        artifactParameterName = (StringUtils.isEmpty(artifactParamaterName) || "null".equals(artifactParamaterName)) ? "ticket"
+                : artifactParamaterName;
     }
 }

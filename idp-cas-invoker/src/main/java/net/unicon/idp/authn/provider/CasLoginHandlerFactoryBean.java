@@ -4,10 +4,11 @@ import edu.internet2.middleware.shibboleth.idp.config.profile.authn.AbstractLogi
 
 public class CasLoginHandlerFactoryBean extends AbstractLoginHandlerFactoryBean {
     private String propertiesFile;
+    private String paramBuilderNames;
 
     @Override
     protected Object createInstance() throws Exception {
-        CasLoginHandler handler = new CasLoginHandler(propertiesFile);
+        CasLoginHandler handler = new CasLoginHandler(propertiesFile, paramBuilderNames);
         populateHandler(handler);
         return handler;
     }
@@ -18,7 +19,11 @@ public class CasLoginHandlerFactoryBean extends AbstractLoginHandlerFactoryBean 
         return CasLoginHandler.class;
     }
 
-    public void setPropertiesFile(String propertiesFile) {
+    public void setPropertiesFile(final String propertiesFile) {
         this.propertiesFile = propertiesFile;
+    }
+
+    public void setParamBuilderNames(final String paramBuilderNames) {
+        this.paramBuilderNames = paramBuilderNames;
     }
 }
