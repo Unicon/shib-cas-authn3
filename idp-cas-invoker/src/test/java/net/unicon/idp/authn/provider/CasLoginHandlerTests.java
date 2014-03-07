@@ -32,7 +32,7 @@ import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSyste
 public class CasLoginHandlerTests {
     private HttpServletRequest request;
     private HttpServletResponse response;
-    HttpSession session;
+    private HttpSession session;
 
     /**
      * Mock out the request, response and session
