@@ -110,9 +110,9 @@ public class CasCallbackServlet extends HttpServlet {
         // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
         // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
         // cause an error - we will not attempt to mix initialization between props and init-params.
-        String fileName = getInitParam(servletConfig, "casCallbackServletPropertiesFile");
+        String fileName = getInitParam(servletConfig, "propertiesFile");
         if (null == fileName || "".equals(fileName.trim())) {
-            logger.debug("casCallbackServletPropertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
+            logger.debug("propertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
             fileName = DEFAULT_CAS_SHIB_PROPS;
         }
 

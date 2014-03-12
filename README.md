@@ -54,12 +54,12 @@ Example `web.xml`:
         **idp.server** is required. **idp.server.protocol** is optional and defaults to "https".
         **artifact.parameter.name** is optional and defaults to "ticket"
 
-        Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
+        Use the **propertiesFile** param to externalize the properties. If this is not set, the servlet will look
         in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
         will attempt to initialize using defined init-params matching the desired properties.
     -->
     <init-param>
-        <param-name>casCallbackServletPropertiesFile</param-name>
+        <param-name>propertiesFile</param-name>
         <!-- 
             This can be any valid path and the name of the file can be whatever you prefer. Default value used if this parameter
             is not set is shown here.
