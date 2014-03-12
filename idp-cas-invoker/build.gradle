@@ -1,3 +1,5 @@
+test.onlyIf { ! Boolean.getBoolean('skip.tests') }
+
 dependencies {
     compile "javax.servlet:servlet-api:$project.servletVersion"
     compile "edu.internet2.middleware:shibboleth-common:$project.shibCommonVersion"

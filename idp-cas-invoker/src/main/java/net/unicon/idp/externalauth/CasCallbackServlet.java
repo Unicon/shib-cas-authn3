@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
+import org.opensaml.saml2.core.StatusCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,16 +60,21 @@ public class CasCallbackServlet extends HttpServlet {
             IOException {
         String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
         String authenticatedPrincipalName = null;  // i.e. username from CAS
+        Object authnType = request.getSession().getAttribute(AUTHN_TYPE);
         try {
-            Object authnType = request.getSession().getAttribute(AUTHN_TYPE);
-            ticketValidator.setRenew(null != authnType && authnType.toString().startsWith("&renew=true"));
+
+            ticketValidator.setRenew(null != authnType && authnType.toString().contains("&renew=true"));
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
         } catch (final TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
-            // At this point, we likely have an error due to configuration issues. Throw it out and let the admins have a better
-            // idea of what is going on than if we just have Shib show a failed authentication.
-            throw new ServletException(e);
+            boolean wasPassiveAttempt = null != authnType && authnType.toString().contains("&gateway=true");
+            // If it was a passive attempt, send back the indicator that the responding provider cannot authenticate 
+            // the principal passively, as has been requested. Otherwise, send the generic authn failed code.
+            request.setAttribute(LoginHandler.AUTHENTICATION_ERROR_KEY, wasPassiveAttempt ? StatusCode.NO_PASSIVE_URI
+                    : StatusCode.AUTHN_FAILED_URI);
+            AuthenticationEngine.returnToAuthenticationEngine(request, response);
+            return;
         }
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
         request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
@@ -104,9 +110,9 @@ public class CasCallbackServlet extends HttpServlet {
         // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
         // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
         // cause an error - we will not attempt to mix initialization between props and init-params.
-        String fileName = getInitParam(servletConfig, "casCallbackServletPropertiesFile");
+        String fileName = getInitParam(servletConfig, "propertiesFile");
         if (null == fileName || "".equals(fileName.trim())) {
-            logger.debug("casCallbackServletPropertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
+            logger.debug("propertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
             fileName = DEFAULT_CAS_SHIB_PROPS;
         }
 
