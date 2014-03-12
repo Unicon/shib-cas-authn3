@@ -63,12 +63,12 @@ public class CasCallbackServlet extends HttpServlet {
         Object authnType = request.getSession().getAttribute(AUTHN_TYPE);
         try {
 
-            ticketValidator.setRenew(null != authnType && authnType.toString().startsWith("&renew=true"));
+            ticketValidator.setRenew(null != authnType && authnType.toString().contains("&renew=true"));
             authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
                     .getPrincipal().getName();
         } catch (final TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
-            boolean wasPassiveAttempt = null != authnType && authnType.toString().startsWith("&gateway=true");
+            boolean wasPassiveAttempt = null != authnType && authnType.toString().contains("&gateway=true");
             // If it was a passive attempt, send back the indicator that the responding provider cannot authenticate 
             // the principal passively, as has been requested. Otherwise, send the generic authn failed code.
             request.setAttribute(LoginHandler.AUTHENTICATION_ERROR_KEY, wasPassiveAttempt ? StatusCode.NO_PASSIVE_URI
