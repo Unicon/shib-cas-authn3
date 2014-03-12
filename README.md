@@ -1,9 +1,9 @@
-# Shibboleth IdP External Authentication via CAS plugin
+# Shibboleth IdP External Authentication via CAS plugin - Travis-CI Status: ![Travis-CI build status](https://travis-ci.org/UniconLabs/shib-cas-authn2.png)
 
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to the 
 Central Authentication Server. The biggest advantage of using this component over the plain 
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
-of native CAS protocol features such as `renew` (force auth) and `gateway` (passive).
+of native CAS protocol features such as `renew` and `gateway`.
 
 The plugin consists of 2 components:
 * A custom Shibboleth LoginHandler to delegate to CAS
@@ -28,8 +28,8 @@ were based on the idea that the files would be modified post-deployment. The rec
 not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
 Overview of steps:
-1. Update the Shib idp web.xml (adding the CasCallbackServlet). 
-1a. Configure the Shib idp CasCallBackServlet either in the web.xml or in an external properties file (recommended).
+1. Update the Shib idb web.xml (adding the CasCallbackServlet). 
+1a. Configure the Shib idb CasCallBackServlet either in the web.xml or in an external properties file (recommended).
 2. Update/configure the handler.xml file by adding the Cas LoginHandler
 3. Build this project
 4. Copy the resulting jar artifact to the idp library
@@ -37,9 +37,8 @@ Overview of steps:
 
 * Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
 
-The servlet can be configured with the init-param: casCallbackServletPropertiesFile (indicating the path and filename 
-of an external properties file containing the name value parameters needed \[default: /opt/shibboleth-idp/conf/cas-shib.properties\]).
-If the properties file can not be found, then the servlet will attempt to load the properties from servlet params.
+The servlet needs to be configured with either the init-param: casCallbackServletPropertiesFile (indicating the path and filename 
+of an external properties file containing the name value parameters needed)
 
 Example `web.xml`:
 
@@ -54,12 +53,12 @@ Example `web.xml`:
         **idp.server** is required. **idp.server.protocol** is optional and defaults to "https".
         **artifact.parameter.name** is optional and defaults to "ticket"
 
-        Use the **propertiesFile** param to externalize the properties. If this is not set, the servlet will look
+        Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
         in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
         will attempt to initialize using defined init-params matching the desired properties.
     -->
     <init-param>
-        <param-name>propertiesFile</param-name>
+        <param-name>casCallbackServletPropertiesFile</param-name>
         <!-- 
             This can be any valid path and the name of the file can be whatever you prefer. Default value used if this parameter
             is not set is shown here.
@@ -95,7 +94,6 @@ Example:
                      propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
         <!-- There may be 0..N paramBuilder entries. Each must list the fully qualified name of the class to be added. -->
-        <!-- EntityIdParameterBuilder is by default already one of the parambuilder set -->
         <shib-cas:paramBuilder class="net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder" />
     </ph:LoginHandler>
 
