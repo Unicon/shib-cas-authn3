@@ -30,15 +30,18 @@ if preferred, after the build, the files can be modified/updated in the war file
 were based on the idea that the files would be modified post-deployment. The recommended installation/deployment of the Shib idp suggest 
 not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
-Overview of steps:
+### Overview
 
 1. Update the Shib idb `web.xml` (adding the `CasCallbackServlet`). 
-2. Update/configure the handler.xml file by adding the Cas `LoginHandler`
-3. Build this project
-4. Copy the resulting jar artifact to the idp library
-5. Copy the cas client jar artifact to the idp library
+2. Configure the Shib idb `CasCallBackServlet` in the properties file
+3. Update/configure the `handler.xml` file by adding the Cas `LoginHandler`
+4. Build this project
+5. Copy the resulting jar artifact to the idp library
+6. Copy the cas client jar artifact to the idp library
 
-* Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
+
+### Changes to web.xml
+Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
 
 The servlet needs to be configured with either the init-param: `casCallbackServletPropertiesFile` (indicating the path and filename 
 of an external properties file containing the name value parameters needed)
@@ -78,6 +81,8 @@ Example `web.xml`:
 ...
 ```
 
+### Changes to handler.xml
+
 * Add the namespace and XSD path to `$IDP_HOME/conf/handler.xml`
 * Configure IDP External Login Handler in `$IDP_HOME/conf/handler.xml`
 
@@ -102,7 +107,10 @@ Example:
 
 ...
 ```
-* Configure the parameters for the properties file. [See the `cas-shib.properties.sample` file](https://github.com/UniconLabs/shib-cas-authn2/blob/master/cas-shib.properties.sample)
+
+### Configure cas-shib.properties file
+
+Configure the parameters for the properties file. [See the `cas-shib.properties.sample` file](https://github.com/UniconLabs/shib-cas-authn2/blob/master/cas-shib.properties.sample)
 in this project for the full list. We suggest using this sample file as your template. Because the login handler and servlet share a set of properties we recommend using the externalized properties file for all your configuration needs.
 
 To Build
