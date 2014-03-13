@@ -6,7 +6,7 @@ Central Authentication Server. The biggest advantage of using this component ove
 of native CAS protocol features such as `renew` and `gateway`.
 
 The plugin consists of 2 components:
-* A custom Shibboleth LoginHandler to delegate to CAS
+* A custom Shibboleth `LoginHandler` to delegate to CAS
 * Shibboleth IDP Servlet acting as a bridge between CAS and IDP
 
 Strategy for sharing state between CASified resource and IdP
@@ -25,22 +25,22 @@ Software Requirements
 
 Configure, build, and deploy IdP external authentication plugin
 ---------------------------------------------------------------
-The first step is to update your Shib idp deployment with the CasCallbackServlet. This can be done prior to building/deploying the idp war file or
+The first step is to update your Shib idp deployment with the `CasCallbackServlet`. This can be done prior to building/deploying the idp war file or
 if preferred, after the build, the files can be modified/updated in the war file before deploying to Tomcat. Previous instructions
 were based on the idea that the files would be modified post-deployment. The recommended installation/deployment of the Shib idp suggest 
 not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
 Overview of steps:
-1. Update the Shib idb web.xml (adding the CasCallbackServlet). 
+1. Update the Shib idb `web.xml` (adding the `CasCallbackServlet`). 
 1a. Configure the Shib idb CasCallBackServlet either in the web.xml or in an external properties file (recommended).
-2. Update/configure the handler.xml file by adding the Cas LoginHandler
+2. Update/configure the handler.xml file by adding the Cas `LoginHandler`
 3. Build this project
 4. Copy the resulting jar artifact to the idp library
 5. Copy the cas client jar artifact to the idp library
 
 * Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
 
-The servlet needs to be configured with either the init-param: casCallbackServletPropertiesFile (indicating the path and filename 
+The servlet needs to be configured with either the init-param: `casCallbackServletPropertiesFile` (indicating the path and filename 
 of an external properties file containing the name value parameters needed)
 
 Example `web.xml`:
@@ -102,7 +102,8 @@ Example:
 
 ...
 ```
-* Configure the parameters for the properties file. See the cas-shib.properties.sample file in this project for the full list. We suggest using this sample file as your template. Because the login handler and servlet share a set of properties we recommend using the externalized properties file for all your configuration needs.
+* Configure the parameters for the properties file. [See the `cas-shib.properties.sample` file](https://github.com/UniconLabs/shib-cas-authn2/blob/master/cas-shib.properties.sample)
+in this project for the full list. We suggest using this sample file as your template. Because the login handler and servlet share a set of properties we recommend using the externalized properties file for all your configuration needs.
 
 To Build
 --------
