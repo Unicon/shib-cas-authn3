@@ -64,7 +64,7 @@ Example `web.xml`:
         will attempt to initialize using defined init-params matching the desired properties.
     -->
     <init-param>
-        <param-name>casCallbackServletPropertiesFile</param-name>
+        <param-name>propertiesFile</param-name>
         <!-- 
             This can be any valid path and the name of the file can be whatever you prefer. Default value used if this parameter
             is not set is shown here.
