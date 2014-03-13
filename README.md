@@ -16,7 +16,7 @@ handles pulling out the authenticated username and passing that back to Shibbole
 
 Build Status
 -------------------------------------------------------------
-Travis-CI: ![Travis-CI build status](https://travis-ci.org/UniconLabs/shib-cas-authn2.png)
+Travis-CI: ![Travis-CI build status](https://travis-ci.org/Unicon/shib-cas-authn2.png)
 
 Software Requirements
 -------------------------------------------------------------
