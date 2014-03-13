@@ -1,0 +1,28 @@
+apply plugin: 'idea'
+defaultTasks 'clean', 'build'
+
+allprojects {
+    apply plugin: 'java'
+    group = 'net.unicon'
+
+    sourceCompatibility = 1.6
+    version = project.version
+
+    repositories {
+        mavenCentral()
+        maven {url "https://build.shibboleth.net/nexus/content/repositories/releases" }
+        maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: project.junitVersion
+    }    
+    
+    sourceSets.test.runtimeClasspath += files("idp-cas-invoker/src/test/resources") 
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = project.gradleVersion
+}
+
