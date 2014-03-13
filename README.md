@@ -31,8 +31,8 @@ were based on the idea that the files would be modified post-deployment. The rec
 not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
 Overview of steps:
+
 1. Update the Shib idb `web.xml` (adding the `CasCallbackServlet`). 
-1a. Configure the Shib idb CasCallBackServlet either in the web.xml or in an external properties file (recommended).
 2. Update/configure the handler.xml file by adding the Cas `LoginHandler`
 3. Build this project
 4. Copy the resulting jar artifact to the idp library
