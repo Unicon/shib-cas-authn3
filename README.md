@@ -43,7 +43,7 @@ not exploding the Shib war, so these instructions assume you will modify the fil
 ### Changes to web.xml
 Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
 
-The servlet needs to be configured with either the init-param: `casCallbackServletPropertiesFile` (indicating the path and filename 
+The servlet needs to be configured with either the init-param: `propertiesFile` (indicating the path and filename 
 of an external properties file containing the name value parameters needed)
 
 Example `web.xml`:
@@ -59,7 +59,7 @@ Example `web.xml`:
         **idp.server** is required. **idp.server.protocol** is optional and defaults to "https".
         **artifact.parameter.name** is optional and defaults to "ticket"
 
-        Use the casCallbackServletPropertiesFile param to externalize the properties. If this is not set, the servlet will look
+        Use the propertiesFile param to externalize the properties. If this is not set, the servlet will look
         in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
         will attempt to initialize using defined init-params matching the desired properties.
     -->
