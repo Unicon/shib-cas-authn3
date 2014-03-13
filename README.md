@@ -1,4 +1,4 @@
-# Shibboleth IdP External Authentication via CAS plugin - Travis-CI Status: ![Travis-CI build status](https://travis-ci.org/UniconLabs/shib-cas-authn2.png)
+## Shibboleth IdP External Authentication via CAS plugin
 
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to the 
 Central Authentication Server. The biggest advantage of using this component over the plain 
@@ -9,11 +9,14 @@ The plugin consists of 2 components:
 * A custom Shibboleth LoginHandler to delegate to CAS
 * Shibboleth IDP Servlet acting as a bridge between CAS and IDP
 
-
 Strategy for sharing state between CASified resource and IdP
 -------------------------------------------------------------
 This project provides a custom Shibboleth LoginHandler and servlet. The handler prepares the redirect to CAS and the servlet 
 handles pulling out the authenticated username and passing that back to Shibboleth.
+
+Build Status
+-------------------------------------------------------------
+Travis-CI: ![Travis-CI build status](https://travis-ci.org/UniconLabs/shib-cas-authn2.png)
 
 Software Requirements
 -------------------------------------------------------------
