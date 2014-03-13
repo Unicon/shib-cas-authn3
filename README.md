@@ -55,19 +55,20 @@ Example `web.xml`:
     <servlet-class>net.unicon.idp.externalauth.CasCallbackServlet</servlet-class>
     <!--
         Parameters:
-        **cas.server** is required. **cas.server.protocol** and **cas.server.prefix** are optional and default to "https" and "/cas".
+        **cas.server** is required. **cas.server.protocol** and **cas.server.prefix** are optional and default to 
+        "https" and "/cas".
         **idp.server** is required. **idp.server.protocol** is optional and defaults to "https".
         **artifact.parameter.name** is optional and defaults to "ticket"
 
         Use the propertiesFile param to externalize the properties. If this is not set, the servlet will look
-        in the default location (described below) for the properties. If the file doesn't exist or is not readable, the servlet
-        will attempt to initialize using defined init-params matching the desired properties.
+        in the default location (described below) for the properties. If the file doesn't exist or is not readable, 
+        the servlet will attempt to initialize using defined init-params matching the desired properties.
     -->
     <init-param>
         <param-name>propertiesFile</param-name>
         <!-- 
-            This can be any valid path and the name of the file can be whatever you prefer. Default value used if this parameter
-            is not set is shown here.
+            This can be any valid path and the name of the file can be whatever you prefer. Default value
+            used if this parameter is not set is shown here.
         -->
         <param-value>/opt/shibboleth-idp/conf/cas-shib.properties</param-value>
     </init-param>
@@ -107,7 +108,9 @@ Example:
     <ph:LoginHandler xsi:type="shib-cas:CasLoginHandler" 
                      propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
-        <!-- There may be 0..N paramBuilder entries. Each must list the fully qualified name of the class to be added. -->
+        <!-- There may be 0..N paramBuilder entries. Each must list the fully qualified name 
+             of the class to be added. 
+        -->
         <shib-cas:paramBuilder class="net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder" />
     </ph:LoginHandler>
 
