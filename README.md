@@ -84,7 +84,7 @@ Example `web.xml`:
 
 ### Configure cas-shib.properties file
 
-Configure the parameters for the properties file. [See the `cas-shib.properties.sample` file](https://github.com/UniconLabs/shib-cas-authn2/blob/master/cas-shib.properties.sample)
+Configure the parameters for the properties file. [See the `cas-shib.properties.sample` file](https://github.com/Unicon/shib-cas-authn2/blob/master/cas-shib.properties.sample)
 in this project for the full list. We suggest using this sample file as your template. Because the login handler and servlet share a set of properties we recommend using the externalized properties file for all your configuration needs.
 
 
@@ -146,6 +146,12 @@ Then, rebuild and redeploy the IdP as usual.
 See the following links for additional info:
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
 * https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
+
+Shibboleth SP Apache Configuration
+-------------------------------------------------------------
+* Ensure that the following command is set:
+`ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified`
+
 
 New Features
 -----------------------------
