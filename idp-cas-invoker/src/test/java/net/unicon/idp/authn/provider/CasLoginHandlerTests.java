@@ -80,7 +80,7 @@ public class CasLoginHandlerTests {
         argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(response).encodeRedirectURL(argument.capture());
         Assert.assertEquals("Incorrect URL built",
-                "hhttttppss://casserv:8443/CAS/login?service=sptth://idpserv:9443/pdi/my/Casback&renew=true&entityId=dummyPartyId",
+                "hhttttppss://casserv:8443/CAS/login&renew=true&entityId=dummyPartyId?service=sptth://idpserv:9443/pdi/my/Casback",
                 argument.getValue());
     }
 
@@ -112,7 +112,7 @@ public class CasLoginHandlerTests {
         argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(response).encodeRedirectURL(argument.capture());
         Assert.assertEquals("Incorrect URL built",
-                "https://localhost:443/cas/login?service=https://localhost:443/idp/Authn/Cas&entityId=dummyPartyId",
+                "https://localhost:443/cas/login&entityId=dummyPartyId?service=https://localhost:443/idp/Authn/Cas",
                 argument.getValue());
     }
 

@@ -180,9 +180,9 @@ public class CasLoginHandler extends AbstractLoginHandler {
 
             // Coupled this attribute to the CasCallbackServlet as that is the type that needs this bit of information
             session.setAttribute(CasCallbackServlet.AUTHN_TYPE, authnType);
-
-            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + "?service=" + callbackUrl + authnType
-                    + getAdditionalParameters(request)));
+            // Service/Callback URL should always be last
+            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + authnType + getAdditionalParameters(request)
+                    + "?service=" + callbackUrl));
         } catch (final IOException e) {
             LOGGER.error("Unable to redirect to CAS from LoginHandler", e);
         }
