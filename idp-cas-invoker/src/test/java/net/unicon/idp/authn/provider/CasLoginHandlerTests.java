@@ -75,12 +75,12 @@ public class CasLoginHandlerTests {
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
-        Assert.assertEquals("Value set in session was incorrect", "&renew=true", argument.getValue());
+        Assert.assertEquals("Value set in session was incorrect", "renew=true", argument.getValue());
 
         argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(response).encodeRedirectURL(argument.capture());
         Assert.assertEquals("Incorrect URL built",
-                "hhttttppss://casserv:8443/CAS/login&renew=true&entityId=dummyPartyId?service=sptth://idpserv:9443/pdi/my/Casback",
+                "hhttttppss://casserv:8443/CAS/login?renew=true&entityId=dummyPartyId&service=sptth://idpserv:9443/pdi/my/Casback",
                 argument.getValue());
     }
 
@@ -112,7 +112,7 @@ public class CasLoginHandlerTests {
         argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(response).encodeRedirectURL(argument.capture());
         Assert.assertEquals("Incorrect URL built",
-                "https://localhost:443/cas/login&entityId=dummyPartyId?service=https://localhost:443/idp/Authn/Cas",
+                "https://localhost:443/cas/login?entityId=dummyPartyId&service=https://localhost:443/idp/Authn/Cas",
                 argument.getValue());
     }
 
@@ -126,7 +126,7 @@ public class CasLoginHandlerTests {
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
-        Assert.assertEquals("Value set in session was incorrect", "&gateway=true", argument.getValue());
+        Assert.assertEquals("Value set in session was incorrect", "gateway=true", argument.getValue());
     }
 
     @Test
@@ -139,7 +139,13 @@ public class CasLoginHandlerTests {
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
-        Assert.assertEquals("Value set in session was incorrect", "&renew=true", argument.getValue());
+        Assert.assertEquals("Value set in session was incorrect", "renew=true", argument.getValue());
+
+        argument = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(response).encodeRedirectURL(argument.capture());
+        Assert.assertEquals("Incorrect URL built",
+                "https://localhost:443/cas/login?renew=true&entityId=dummyPartyId&service=https://localhost:443/idp/Authn/Cas",
+                argument.getValue());
     }
 
     @Test
@@ -154,6 +160,6 @@ public class CasLoginHandlerTests {
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
-        Assert.assertEquals("Value set in session was incorrect", "&renew=true", argument.getValue());
+        Assert.assertEquals("Value set in session was incorrect", "renew=true", argument.getValue());
     }
 }

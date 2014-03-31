@@ -164,7 +164,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
         setSupportsForceAuthentication(force);
 
         // CAS Protocol - http://www.jasig.org/cas/protocol recommends that when this param is set, to set "true"
-        String authnType = (force) ? "&renew=true" : "";
+        String authnType = (force) ? "renew=true" : "";
 
         Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
         if (null != passive) {
@@ -172,7 +172,7 @@ public class CasLoginHandler extends AbstractLoginHandler {
 
             // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
             if (passive && "".equals(authnType)) {
-                authnType += "&gateway=true";
+                authnType += "gateway=true";
             }
         }
         try {
@@ -180,9 +180,17 @@ public class CasLoginHandler extends AbstractLoginHandler {
 
             // Coupled this attribute to the CasCallbackServlet as that is the type that needs this bit of information
             session.setAttribute(CasCallbackServlet.AUTHN_TYPE, authnType);
-            // Service/Callback URL should always be last
-            response.sendRedirect(response.encodeRedirectURL(casLoginUrl + authnType + getAdditionalParameters(request)
-                    + "?service=" + callbackUrl));
+            // Create the raw login string - Service/Callback URL should always be last
+            StringBuilder loginString = new StringBuilder(casLoginUrl + "?");
+            loginString.append(authnType);
+            String additionalParams = getAdditionalParameters(request);
+            if (StringUtils.endsWith(loginString.toString(), "?")) {
+                additionalParams = StringUtils.removeStart(additionalParams, "&");
+            }
+            loginString.append(additionalParams);
+            loginString.append(StringUtils.endsWith(loginString.toString(), "?") ? "service=" : "&service=");
+            loginString.append(callbackUrl);
+            response.sendRedirect(response.encodeRedirectURL(loginString.toString()));
         } catch (final IOException e) {
             LOGGER.error("Unable to redirect to CAS from LoginHandler", e);
         }
