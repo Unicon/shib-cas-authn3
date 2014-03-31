@@ -153,8 +153,13 @@ Shibboleth SP Apache Configuration
 `ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified`
 
 
-New Features
------------------------------
+New Features 2.0
+-------------------------------------------------------------
 * Externalized settings allow for setting the configuration of the callback servlet and login handler outside of the deployed IDP application.
 * Default settings for as many of the parameters as possible has reduced the amount of items that have to be configured.
 * Architecture now allows for pluggin of additional parameter builders. These builders can be added to send additional parameter information to CAS (such as the parameter in the form of the "entityId" param (relaying party id from Shib)).
+
+Release Notes
+-------------------------------------------------------------
+v2.0.1
+* Re-ordered the parameters sent to CAS. The original ordering meant that parameters would be added to the end of the params (thus looking like they were part of the callback service url). renew and/or gateway should be added first, followed by any additional built parameters, and concluded with the callback service url).
