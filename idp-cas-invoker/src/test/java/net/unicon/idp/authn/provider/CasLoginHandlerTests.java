@@ -160,6 +160,6 @@ public class CasLoginHandlerTests {
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
-        Assert.assertEquals("Value set in session was incorrect", "renew=true", argument.getValue());
+        Assert.assertEquals("Value set in session was incorrect", "renew=true&gateway=true", argument.getValue());
     }
 }
