@@ -171,8 +171,12 @@ public class CasLoginHandler extends AbstractLoginHandler {
             setSupportsPassive(passive);
 
             // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
-            if (passive && "".equals(authnType)) {
+            // we will set both and let CAS sort it out, but log a warning 
+            if (passive) {
                 authnType += "gateway=true";
+                if (Boolean.TRUE.equals(force)) {
+                    LOGGER.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
+                }
             }
         }
         try {
