@@ -91,8 +91,6 @@ in this project for the full list. We suggest using this sample file as your tem
 ### Changes to handler.xml
 
 * Add the namespace and XSD path to `$IDP_HOME/conf/handler.xml`
-* Configure IDP External Login Handler in `$IDP_HOME/conf/handler.xml`
-
 Example:
 
 ```xml
@@ -101,9 +99,18 @@ Example:
                         xmlns:shib-cas="http://unicon.net/shib-cas/authn"
                         xsi:schemaLocation="urn:mace:shibboleth:2.0:idp:profile-handler 
                         classpath:/schema/shibboleth-2.0-idp-profile-handler.xsd
-                        http://unicon.net/shib-cas/authn classpath:/schema/casLoginHandler.xsd">
+                        http://unicon.net/shib-cas/authn
+                        classpath:/schema/casLoginHandler.xsd">
 
 ...
+```
+
+* Configure IDP External Login Handler in `$IDP_HOME/conf/handler.xml`
+Example:
+
+```xml
+...
+
     <!-- propertiesFile attribute is optional - default value show here -->
     <ph:LoginHandler xsi:type="shib-cas:CasLoginHandler" 
                      propertiesFile="/opt/shibboleth-idp/conf/cas-shib.properties">
