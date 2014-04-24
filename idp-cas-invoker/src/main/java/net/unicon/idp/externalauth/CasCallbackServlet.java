@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
-import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
+import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.opensaml.saml2.core.StatusCode;
@@ -32,16 +36,38 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
 public class CasCallbackServlet extends HttpServlet {
     public static final String AUTHN_TYPE = "authnType";
     private static final String DEFAULT_CAS_SHIB_PROPS = "/opt/shibboleth-idp/conf/cas-shib.properties";
+    private static final String DEFAULT_TRANSLATOR = "net.unicon.idp.externalauth.AuthenticatedNameTranslator";
     private static final long serialVersionUID = 1L;
     private String artifactParameterName = "ticket";
     private String casPrefix = "/cas";
     private String casProtocol = "https";
     private String casServer;
+    private String casToShibTranslatorNames;
     private String idpProtocol = "https";
     private String idpServer;
     private Logger logger = LoggerFactory.getLogger(CasCallbackServlet.class);
     private String serverName;
     private Cas20ServiceTicketValidator ticketValidator;
+    private Set<ICasToShibTranslator> translators = new HashSet<ICasToShibTranslator>();
+
+    /**
+     * Attempt to build the set of translators from the fully qualified class names set in the properties. If nothing has been set
+     * then default to the AuthenticatedNameTranslator only.
+     */
+    private void buildTranslators() {
+        casToShibTranslatorNames = StringUtils.isEmpty(casToShibTranslatorNames) ? DEFAULT_TRANSLATOR
+                : casToShibTranslatorNames;
+        for (String classname : StringUtils.split(casToShibTranslatorNames, ';')) {
+            try {
+                Class<?> c = Class.forName(classname);
+                Constructor<?> cons = c.getConstructor();
+                ICasToShibTranslator casToShibTranslator = (ICasToShibTranslator) cons.newInstance();
+                translators.add(casToShibTranslator);
+            } catch (Exception e) {
+                logger.error("Error building cas to shib translator with name: " + classname, e);
+            }
+        }
+    }
 
     /**
      * Use the CAS CommonUtils to build the CAS Service URL.
@@ -59,13 +85,11 @@ public class CasCallbackServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
             IOException {
         String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
-        String authenticatedPrincipalName = null;  // i.e. username from CAS
         Object authnType = request.getSession().getAttribute(AUTHN_TYPE);
+        Assertion assertion = null;
         try {
-
             ticketValidator.setRenew(null != authnType && authnType.toString().contains("&renew=true"));
-            authenticatedPrincipalName = ticketValidator.validate(ticket, constructServiceUrl(request, response))
-                    .getPrincipal().getName();
+            assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
         } catch (final TicketValidationException e) {
             logger.error("Unable to validate login attempt.", e);
             boolean wasPassiveAttempt = null != authnType && authnType.toString().contains("&gateway=true");
@@ -76,15 +100,16 @@ public class CasCallbackServlet extends HttpServlet {
             AuthenticationEngine.returnToAuthenticationEngine(request, response);
             return;
         }
-        // Pass authenticated principal back to IdP to finish its part of authentication request processing
-        request.setAttribute(LoginHandler.PRINCIPAL_NAME_KEY, authenticatedPrincipalName);
+        for (ICasToShibTranslator casToShibTranslator : translators) {
+            casToShibTranslator.doTranslation(request, response, assertion);
+        }
         AuthenticationEngine.returnToAuthenticationEngine(request, response);
     }
 
     /**
      * @return the init param value or empty string if the key/value isn't found
      */
-    private String getInitParam(final ServletConfig servletConfig, final String key) {
+    private String getInitParam(final ServletContext servletConfig, final String key) {
         String result = servletConfig.getInitParameter(key);
         return StringUtils.isEmpty(result) ? "" : result;
     }
@@ -103,14 +128,22 @@ public class CasCallbackServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        ServletConfig servletConfig = getServletConfig();
+        parseProperties();
+        buildTranslators();
+    }
+
+    /**
+     * Check for the externalized properties first. If this hasn't been set, go with the default filename/path
+     * If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
+     * cause an error - we will not attempt to mix initialization between props and init-params.
+     * @throws ServletException
+     */
+    private void parseProperties() throws ServletException {
+        ServletContext servletContext = getServletConfig().getServletContext();
         String casUrlPrefix = null;
         String artifactParamaterName = null;
 
-        // Check for the externalized properties first. If this hasn't been set, go with the default filename/path
-        // If we are unable to load the parameters, we will attempt to load from the init-params. Missing parameters will
-        // cause an error - we will not attempt to mix initialization between props and init-params.
-        String fileName = getInitParam(servletConfig, "propertiesFile");
+        String fileName = getInitParam(servletContext, "propertiesFile");
         if (null == fileName || "".equals(fileName.trim())) {
             logger.debug("propertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
             fileName = DEFAULT_CAS_SHIB_PROPS;
@@ -141,19 +174,21 @@ public class CasCallbackServlet extends HttpServlet {
             temp = getProperty(props, "idp.server");
             idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
             artifactParamaterName = getProperty(props, "artifact.parameter.name");
+            casToShibTranslatorNames = getProperty(props, "casToShibTranslators");
         } catch (final Exception e) {
             logger.debug("Error reading properties, attempting to load parameters from servlet init-params");
-            String temp = getInitParam(servletConfig, "cas.server.protocol");
+            String temp = getInitParam(servletContext, "cas.server.protocol");
             casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
-            temp = getInitParam(servletConfig, "cas.application.prefix");
+            temp = getInitParam(servletContext, "cas.application.prefix");
             casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
-            temp = getInitParam(servletConfig, "cas.server");
+            temp = getInitParam(servletContext, "cas.server");
             casServer = StringUtils.isEmpty(temp) ? casServer : temp;
-            temp = getInitParam(servletConfig, "idp.server.protocol");
+            temp = getInitParam(servletContext, "idp.server.protocol");
             idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
-            temp = getInitParam(servletConfig, "idp.server");
+            temp = getInitParam(servletContext, "idp.server");
             idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
-            artifactParamaterName = getInitParam(servletConfig, "artifact.parameter.name");
+            artifactParamaterName = getInitParam(servletContext, "artifact.parameter.name");
+            casToShibTranslatorNames = getInitParam(servletContext, "casToShibTranslators");
         }
 
         if (StringUtils.isEmpty(casServer)) {
