@@ -36,7 +36,6 @@ import edu.internet2.middleware.shibboleth.idp.authn.LoginHandler;
 public class CasCallbackServlet extends HttpServlet {
     public static final String AUTHN_TYPE = "authnType";
     private static final String DEFAULT_CAS_SHIB_PROPS = "/opt/shibboleth-idp/conf/cas-shib.properties";
-    private static final String DEFAULT_TRANSLATOR = "net.unicon.idp.externalauth.AuthenticatedNameTranslator";
     private static final long serialVersionUID = 1L;
     private String artifactParameterName = "ticket";
     private String casPrefix = "/cas";
@@ -48,20 +47,19 @@ public class CasCallbackServlet extends HttpServlet {
     private Logger logger = LoggerFactory.getLogger(CasCallbackServlet.class);
     private String serverName;
     private Cas20ServiceTicketValidator ticketValidator;
-    private Set<ICasToShibTranslator> translators = new HashSet<ICasToShibTranslator>();
+    private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
 
     /**
      * Attempt to build the set of translators from the fully qualified class names set in the properties. If nothing has been set
      * then default to the AuthenticatedNameTranslator only.
      */
     private void buildTranslators() {
-        casToShibTranslatorNames = StringUtils.isEmpty(casToShibTranslatorNames) ? DEFAULT_TRANSLATOR
-                : casToShibTranslatorNames;
+        translators.add(new AuthenticatedNameTranslator());
         for (String classname : StringUtils.split(casToShibTranslatorNames, ';')) {
             try {
                 Class<?> c = Class.forName(classname);
                 Constructor<?> cons = c.getConstructor();
-                ICasToShibTranslator casToShibTranslator = (ICasToShibTranslator) cons.newInstance();
+                CasToShibTranslator casToShibTranslator = (CasToShibTranslator) cons.newInstance();
                 translators.add(casToShibTranslator);
             } catch (Exception e) {
                 logger.error("Error building cas to shib translator with name: " + classname, e);
@@ -100,7 +98,7 @@ public class CasCallbackServlet extends HttpServlet {
             AuthenticationEngine.returnToAuthenticationEngine(request, response);
             return;
         }
-        for (ICasToShibTranslator casToShibTranslator : translators) {
+        for (CasToShibTranslator casToShibTranslator : translators) {
             casToShibTranslator.doTranslation(request, response, assertion);
         }
         AuthenticationEngine.returnToAuthenticationEngine(request, response);

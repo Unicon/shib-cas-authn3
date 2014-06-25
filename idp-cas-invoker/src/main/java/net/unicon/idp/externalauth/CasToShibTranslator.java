@@ -13,7 +13,7 @@ import org.jasig.cas.client.validation.Assertion;
  * Instance of this type should implement hashcode and equals.
  * @author chasegawa@unicon.net
  */
-public interface ICasToShibTranslator {
+public interface CasToShibTranslator {
     /**
      * Do the needed translation.
      * @param request The HttpServletRequest object

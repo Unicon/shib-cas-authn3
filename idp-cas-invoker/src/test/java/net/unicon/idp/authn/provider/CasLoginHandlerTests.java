@@ -116,6 +116,30 @@ public class CasLoginHandlerTests {
                 argument.getValue());
     }
 
+    /**
+     * https://github.com/Unicon/shib-cas-authn2/issues/6
+     * EntityIdParameterBuilder is in the Login Handler by default. When it is explicitly added, it should not end up in the map 
+     * twice (or more).
+     */
+    @Test
+    public void testSimpleConfigWithHandlerAddedTwiceDoesNotAddEntityIdTwice() throws IOException {
+        // Add the same builder a couple of extra times.
+        LoginHandler handler = new CasLoginHandler(getReader("simpleProps.properties"), "simpleProps.properties",
+                "net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder, net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder");
+        handler.login(request, response);
+
+        // Check nothing set in session that shouldn't be there
+        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(session).setAttribute(Mockito.anyString(), argument.capture());
+        Assert.assertTrue(StringUtils.isEmpty(argument.getValue()));
+
+        argument = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(response).encodeRedirectURL(argument.capture());
+        Assert.assertEquals("Incorrect URL built",
+                "https://localhost:443/cas/login?entityId=dummyPartyId&service=https://localhost:443/idp/Authn/Cas",
+                argument.getValue());
+    }
+
     @Test
     public void testSimpleConfigWithGateway() {
         BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM)).willReturn(
