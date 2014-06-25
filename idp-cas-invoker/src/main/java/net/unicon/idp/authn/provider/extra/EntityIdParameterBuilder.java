@@ -22,4 +22,14 @@ public class EntityIdParameterBuilder implements IParameterBuilder {
         return "&entityId=" + relayingPartyId;
     }
 
+    @Override
+    public int hashCode() {
+        return this.getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return obj instanceof EntityIdParameterBuilder;
+    }
+
 }
