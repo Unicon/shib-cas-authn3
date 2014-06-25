@@ -89,8 +89,9 @@ in this project for the full list. We suggest using this sample file as your tem
 
 
 ### Changes to handler.xml
+Modify the existing Shib handler.xml file with the following additions:
 
-* Add the namespace and XSD path to `$IDP_HOME/conf/handler.xml`
+* Add the namespace and XSD path to the ph:ProfileHandlerGroup definition in `$IDP_HOME/conf/handler.xml`
 Example:
 
 ```xml
@@ -105,7 +106,7 @@ Example:
 ...
 ```
 
-* Configure IDP External Login Handler in `$IDP_HOME/conf/handler.xml`
+* Add/Configure IDP External Login Handler in `$IDP_HOME/conf/handler.xml`
 Example:
 
 ```xml
