@@ -174,4 +174,9 @@ v2.0.1
 
 v2.0.2
 * Fixed a bug where if the net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder was manually added (this Builder is in the code by default), or added multiple times, the EntityId parameter would appear in the request multiple times.
-* Updated the architecture to support developers writing their own extension to a new interface: CasToShibTranslator. This allows custom translation of CAS information for use in Shib. By default, the code will use the standard AuthenticatedNameTranslator which hands off the principal name (only) to Shib.
+* Updated the architecture to support developers writing their own extension to a new interface: CasToShibTranslator. This allows custom translation of CAS information for use in Shib. By default, the code will use the standard AuthenticatedNameTranslator which hands off the principal name (only) to Shib. Developers can add additional logic by implementing the net.unicon.idp.externalauth.CasToShibTranslator interface and then adding their class to the configuration thusly:
+* 
+```
+# Takes a comma separated list of fully qualified class names
+casToShibTranslators=com.your.institution.MyCustomNamedTranslatorClass
+```
