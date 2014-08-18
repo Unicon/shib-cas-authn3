@@ -14,3 +14,7 @@ idp.server=localhost:443
 #idp.application.prefix=/idp
 ### This should match the path to the servlet added in the idp's web.xml
 #idp.server.callback=/Authn/Cas
+
+# By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
+# Takes a comma separated list of fully qualified class names
+#casToShibTranslators=com.your.institution.MyCustomNamedTranslatorClass
