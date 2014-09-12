@@ -106,7 +106,7 @@ public class CasCallbackServlet extends HttpServlet {
     /**
      * @return the init param value or empty string if the key/value isn't found
      */
-    private String getInitParam(final String key) {
+    private String getInitParamByName(final String key) {
         String result = getInitParameter(key);
         return StringUtils.isEmpty(result) ? "" : result;
     }
@@ -139,7 +139,7 @@ public class CasCallbackServlet extends HttpServlet {
         String casUrlPrefix = null;
         String artifactParamaterName = null;
 
-        String fileName = getInitParam("propertiesFile");
+        String fileName = getInitParamByName("propertiesFile");
         if (null == fileName || "".equals(fileName.trim())) {
             logger.debug("propertiesFile init-param not set, defaulting to " + DEFAULT_CAS_SHIB_PROPS);
             fileName = DEFAULT_CAS_SHIB_PROPS;
@@ -173,18 +173,18 @@ public class CasCallbackServlet extends HttpServlet {
             casToShibTranslatorNames = getProperty(props, "casToShibTranslators");
         } catch (final Exception e) {
             logger.debug("Error reading properties, attempting to load parameters from servlet init-params");
-            String temp = getInitParam("cas.server.protocol");
+            String temp = getInitParamByName("cas.server.protocol");
             casProtocol = StringUtils.isEmpty(temp) ? casProtocol : temp;
-            temp = getInitParam("cas.application.prefix");
+            temp = getInitParamByName("cas.application.prefix");
             casPrefix = StringUtils.isEmpty(temp) ? casPrefix : temp;
-            temp = getInitParam("cas.server");
+            temp = getInitParamByName("cas.server");
             casServer = StringUtils.isEmpty(temp) ? casServer : temp;
-            temp = getInitParam("idp.server.protocol");
+            temp = getInitParamByName("idp.server.protocol");
             idpProtocol = StringUtils.isEmpty(temp) ? idpProtocol : temp;
-            temp = getInitParam("idp.server");
+            temp = getInitParamByName("idp.server");
             idpServer = StringUtils.isEmpty(temp) ? idpServer : temp;
-            artifactParamaterName = getInitParam("artifact.parameter.name");
-            casToShibTranslatorNames = getInitParam("casToShibTranslators");
+            artifactParamaterName = getInitParamByName("artifact.parameter.name");
+            casToShibTranslatorNames = getInitParamByName("casToShibTranslators");
         }
 
         if (StringUtils.isEmpty(casServer)) {
