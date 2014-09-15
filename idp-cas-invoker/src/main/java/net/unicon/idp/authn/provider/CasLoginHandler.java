@@ -114,7 +114,8 @@ public class CasLoginHandler extends AbstractLoginHandler {
             throw new IllegalArgumentException(
                     "CasLoginHandler missing properties needed to build the callback URL in handler configuration.");
         }
-
+        setSupportsForceAuthentication(true);
+        setSupportsPassive(true);
         createParamBuilders(paramBuilderNames);
     }
 
@@ -161,15 +162,12 @@ public class CasLoginHandler extends AbstractLoginHandler {
     public void login(final HttpServletRequest request, final HttpServletResponse response) {
         Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
         force = (null == force) ? Boolean.FALSE : force;
-        setSupportsForceAuthentication(force);
 
         // CAS Protocol - http://www.jasig.org/cas/protocol recommends that when this param is set, to set "true"
         String authnType = (force) ? "renew=true" : "";
 
         Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
         if (null != passive) {
-            setSupportsPassive(passive);
-
             // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
             // we will set both and let CAS sort it out, but log a warning 
             if (passive) {
@@ -182,7 +180,6 @@ public class CasLoginHandler extends AbstractLoginHandler {
         }
         try {
             HttpSession session = request.getSession();
-
             // Coupled this attribute to the CasCallbackServlet as that is the type that needs this bit of information
             session.setAttribute(CasCallbackServlet.AUTHN_TYPE, authnType);
             // Create the raw login string - Service/Callback URL should always be last
