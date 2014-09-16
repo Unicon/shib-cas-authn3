@@ -6,7 +6,7 @@ Central Authentication Server. The biggest advantage of using this component ove
 of native CAS protocol features such as `renew` and `gateway`.
 
 The plugin consists of 2 components:
-* A custom Shibboleth `LoginHandler` to delegate to CAS
+* A custom Shibboleth `LoginHandler` to delegate to CAS, with support for both forced and passive authentication
 * Shibboleth IDP Servlet acting as a bridge between CAS and IDP
 
 Strategy for sharing state between CASified resource and IdP
