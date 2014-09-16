@@ -181,3 +181,4 @@ casToShibTranslators=com.your.institution.MyCustomNamedTranslatorClass
 ```
 v2.0.3
 * Fixed a bug where the servlet init-params were not being read correctly.
+* CAS login handler now implicitly supports both forced and passive authentication.
