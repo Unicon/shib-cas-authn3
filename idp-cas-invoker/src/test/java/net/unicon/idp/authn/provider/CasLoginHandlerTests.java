@@ -33,6 +33,7 @@ public class CasLoginHandlerTests {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private HttpSession session;
+    private LoginContext loginContext;
 
     /**
      * Mock out the request, response and session
@@ -50,7 +51,7 @@ public class CasLoginHandlerTests {
         BDDMockito.given(context.getAttribute(Mockito.anyString())).willReturn(storageService);
         LoginContextEntry loginContextEntry = Mockito.mock(LoginContextEntry.class);
         BDDMockito.given(loginContextEntry.isExpired()).willReturn(false);
-        LoginContext loginContext = Mockito.mock(LoginContext.class);
+        loginContext = Mockito.mock(LoginContext.class);
         BDDMockito.given(loginContext.getRelyingPartyId()).willReturn("dummyPartyId");
         BDDMockito.given(loginContextEntry.getLoginContext()).willReturn(loginContext);
         BDDMockito.given(storageService.get(Mockito.anyString(), Mockito.anyString())).willReturn(loginContextEntry);
@@ -67,8 +68,7 @@ public class CasLoginHandlerTests {
 
     @Test
     public void testCustomConfigCallsCasCorrectly() throws IOException {
-        BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM)).willReturn(
-                Boolean.TRUE);
+        BDDMockito.given(loginContext.isForceAuthRequired()).willReturn(true);
 
         LoginHandler handler = new CasLoginHandler(getReader("customProps.properties"), "customProps.properties", "");
         handler.login(request, response);
@@ -142,8 +142,7 @@ public class CasLoginHandlerTests {
 
     @Test
     public void testSimpleConfigWithGateway() {
-        BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM)).willReturn(
-                Boolean.TRUE);
+        BDDMockito.given(loginContext.isPassiveAuthRequired()).willReturn(true);
 
         LoginHandler handler = new CasLoginHandler(getReader("simpleProps.properties"), "simpleProps.properties", "");
         handler.login(request, response);
@@ -155,8 +154,7 @@ public class CasLoginHandlerTests {
 
     @Test
     public void testSimpleConfigWithRenew() {
-        BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM)).willReturn(
-                Boolean.TRUE);
+        BDDMockito.given(loginContext.isForceAuthRequired()).willReturn(true);
 
         LoginHandler handler = new CasLoginHandler(getReader("simpleProps.properties"), "simpleProps.properties", "");
         handler.login(request, response);
@@ -174,10 +172,8 @@ public class CasLoginHandlerTests {
 
     @Test
     public void testSimpleConfigWithRenewAndGateway() {
-        BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM)).willReturn(
-                Boolean.TRUE);
-        BDDMockito.given(request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM)).willReturn(
-                Boolean.TRUE);
+        BDDMockito.given(loginContext.isPassiveAuthRequired()).willReturn(true);
+        BDDMockito.given(loginContext.isForceAuthRequired()).willReturn(true);
 
         LoginHandler handler = new CasLoginHandler(getReader("simpleProps.properties"), "simpleProps.properties", "");
         handler.login(request, response);
