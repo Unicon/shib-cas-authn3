@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,8 +23,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.AbstractLoginHandler;
 import edu.internet2.middleware.shibboleth.idp.authn.provider.ExternalAuthnSystemLoginHandler;
+import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
 
 /**
  * CasLoginHandler replaces the {@link CasInvokerServlet} AND {@link CasAuthenticatorResource} (facade) from the v1.x implementations. 
@@ -160,23 +163,23 @@ public class CasLoginHandler extends AbstractLoginHandler {
      */
     @Override
     public void login(final HttpServletRequest request, final HttpServletResponse response) {
-        Boolean force = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.FORCE_AUTHN_PARAM);
-        force = (null == force) ? Boolean.FALSE : force;
+        ServletContext application = request.getSession().getServletContext();
+        LoginContext loginContext = (LoginContext) HttpServletHelper.getLoginContext(
+                HttpServletHelper.getStorageService(application), application, request);
+        Boolean force = loginContext.isForceAuthRequired();
 
         // CAS Protocol - http://www.jasig.org/cas/protocol recommends that when this param is set, to set "true"
-        String authnType = (force) ? "renew=true" : "";
+        String authnType = force ? "renew=true" : "";
 
-        Boolean passive = (Boolean) request.getAttribute(ExternalAuthnSystemLoginHandler.PASSIVE_AUTHN_PARAM);
-        if (null != passive) {
-            // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
-            // we will set both and let CAS sort it out, but log a warning 
-            if (passive) {
-                if (Boolean.TRUE.equals(force)) {
-                    authnType += "&";
-                    LOGGER.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
-                }
-                authnType += "gateway=true";
+        Boolean passive = loginContext.isPassiveAuthRequired();
+        // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
+        // we will set both and let CAS sort it out, but log a warning 
+        if (passive) {
+            if (Boolean.TRUE.equals(force)) {
+                authnType += "&";
+                LOGGER.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
             }
+            authnType += "gateway=true";
         }
         try {
             HttpSession session = request.getSession();

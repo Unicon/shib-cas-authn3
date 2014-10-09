@@ -182,3 +182,6 @@ casToShibTranslators=com.your.institution.MyCustomNamedTranslatorClass
 v2.0.3
 * Fixed a bug where the servlet init-params were not being read correctly.
 * CAS login handler now implicitly supports both forced and passive authentication.
+
+2.0.4
+* Fixed a bug where the login handler wasn't properly reading whether to force authentication or whether passive (renew and gateway) should be passed to CAS. Previously the code was attempting to read this directly from the request parameters. Now the code is grabbing the login context set by Shib and asking directly.
