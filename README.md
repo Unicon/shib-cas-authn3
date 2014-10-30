@@ -141,6 +141,7 @@ shibIdpPath=/opt/shibboleth-idp
 
 * From the root directory, simply run `./gradlew`
 * Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `idp/WEB-INF/lib`
+* Copy `idp-cas-invoker/build/libs/idp-cas-invoker-x.x.jar` to `/opt/shibboleth-idp/lib` (for `aacli.sh/.bat` functionality)
 * Copy FROM CAS DEPLOYED WAR: `$CATALINA_HOME/webapps/cas/WEB-INF/lib/cas-client-core-[x.x.x].jar` to `idp/WEB-INF/lib`
 
 
