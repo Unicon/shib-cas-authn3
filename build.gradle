@@ -1,16 +1,16 @@
 apply plugin: 'idea'
-defaultTasks 'clean', 'build'
+defaultTasks 'clean', 'build', 'fatJar'
 
 allprojects {
     apply plugin: 'java'
     group = 'net.unicon'
 
-    sourceCompatibility = 1.6
+    sourceCompatibility = 1.7
     version = project.version
 
     repositories {
         mavenCentral()
-        maven {url "https://build.shibboleth.net/nexus/content/repositories/releases" }
+        maven { url "https://build.shibboleth.net/nexus/content/repositories/releases" }
         maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
     }
 
@@ -21,8 +21,10 @@ allprojects {
     sourceSets.test.runtimeClasspath += files("idp-cas-invoker/src/test/resources") 
 }
 
-
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion
 }
 
+task fatJar(type: Jar) {
+    from files("${buildDir}/../idp-cas-invoker/build/libs/idp-cas-invoker-${project.version}.jar").collect {zipTree(it)}
+}
