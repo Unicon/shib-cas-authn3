@@ -1,1 +1,0 @@
-http\://unicon.net/shib-cas/authn = net.unicon.idp.authn.provider.CasNamespaceHandler

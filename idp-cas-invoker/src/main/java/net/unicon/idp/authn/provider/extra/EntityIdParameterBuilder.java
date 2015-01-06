@@ -1,11 +1,14 @@
 package net.unicon.idp.authn.provider.extra;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
-import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
+import net.shibboleth.idp.authn.ExternalAuthentication;
 
+/**
+ * Generates a querystring parameter containing the entityId
+ * @author chasegawa@unicon.net
+ * @author jgasper@unicon.net
+ */
 public class EntityIdParameterBuilder implements IParameterBuilder {
 
     /**
@@ -15,10 +18,7 @@ public class EntityIdParameterBuilder implements IParameterBuilder {
      */
     @Override
     public String getParameterString(final HttpServletRequest request) {
-        ServletContext servletContext = request.getSession().getServletContext();
-        LoginContext loginContext = HttpServletHelper.getLoginContext(
-                HttpServletHelper.getStorageService(servletContext), servletContext, request);
-        String relayingPartyId = loginContext.getRelyingPartyId();
+        String relayingPartyId = request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM).toString();
         return "&entityId=" + relayingPartyId;
     }
 

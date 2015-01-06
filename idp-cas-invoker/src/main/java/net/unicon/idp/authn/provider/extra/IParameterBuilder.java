@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * This interface defines the interface a custom parameter builder must adopt. The implementing class needs to build a single string
  * that is of the form: paramName=paramValue
- * The resulting param name-value pair will be sent to CAS in the redirect to login.
+ * The resulting param name-value pair will be sent to CAS in the redirect to /login.
  * @author chasegawa@unicon.net
  */
 public interface IParameterBuilder {
