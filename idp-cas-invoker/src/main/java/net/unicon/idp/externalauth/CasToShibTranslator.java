@@ -2,7 +2,6 @@ package net.unicon.idp.externalauth;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.jasig.cas.client.validation.Assertion;
 
 /**

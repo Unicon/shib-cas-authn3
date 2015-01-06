@@ -2,7 +2,6 @@ package net.unicon.idp.externalauth;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

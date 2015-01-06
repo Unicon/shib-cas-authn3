@@ -2,7 +2,6 @@ package net.unicon.idp.externalauth;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,7 +45,6 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private String casToShibTranslatorNames;
     private String casLoginUrl;
-    private String casValidationUrl;
     private String serverName;
     private String casServerPrefix;
 
@@ -54,6 +52,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
+
     {
         // By default, we start with the entity id param builder included
         parameterBuilders.add(new EntityIdParameterBuilder());
@@ -86,9 +85,26 @@ public class ShibcasAuthServlet extends HttpServlet {
     }
 
     /**
-     * @TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
+     * Uses the CAS CommonUtils to build the CAS Redirect URL.
+     */
+    private String constructRedirectUrl(String serviceUrl, boolean renew, boolean gateway) {
+        return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway);
+    }
+
+    /**
+     * @
      * we can return as well as the best way to know when to do this.
+     *
+     */
+    /**
+     * Main entry point of the Servlet
      * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+     * @param request a web request
+     * @param response a web response
+     * @throws ServletException
+     * @throws IOException
+     *
+     * TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
      */
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
@@ -97,25 +113,26 @@ public class ShibcasAuthServlet extends HttpServlet {
             final String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
             final String gatewayAttempted = CommonUtils.safeGetParameter(request, "gatewayAttempted");
             final String key = ExternalAuthentication.startExternalAuthentication(request);
-            final Boolean force = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM).toString());
-            final Boolean passive = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM).toString());
+            final boolean force = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM).toString());
+            final boolean passive = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM).toString());
 
             if ((ticket == null || ticket.isEmpty()) && (gatewayAttempted == null || gatewayAttempted.isEmpty())) {
-                startLoginRequest(request, response);
+                startLoginRequest(request, response, force, passive);
                 return;
             }
 
-            Assertion assertion = null;
+            Assertion assertion;
+
+            ticketValidator.setRenew(force);
 
             try {
-                ticketValidator.setRenew(force);
                 assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
             } catch (final TicketValidationException e) {
                 logger.error("Unable to validate startLoginRequest attempt.", e);
                 // If it was a passive attempt, send back the indicator that the responding provider cannot authenticate
                 // the principal passively, as has been requested. Otherwise, send the generic authn failed code.
-                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, passive ? StatusCode.NO_PASSIVE_URI
-                        : StatusCode.AUTHN_FAILED_URI);
+                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, passive ? "NoPassive" : "InvalidTicket");
+
                 ExternalAuthentication.finishExternalAuthentication(key, request, response);
                 return;
             }
@@ -127,14 +144,14 @@ public class ShibcasAuthServlet extends HttpServlet {
             ExternalAuthentication.finishExternalAuthentication(key, request, response);
 
         } catch (final ExternalAuthenticationException e) {
-            throw new ServletException("Error processing CAS authentication request", e);
+            throw new ServletException("Error processing ShibCas authentication request", e);
         }
     }
 
     /**
      * Build addition querystring parameters
      * @param request The original servlet request
-     * @return
+     * @return an ampersand delimited list of querystring parameters
      */
     private String getAdditionalParameters(final HttpServletRequest request) {
         StringBuilder builder = new StringBuilder();
@@ -161,7 +178,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     /**
      * Check the idp's idp.properties file for the configuration
-     * @param environment
+     * @param environment a Spring Application Context's Environment object (tied to the IdP's root context)
      */
     private void parseProperties(Environment environment) {
         logger.debug("reading properties from the idp.properties file");
@@ -179,45 +196,25 @@ public class ShibcasAuthServlet extends HttpServlet {
         casToShibTranslatorNames = null == casToShibTranslatorNames ? "" : casToShibTranslatorNames;
     }
 
-    public void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response) {
-        Boolean force = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM).toString());
-        Boolean passive = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM).toString());
-
-        // CAS Protocol - http://www.jasig.org/cas/protocol recommends that when this param is set, to set "true"
-        String authnType = force ? "renew=true" : "";
-
+    public void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, Boolean force, Boolean passive) {
         // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
         // we will set both and let CAS sort it out, but log a warning
-        if (passive) {
-            if (Boolean.TRUE.equals(force)) {
-                authnType += "&";
+        if (Boolean.TRUE.equals(passive) && Boolean.TRUE.equals(force)) {
                 logger.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
-            }
-            authnType += "gateway=true";
         }
-        logger.debug("authnType: {}", authnType);
 
         try {
-            // Create the raw startLoginRequest string - Service/Callback URL should always be last
-            StringBuilder loginString = new StringBuilder(casLoginUrl + "?");
-            loginString.append(authnType);
-
-            String additionalParams = getAdditionalParameters(request);
-            if (StringUtils.endsWith(loginString.toString(), "?")) {
-                additionalParams = StringUtils.removeStart(additionalParams, "&");
-            }
-            loginString.append(additionalParams);
-
             String serviceUrl = constructServiceUrl(request, response);
             if (passive) {
                 serviceUrl += "&gatewayAttempted=true";
             }
 
-            loginString.append(StringUtils.endsWith(loginString.toString(), "?") ? "service=" : "&service=");
-            loginString.append(URLEncoder.encode(serviceUrl, "UTF-8"));
+            String loginUrl = constructRedirectUrl(serviceUrl, force, passive)
+                    + getAdditionalParameters(request);
 
-            logger.debug("loginString: {}", loginString);
-            response.sendRedirect(response.encodeRedirectURL(loginString.toString()));
+            logger.debug("loginUrl: {}", loginUrl);
+            response.sendRedirect(loginUrl);
+
         } catch (final IOException e) {
             logger.error("Unable to redirect to CAS from ShibCas", e);
         }
