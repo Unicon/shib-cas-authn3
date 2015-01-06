@@ -148,3 +148,5 @@ v2.0.3
 
 3.0.0
 * Support for IdP v3.0.0
+* URL encode the `service` querystring parameter during redirection to CAS Server
+* URL encode the `entityID`  querystring parameter during redirection to CAS Server
