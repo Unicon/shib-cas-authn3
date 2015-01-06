@@ -67,20 +67,20 @@ Example snippet `web.xml`:
 ```
 ...
 # Regular expression matching login flows to enable, e.g. IPAddress|Password
-#idp.authn.flows= Password
-idp.authn.flows= Shibcas
+#idp.authn.flows = Password
+idp.authn.flows = Shibcas
 
 # CAS Client properties (usage loosely matches that of the Java CAS Client)
 ## CAS Server Properties
-shibcas.casServerUrlPrefix= https://cassserver.example.edu/cas
-shibcas.casServerLoginUrl= ${shibcas.casServerUrlPrefix}/login
+shibcas.casServerUrlPrefix = https://cassserver.example.edu/cas
+shibcas.casServerLoginUrl = ${shibcas.casServerUrlPrefix}/login
 
 ## Shibboleth Server Properties
-shibcas.serverName= https://shibserver.exampler.edu
+shibcas.serverName = https://shibserver.example.edu
 
 # By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
 # Takes a comma separated list of fully qualified class names
-# shibcas.casToShibTranslators= com.your.institution.MyCustomNamedTranslatorClass
+# shibcas.casToShibTranslators = com.your.institution.MyCustomNamedTranslatorClass
 
 ...
 ```
