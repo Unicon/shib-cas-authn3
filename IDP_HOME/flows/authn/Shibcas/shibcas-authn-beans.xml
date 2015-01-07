@@ -16,7 +16,7 @@
           p:placeholderPrefix="%{" p:placeholderSuffix="}" />
 
     <bean id="shibboleth.authn.Cas.externalAuthnPath" class="java.lang.String"
-          c:_0="contextRelative:Authn/ShibCas" />
+          c:_0="contextRelative:Authn/ExtCas" />
 
     <bean class="net.shibboleth.idp.profile.impl.ProfileActionBeanPostProcessor" />
     <bean class="net.shibboleth.ext.spring.config.IdentifiableBeanPostProcessor" />

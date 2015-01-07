@@ -31,16 +31,20 @@ not exploding the Shib war, so these instructions assume you will modify the fil
 #### Overview
 
 1. Copy the Spring Webflow files into the IDP_HOME.
-1. Update the IdP's `web.xml`.
+1. Update the IdP's `web.xml`. (optional)
 1. Update the IdP's `idp.properties` file.
 1. Update the IdP's `general-authn.xml` file.
 1. Copy the libraries/jars.
+1. Rebuild the war file.
 
 #### Copy the Spring Webflow files into the IDP_HOME
 Copy the two xml files from the IDP_HOME directory (in the src tree) to the corresponding layout in your Shibboleth IdP home directory.
 
-#### Update the IdP's `web.xml`
-Add the IDP External Authn Callback Servlet entry in `idp/WEB-INF/web.xml`
+#### Update the IdP's `web.xml` (optional)
+> The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
+This step is provided for legacy reasons.
+
+Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
 
 Example snippet `web.xml`:
 
@@ -86,7 +90,7 @@ shibcas.serverName = https://shibserver.example.edu
 ```
 
 #### Update the IdP's `general-authn.xml` file.
-Register the module with the IdP:
+Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME/conf/authn/general-authn.xml`:
 
 ```xml
 ...
@@ -100,21 +104,17 @@ Register the module with the IdP:
 ```
 
 #### Copy the libraries/jars
-Both the shib-cas-authn and cas client library are required. You can download them directly (vs building from source).
+Both the shib-cas-authn and cas client library are required. You can download them directly (vs building from source):
 - <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.0.0/shib-cas-authnenticator3-3.0.0.jar>
 - <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.3.3/cas-client-core-3.3.3.jar>
 
+Copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
+
 > These links are here for demonstration purposes. Please check <https://github.com/Unicon/shib-cas-authn3/releases/latest> and <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core> for more up-to-date versions.
 
-Shibboleth IdP Upgrades
--------------------------------------------------------------
-In order to properly protect the changes to the `web.xml` file of the Shibboleth IdP between upgrades, 
-copy the changed version to the `conf` directory of the main Shib IdP directory (e.g. usually `/opt/shibboleth-idp/conf`).
-Then, rebuild and redeploy the IdP as usual.
+#### Rebuild the war file
+From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
 
-See the following links for additional info:
-* https://wiki.shibboleth.net/confluence/display/SHIB2/IdPEnableECP
-* https://wiki.shibboleth.net/confluence/display/SHIB2/IdPInstall [section: `Using a customized web.xml`)
 
 Shibboleth SP Apache Configuration
 -------------------------------------------------------------
