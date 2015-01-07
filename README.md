@@ -126,28 +126,12 @@ Shibboleth SP Apache Configuration
 
 New Features 3.0
 -------------------------------------------------------------
-Support for IdP version 3.0.
+Support for IdP version 3.0.0
 
 Release Notes
 -------------------------------------------------------------
-v2.0.1
-* Re-ordered the parameters sent to CAS. The original ordering meant that parameters would be added to the end of the params (thus looking like they were part of the callback service url). renew and/or gateway should be added first, followed by any additional built parameters, and concluded with the callback service url).
-
-v2.0.2
-* Fixed a bug where if the net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder was manually added (this Builder is in the code by default), or added multiple times, the EntityId parameter would appear in the request multiple times.
-* Updated the architecture to support developers writing their own extension to a new interface: CasToShibTranslator. This allows custom translation of CAS information for use in Shib. By default, the code will use the standard AuthenticatedNameTranslator which hands off the principal name (only) to Shib. Developers can add additional logic by implementing the net.unicon.idp.externalauth.CasToShibTranslator interface and then adding their class to the configuration thusly:
-```
-# Takes a comma separated list of fully qualified class names
-casToShibTranslators=com.your.institution.MyCustomNamedTranslatorClass
-```
-v2.0.3
-* Fixed a bug where the servlet init-params were not being read correctly.
-* CAS login handler now implicitly supports both forced and passive authentication.
-
-2.0.4
-* Fixed a bug where the login handler wasn't properly reading whether to force authentication or whether passive (renew and gateway) should be passed to CAS. Previously the code was attempting to read this directly from the request parameters. Now the code is grabbing the login context set by Shib and asking directly.
 
 3.0.0
-* Support for IdP v3.0.0
+* Support for IdP 3.0.0
 * URL encode the `service` querystring parameter during redirection to CAS Server
 * URL encode the `entityID`  querystring parameter during redirection to CAS Server
