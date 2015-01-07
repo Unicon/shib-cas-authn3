@@ -16,7 +16,7 @@ Travis-CI: ![Travis-CI build status](https://travis-ci.org/Unicon/shib-cas-authn
 
 Software Requirements
 -------------------------------------------------------------
-* This minimum supported version of Shibboleth Identity Provider is `3.0.0`
+This minimum supported version of Shibboleth Identity Provider is `3.0.0`
 
 > A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
