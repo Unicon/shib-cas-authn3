@@ -1,5 +1,5 @@
 ## A Shibboleth IdP v3.X plugin for External Authentication via an external CAS Server
-> A Shibboelth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
+> A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to an external 
 Central Authentication Server. The biggest advantage of using this component over the plain 
