@@ -8,4 +8,6 @@ dependencies {
     //other dependencies such as logging and spring are brought in transitively
 
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.1'
+
 }

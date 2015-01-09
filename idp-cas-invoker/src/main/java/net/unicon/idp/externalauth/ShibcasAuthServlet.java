@@ -51,7 +51,6 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
-
     {
         // By default, we start with the entity id param builder included
         parameterBuilders.add(new EntityIdParameterBuilder());
@@ -195,7 +194,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         casToShibTranslatorNames = null == casToShibTranslatorNames ? "" : casToShibTranslatorNames;
     }
 
-    public void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, Boolean force, Boolean passive) {
+    protected void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, Boolean force, Boolean passive) {
         // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
         // we will set both and let CAS sort it out, but log a warning
         if (Boolean.TRUE.equals(passive) && Boolean.TRUE.equals(force)) {
