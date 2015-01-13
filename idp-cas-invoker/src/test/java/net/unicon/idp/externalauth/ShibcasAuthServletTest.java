@@ -1,6 +1,7 @@
 package net.unicon.idp.externalauth;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -130,7 +131,6 @@ public class ShibcasAuthServletTest {
         HttpServletResponse response = createMockHttpServletResponse();
 
         Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
-        PowerMockito.when(ticketValidator.validate(null, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenThrow(new TicketValidationException("No Ticket"));
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
@@ -149,6 +149,7 @@ public class ShibcasAuthServletTest {
         //Verify
         verify(request, never()).setAttribute(eq(ExternalAuthentication.PRINCIPAL_NAME_KEY), any());
         verify(request).setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "NoPassive");
+        verify(ticketValidator, never()).validate(anyString(), anyString());
     }
 
     @Test

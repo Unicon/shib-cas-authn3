@@ -36,7 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
  * @author chasegawa@unicon.net
  * @author jgasper@unicon.net
  */
-@WebServlet(name="ShibCasAuthServlet", urlPatterns={"/Authn/ExtCas/*"})
+@WebServlet(name="ShibcasAuthServlet", urlPatterns={"/Authn/ExtCas/*"})
 public class ShibcasAuthServlet extends HttpServlet {
     private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
     private static final long serialVersionUID = 1L;
@@ -115,22 +115,29 @@ public class ShibcasAuthServlet extends HttpServlet {
             final boolean passive = Boolean.parseBoolean(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM).toString());
 
             if ((ticket == null || ticket.isEmpty()) && (gatewayAttempted == null || gatewayAttempted.isEmpty())) {
+                logger.debug("ticket and gatewayAttempted are not set; initiating CAS login redirect");
                 startLoginRequest(request, response, force, passive);
                 return;
             }
 
-            Assertion assertion;
+            if (ticket == null || ticket.isEmpty()) {
+                logger.debug("Gateway/Passive returned no ticket, returning NoPassive.");
+                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "NoPassive");
+                ExternalAuthentication.finishExternalAuthentication(key, request, response);
+                return;
+            }
 
             ticketValidator.setRenew(force);
 
-            try {
-                assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
-            } catch (final TicketValidationException e) {
-                logger.error("Unable to validate startLoginRequest attempt.", e);
-                // If it was a passive attempt, send back the indicator that the responding provider cannot authenticate
-                // the principal passively, as has been requested. Otherwise, send the generic authn failed code.
-                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, passive ? "NoPassive" : "InvalidTicket");
+            Assertion assertion;
 
+            try {
+                logger.debug("validating ticket: {}", ticket);
+                assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
+
+            } catch (final TicketValidationException e) {
+                logger.error("Ticket validation failed, returning InvalidTicket", e);
+                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "InvalidTicket");
                 ExternalAuthentication.finishExternalAuthentication(key, request, response);
                 return;
             }
