@@ -106,7 +106,7 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 
 #### Copy the libraries/jars
 Both the shib-cas-authn and cas client library are required. You can download them directly (vs building from source):
-- <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.0.0/shib-cas-authnenticator3-3.0.0.jar>
+- <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.0.0/shib-cas-authenticator-3.0.0.jar>
 - <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.3.3/cas-client-core-3.3.3.jar>
 
 Copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
