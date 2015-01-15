@@ -1,5 +1,7 @@
 ## A Shibboleth IdP v3.X plugin for authentication via an external CAS Server
 
+> This project was developed as part of Unicon's [Open Source Support program](https://unicon.net/support). Professional support/integration assistance for this module is available. For more information, visit <https://unicon.net/opensource/cas>.
+
 This is a Shibboleth IDP external authentication plugin that delegates the authentication to an external 
 Central Authentication Server. The biggest advantage of using this component over the plain 
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
