@@ -23,7 +23,7 @@
 
     <bean id="SetRPUIInformation"
           class="net.shibboleth.idp.ui.impl.SetRPUIInformation" scope="prototype"
-          p:activationCondition-ref="shibboleth.authn.External.populateUIInfo"
+          p:activationCondition-ref="shibboleth.authn.Cas.populateUIInfo"
           p:httpServletRequest-ref="shibboleth.HttpServletRequest">
         <property name="fallbackLanguages">
             <bean parent="shibboleth.CommaDelimStringArray" c:_0="%{idp.ui.fallbackLanguages:}" />
@@ -33,7 +33,7 @@
     <bean id="ValidateExternalAuthentication"
           class="net.shibboleth.idp.authn.impl.ValidateExternalAuthentication" scope="prototype"
           p:classifiedMessages-ref="shibboleth.authn.Cas.ClassifiedMessageMap"
-          p:resultCachingPredicate="#{getObject('shibboleth.authn.External.resultCachingPredicate')}" />
+          p:resultCachingPredicate="#{getObject('shibboleth.authn.Cas.resultCachingPredicate')}" />
 
     <util:constant id="shibboleth.authn.Cas.populateUIInfo" static-field="java.lang.Boolean.FALSE" />
 
