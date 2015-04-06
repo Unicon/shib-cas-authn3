@@ -132,6 +132,8 @@ Support for IdP version 3.0.0
 
 Release Notes
 -------------------------------------------------------------
+3.0.0-1
+* Applied a fix to a bad reference in the Spring config file (issue #1). (No change to the binary/release, hence the "-1")
 
 3.0.0
 * Support for IdP 3.0.0
