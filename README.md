@@ -10,7 +10,7 @@ EntityID of the relying application.
 
 The plugin consists of 2 components:
 * A library (.jar) file that provides an IDP side servlet that acts as a bridge between CAS and the IDP
-* Spring Webflow definite file (and bean definition file) that invokes the shib-cas-authn3 library.
+* Spring Webflow definition file (and bean definition file) that invokes the shib-cas-authn3 library.
 
 Build Status
 -------------------------------------------------------------
