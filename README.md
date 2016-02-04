@@ -124,7 +124,10 @@ Shibboleth SP Apache Configuration
 > It hasn't been confirmed that this is required to function in IdP v3.0
 
 * Ensure that the following command is set:
-`ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified`
+
+```
+ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
+```
 
 New Features 3.0
 -------------------------------------------------------------
