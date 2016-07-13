@@ -68,7 +68,7 @@ Example snippet `web.xml`:
 
 #### Update the IdP's idp.properties file
 
-1. Set the `idp.authn.flows` to `ShibCas`. Or, for advance cases, add `ShibCas` to the list.
+1. Set the `idp.authn.flows` to `Shibcas`. Or, for advance cases, add `Shibcas` to the list.
 1. Add the additional properties.
 
 ```
