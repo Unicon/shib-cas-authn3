@@ -1,22 +1,9 @@
 package net.unicon.idp.externalauth;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.annotation.WebServlet;
-
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.ExternalAuthenticationException;
 import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
 import net.unicon.idp.authn.provider.extra.IParameterBuilder;
-
 import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Assertion;
@@ -28,6 +15,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * A Servlet that validates the CAS ticket and then pushes the authenticated principal name into the correct location before
@@ -36,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
  * @author chasegawa@unicon.net
  * @author jgasper@unicon.net
  */
-@WebServlet(name="ShibcasAuthServlet", urlPatterns={"/Authn/ExtCas/*"})
+@WebServlet(name = "ShibcasAuthServlet", urlPatterns = {"/Authn/ExtCas/*"})
 public class ShibcasAuthServlet extends HttpServlet {
     private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
     private static final long serialVersionUID = 1L;
@@ -51,6 +49,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
+
     {
         // By default, we start with the entity id param builder included
         parameterBuilders.add(new EntityIdParameterBuilder());
@@ -96,13 +95,12 @@ public class ShibcasAuthServlet extends HttpServlet {
      */
     /**
      * Main entry point of the Servlet
-     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     * @param request a web request
+     *
+     * @param request  a web request
      * @param response a web response
      * @throws ServletException
-     * @throws IOException
-     *
-     * TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
+     * @throws IOException      TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
+     * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException,
@@ -127,27 +125,21 @@ public class ShibcasAuthServlet extends HttpServlet {
                 return;
             }
 
-            ticketValidator.setRenew(force);
-
-            Assertion assertion;
-
             try {
-                logger.debug("validating ticket: {}", ticket);
-                assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
+                ticketValidator.setRenew(force);
 
+                logger.debug("validating ticket: {}", ticket);
+                Assertion assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
+                for (CasToShibTranslator casToShibTranslator : translators) {
+                    casToShibTranslator.doTranslation(request, response, assertion);
+                }
+
+                ExternalAuthentication.finishExternalAuthentication(key, request, response);
             } catch (final TicketValidationException e) {
                 logger.error("Ticket validation failed, returning InvalidTicket", e);
                 request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "InvalidTicket");
                 ExternalAuthentication.finishExternalAuthentication(key, request, response);
-                return;
             }
-
-            for (CasToShibTranslator casToShibTranslator : translators) {
-                casToShibTranslator.doTranslation(request, response, assertion);
-            }
-
-            ExternalAuthentication.finishExternalAuthentication(key, request, response);
-
         } catch (final ExternalAuthenticationException e) {
             throw new ServletException("Error processing ShibCas authentication request", e);
         }
@@ -155,6 +147,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     /**
      * Build addition querystring parameters
+     *
      * @param request The original servlet request
      * @return an ampersand delimited list of querystring parameters
      */
@@ -166,9 +159,6 @@ public class ShibcasAuthServlet extends HttpServlet {
         return builder.toString();
     }
 
-    /**
-     * @see javax.servlet.GenericServlet#init()
-     */
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -183,6 +173,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     /**
      * Check the idp's idp.properties file for the configuration
+     *
      * @param environment a Spring Application Context's Environment object (tied to the IdP's root context)
      */
     private void parseProperties(Environment environment) {
@@ -205,7 +196,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
         // we will set both and let CAS sort it out, but log a warning
         if (Boolean.TRUE.equals(passive) && Boolean.TRUE.equals(force)) {
-                logger.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
+            logger.warn("Both FORCE AUTHN and PASSIVE AUTHN were set to true, please verify that the requesting system has been properly configured.");
         }
 
         try {

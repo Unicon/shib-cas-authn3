@@ -16,9 +16,8 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthenticatedNameTranslator implements CasToShibTranslator {
     private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
-    /**
-     * @see net.unicon.idp.externalauth.CasToShibTranslator#doTranslation(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.jasig.cas.client.validation.Assertion)
-     */
+
+    @Override
     public void doTranslation(final HttpServletRequest request, final HttpServletResponse response,
             final Assertion assertion) {
         String authenticatedPrincipalName = assertion.getPrincipal().getName(); // i.e. username from CAS

@@ -1,8 +1,9 @@
 package net.unicon.idp.externalauth;
 
+import org.jasig.cas.client.validation.Assertion;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.jasig.cas.client.validation.Assertion;
 
 /**
  * This interface defines the public interface for a class that will translate the information from CAS to Shib. The translator
@@ -19,6 +20,5 @@ public interface CasToShibTranslator {
      * @param response The HttpServletResponse object
      * @param assertion The CAS Assertion after validating the CAS ticket
      */
-    public void doTranslation(final HttpServletRequest request, final HttpServletResponse response,
-            final Assertion assertion);
+    void doTranslation(HttpServletRequest request, HttpServletResponse response, Assertion assertion);
 }
