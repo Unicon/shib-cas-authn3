@@ -24,12 +24,6 @@ This minimum supported version of Shibboleth Identity Provider is `3.0.0`
 
 Installation
 ---------------------------------------------------------------
-> Instructions for building from source can be found in the wiki <>.
-
-The first step is to update your Shib idp deployment with the `CasCallbackServlet`. This can be done prior to building/deploying the idp war file or
-if preferred, after the build, the files can be modified/updated in the war file before deploying to Tomcat. Previous instructions
-were based on the idea that the files would be modified post-deployment. The recommended installation/deployment of the Shib idp suggest 
-not exploding the Shib war, so these instructions assume you will modify the files ahead of time. 
 
 #### Overview
 
@@ -88,7 +82,7 @@ shibcas.serverName = https://shibserver.example.edu
 # By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
 # Takes a comma separated list of fully qualified class names
 # shibcas.casToShibTranslators = com.your.institution.MyCustomNamedTranslatorClass
-
+# shibcas.parameterBuilders = com.your.institution.MyParameterBuilderClass
 ...
 ```
 
@@ -108,8 +102,8 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 
 #### Copy the libraries/jars
 Both the shib-cas-authn and cas client library are required. You can download them directly (vs building from source):
-- <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.0.0/shib-cas-authenticator-3.0.0.jar>
-- <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.3.3/cas-client-core-3.3.3.jar>
+- <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.1.0/shib-cas-authenticator-3.1.0.jar>
+- <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.4.1/cas-client-core-3.4.1.jar>
 
 Copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
 
@@ -131,10 +125,15 @@ ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:u
 
 New Features 3.0
 -------------------------------------------------------------
-Support for IdP version 3.0.0
+Support for IdP version 3.0.0+
 
 Release Notes
 -------------------------------------------------------------
+3.1
+* Ability to define custom parameter builders in the IdP settings
+* Bump version to IdP 3.2.1
+* Bump version to CAS Client 3.4.1
+
 3.0.0-1
 * Applied a fix to a bad reference in the Spring config file (issue #1). (No change to the binary/release, hence the "-1")
 

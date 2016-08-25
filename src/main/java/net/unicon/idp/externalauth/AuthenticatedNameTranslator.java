@@ -20,6 +20,11 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
     @Override
     public void doTranslation(final HttpServletRequest request, final HttpServletResponse response,
             final Assertion assertion) {
+        if (assertion == null || assertion.getPrincipal() == null) {
+            logger.error("No valida assertion or principal could be found to translate");
+            return;
+        }
+        
         String authenticatedPrincipalName = assertion.getPrincipal().getName(); // i.e. username from CAS
         logger.debug("principalName found and being passed on: {}", authenticatedPrincipalName);
 

@@ -27,6 +27,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URL;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ExternalAuthentication.class, Cas20ServiceTicketValidator.class})
@@ -104,7 +105,7 @@ public class ShibcasAuthServletTest {
         Assertion assertion = createMockAssertion();
 
         Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
-        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
+        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
@@ -188,7 +189,7 @@ public class ShibcasAuthServletTest {
         Assertion assertion = createMockAssertion();
 
         Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
-        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
+        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
@@ -310,18 +311,23 @@ public class ShibcasAuthServletTest {
     }
 
     private HttpServletRequest createMockHttpServletRequest() {
-        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        try {
+            HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
-        BDDMockito.given(request.getScheme()).willReturn("http");
-        BDDMockito.given(request.getMethod()).willReturn("GET");
-        BDDMockito.given(request.isSecure()).willReturn(true);
-        BDDMockito.given(request.getHeader("Host")).willReturn("shibserver.example.edu");
-        //BDDMockito.given(request.getHeader("X-Forwarded-Host")).willReturn();
-        BDDMockito.given(request.getServerPort()).willReturn(443);
-        BDDMockito.given(request.getRequestURI()).willReturn("/idp/Authn/ExtCas");
-        BDDMockito.given(request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM)).willReturn("http://test.edu/sp");
+            BDDMockito.given(request.getScheme()).willReturn("http");
+            BDDMockito.given(request.getMethod()).willReturn("GET");
+            BDDMockito.given(request.isSecure()).willReturn(true);
+            BDDMockito.given(request.getHeader("Host")).willReturn("shibserver.example.edu");
+            //BDDMockito.given(request.getHeader("X-Forwarded-Host")).willReturn();
+            BDDMockito.given(request.getServerPort()).willReturn(443);
+            BDDMockito.given(request.getRequestURI()).willReturn("/idp/Authn/ExtCas");
+            BDDMockito.given(request.getRequestURL()).willReturn(new StringBuffer("/idp/Authn/ExtCas"));
+            BDDMockito.given(request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM)).willReturn("http://test.edu/sp");
 
-        return request;
+            return request;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private HttpServletResponse createMockHttpServletResponse() {

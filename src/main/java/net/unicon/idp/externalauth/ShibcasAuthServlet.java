@@ -38,6 +38,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
     private static final long serialVersionUID = 1L;
     private static final String artifactParameterName = "ticket";
+    private static final String serviceParameterName = "service";
 
     private String casLoginUrl;
     private String serverName;
@@ -47,11 +48,12 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
+
     {
         // By default, we start with the entity id param builder included
         parameterBuilders.add(new EntityIdParameterBuilder());
     }
-    
+
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
         // TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
@@ -76,22 +78,26 @@ public class ShibcasAuthServlet extends HttpServlet {
             }
 
             validateCasTicket(request, response, ticket, authenticationKey, force);
-            
+
         } catch (final ExternalAuthenticationException e) {
             throw new ServletException("Error processing ShibCas authentication request", e);
         }
     }
 
-    private void validateCasTicket(final HttpServletRequest request, final HttpServletResponse response, final String ticket, 
+    private void validateCasTicket(final HttpServletRequest request, final HttpServletResponse response, final String ticket,
                                    final String authenticationKey, final boolean force) throws ExternalAuthenticationException, IOException {
         try {
             ticketValidator.setRenew(force);
-            logger.debug("validating ticket: {}", ticket);
-            Assertion assertion = ticketValidator.validate(ticket, constructServiceUrl(request, response));
+            String serviceUrl = constructServiceUrl(request, response);
+            logger.debug("validating ticket: {} with service ur:l {}", ticket, serviceUrl);
+            
+            Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
+            if (assertion == null) {
+                throw new TicketValidationException("Validation failed. Assertion could not be retrieved for ticket " + ticket);
+            }
             for (CasToShibTranslator casToShibTranslator : translators) {
                 casToShibTranslator.doTranslation(request, response, assertion);
             }
-
             ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
         } catch (final TicketValidationException e) {
             logger.error("Ticket validation failed, returning InvalidTicket", e);
@@ -123,14 +129,14 @@ public class ShibcasAuthServlet extends HttpServlet {
             logger.error("Unable to redirect to CAS from ShibCas", e);
         }
     }
-    
+
     /**
      * Uses the CAS CommonUtils to build the CAS Redirect URL.
      */
     private String constructRedirectUrl(String serviceUrl, boolean renew, boolean gateway) {
         return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway);
     }
-    
+
     /**
      * Build addition querystring parameters
      *
@@ -195,7 +201,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      */
     private void buildTranslators(Environment environment) {
         translators.add(new AuthenticatedNameTranslator());
-        
+
         String casToShibTranslators = StringUtils.defaultString(environment.getProperty("shibcas.casToShibTranslators", ""));
         for (String classname : StringUtils.split(casToShibTranslators, ';')) {
             try {
@@ -213,6 +219,6 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Use the CAS CommonUtils to build the CAS Service URL.
      */
     private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        return CommonUtils.constructServiceUrl(request, response, null, serverName, artifactParameterName, true);
+        return CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
     }
 }
