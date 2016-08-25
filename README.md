@@ -14,7 +14,7 @@ The plugin consists of 2 components:
 
 Build Status
 -------------------------------------------------------------
-Travis-CI: ![Travis-CI build status](https://travis-ci.org/Unicon/shib-cas-authn3.png)
+[![Build Status](https://travis-ci.org/Unicon/shib-cas-authn3.svg?branch=master)](https://travis-ci.org/Unicon/shib-cas-authn3)
 
 Software Requirements
 -------------------------------------------------------------
