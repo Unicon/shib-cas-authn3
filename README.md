@@ -133,6 +133,7 @@ Release Notes
 * Ability to define custom parameter builders in the IdP settings
 * Bump version to IdP 3.2.1
 * Bump version to CAS Client 3.4.1
+* User CAS protocol v3 when validating tickets to retrieve attributes.
 
 3.0.0-1
 * Applied a fix to a bad reference in the Spring config file (issue #1). (No change to the binary/release, hence the "-1")

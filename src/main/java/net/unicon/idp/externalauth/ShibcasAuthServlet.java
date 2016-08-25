@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,8 +159,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         ApplicationContext ac = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         parseProperties(ac.getEnvironment());
 
-        ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
-
+        ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
         buildTranslators(ac.getEnvironment());
         buildParameterBuilders(ac.getEnvironment());
     }
