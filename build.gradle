@@ -9,22 +9,27 @@ allprojects {
     version = project.version
 
     repositories {
+        mavenLocal()
         mavenCentral()
         maven { url "https://build.shibboleth.net/nexus/content/repositories/releases" }
         maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
     }
 
+    test.onlyIf { !Boolean.getBoolean('skip.tests') }
+    
     dependencies {
         testCompile group: 'junit', name: 'junit', version: project.junitVersion
-    }    
-    
-    sourceSets.test.runtimeClasspath += files("idp-cas-invoker/src/test/resources") 
+        compile "javax.servlet:javax.servlet-api:$project.servletVersion"
+        compile "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+        compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
+        compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.3.1'
+        //other dependencies such as logging and spring are brought in transitively
+
+        testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+        testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.1'
+    }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion
-}
-
-task fatJar(type: Jar) {
-    from files("${buildDir}/../idp-cas-invoker/build/libs/idp-cas-invoker-${project.version}.jar").collect {zipTree(it)}
 }

@@ -15,5 +15,5 @@ public interface IParameterBuilder {
      * @param request The original request.
      * @return a string of the form: paramName=value
      */
-    public String getParameterString(HttpServletRequest request);
+    String getParameterString(HttpServletRequest request);
 }

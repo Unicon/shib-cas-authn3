@@ -297,7 +297,7 @@ public class ShibcasAuthServletTest {
         ServletContext servletContext = Mockito.mock(ServletContext.class);
         ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
         Environment environment = Mockito.mock(Environment.class);
-
+        
         BDDMockito.given(config.getServletContext()).willReturn(servletContext);
         BDDMockito.given(servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).willReturn(applicationContext);
         BDDMockito.given(applicationContext.getEnvironment()).willReturn(environment);

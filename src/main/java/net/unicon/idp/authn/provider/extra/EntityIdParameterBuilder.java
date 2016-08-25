@@ -14,12 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EntityIdParameterBuilder implements IParameterBuilder {
     private Logger logger = LoggerFactory.getLogger(EntityIdParameterBuilder.class);
-
-    /**
-     * Create the param=value pair of entityId=[Shib relaying party id].
-     * @param request The original servlet request.
-     * @see net.unicon.idp.authn.provider.extra.IParameterBuilder#getParameterString(javax.servlet.http.HttpServletRequest)
-     */
+    
     @Override
     public String getParameterString(final HttpServletRequest request) {
         final String relayingPartyId = request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM).toString();
