@@ -123,17 +123,21 @@ Shibboleth SP Apache Configuration
 ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
 ```
 
-New Features 3.0
+New Features 3.1.x
+-------------------------------------------------------------
+* Ability to define custom parameter builders in the IdP settings
+* Bump version to IdP 3.2.1.
+* Bump version to CAS Client 3.4.1. This means your CAS servet must be on version 4+.
+* User CAS protocol v3 when validating tickets to retrieve attributes, and pass those attributes back to the IdP. At this point, a scripted
+ data connector is required inside the IdP to map those attributes from the external authentication context into the current set of 
+ resolved attributes active in the IdP.  
+
+New Features 3.0.x
 -------------------------------------------------------------
 Support for IdP version 3.0.0+
 
 Release Notes
 -------------------------------------------------------------
-3.1
-* Ability to define custom parameter builders in the IdP settings
-* Bump version to IdP 3.2.1
-* Bump version to CAS Client 3.4.1
-* User CAS protocol v3 when validating tickets to retrieve attributes.
 
 3.0.0-1
 * Applied a fix to a bad reference in the Spring config file (issue #1). (No change to the binary/release, hence the "-1")
