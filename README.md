@@ -101,17 +101,10 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 ```
 
 #### Copy the libraries/jars
-Both the shib-cas-authn and cas client library are required. You can download them directly (vs building from source):
-- <https://github.com/Unicon/shib-cas-authn3/releases/download/v3.1.0/shib-cas-authenticator-3.1.0.jar>
-- <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.4.1/cas-client-core-3.4.1.jar>
-
-Copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
-
-> These links are here for demonstration purposes. Please check <https://github.com/Unicon/shib-cas-authn3/releases/latest> and <http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core> for more up-to-date versions.
+Download [the appropriate JARs](https://github.com/Unicon/shib-cas-authn3/releases/) and copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
 
 #### Rebuild the war file
 From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
-
 
 Shibboleth SP Apache Configuration
 -------------------------------------------------------------
