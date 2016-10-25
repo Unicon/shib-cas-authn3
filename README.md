@@ -83,6 +83,9 @@ shibcas.serverName = https://shibserver.example.edu
 # Takes a comma separated list of fully qualified class names
 # shibcas.casToShibTranslators = com.your.institution.MyCustomNamedTranslatorClass
 # shibcas.parameterBuilders = com.your.institution.MyParameterBuilderClass
+
+# Specify CAS validator to use - either 'cas20' or 'cas30' (default)
+# shibcas.ticketValidatorName = cas30
 ...
 ```
 

@@ -25,6 +25,7 @@ allprojects {
         compile "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
         compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
         compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.4.1'
+        compile group: 'org.jasig.cas.client', name: 'cas-client-support-saml', version: '3.4.1'
         //other dependencies such as logging and spring are brought in transitively
 
         testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'

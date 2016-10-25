@@ -44,6 +44,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     private String casLoginUrl;
     private String serverName;
     private String casServerPrefix;
+    private String ticketValidatorName;
 
     private Cas20ServiceTicketValidator ticketValidator;
 
@@ -159,7 +160,19 @@ public class ShibcasAuthServlet extends HttpServlet {
         ApplicationContext ac = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         parseProperties(ac.getEnvironment());
 
-        ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
+		switch (ticketValidatorName) {
+		case "cas30":
+			ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
+			break;
+		case "cas20":
+			ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
+		}
+
+		if (ticketValidator == null) {
+			throw new ServletException("Initialization failed. Invalid shibcas.ticketValidatorName property: '"
+					+ ticketValidatorName + "'");
+		}
+        
         buildTranslators(ac.getEnvironment());
         buildParameterBuilders(ac.getEnvironment());
     }
@@ -179,6 +192,9 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         serverName = environment.getRequiredProperty("shibcas.serverName");
         logger.debug("shibcas.serverName: {}", serverName);
+        
+        ticketValidatorName = environment.getProperty("shibcas.ticketValidatorName", "cas30");
+        logger.debug("shibcas.ticketValidatorName: {}", ticketValidatorName);
     }
 
     private void buildParameterBuilders(final Environment environment) {
