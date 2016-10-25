@@ -4,6 +4,7 @@ import net.shibboleth.idp.authn.ExternalAuthentication;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -187,7 +188,7 @@ public class ShibcasAuthServletTest {
         HttpServletResponse response = createMockHttpServletResponse();
         Assertion assertion = createMockAssertion();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas30ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
@@ -196,7 +197,7 @@ public class ShibcasAuthServletTest {
         //Prep our object
         ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
-        //Override the internal Cas20TicketValidator because we don't want it to call a real server
+        //Override the internal Cas30TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
 
         //Passive and forced request/response
@@ -305,6 +306,7 @@ public class ShibcasAuthServletTest {
         BDDMockito.given(environment.getRequiredProperty("shibcas.casServerLoginUrl")).willReturn("https://cassserver.example.edu/cas/login");
         BDDMockito.given(environment.getRequiredProperty("shibcas.serverName")).willReturn("https://shibserver.example.edu");
         BDDMockito.given(environment.getRequiredProperty("shibcas.casToShibTranslators")).willReturn(null);
+        BDDMockito.given(environment.getProperty("shibcas.ticketValidatorName", "cas30")).willReturn("cas30");
 
         return config;
     }
