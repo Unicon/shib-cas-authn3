@@ -81,7 +81,7 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
         for (final Map.Entry<String, Object> entry : casAttributes.entrySet()) {
             IdPAttribute attr = new IdPAttribute(entry.getKey());
 
-            List attributeValues = new ArrayList<>();
+            List<StringAttributeValue> attributeValues = new ArrayList<>();
             if (entry.getValue() instanceof Collection) {
                 for (final Object value : (Collection) entry.getValue()) {
                     attributeValues.add(new StringAttributeValue(value.toString()));

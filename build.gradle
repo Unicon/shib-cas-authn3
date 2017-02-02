@@ -1,37 +1,61 @@
+apply plugin: 'distribution'
 apply plugin: 'idea'
+apply plugin: 'java'
 apply plugin: 'maven'
 
 defaultTasks 'clean', 'build'
 
-allprojects {
-    apply plugin: 'java'
-    group = 'net.unicon'
+sourceCompatibility = 1.7
 
-    sourceCompatibility = 1.7
-    version = project.version
+group = 'net.unicon'
+version = project.version
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://build.shibboleth.net/nexus/content/repositories/releases" }
-        maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
-    }
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://build.shibboleth.net/nexus/content/repositories/releases" }
+    maven { url "https://build.shibboleth.net/nexus/content/repositories/thirdparty" }
+}
 
-    test.onlyIf { !Boolean.getBoolean('skip.tests') }
-    
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: project.junitVersion
-        compile "javax.servlet:javax.servlet-api:$project.servletVersion"
-        compile "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
-        compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
-        compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.4.1'
-        compile group: 'org.jasig.cas.client', name: 'cas-client-support-saml', version: '3.4.1'
-        //other dependencies such as logging and spring are brought in transitively
+test.onlyIf { !Boolean.getBoolean('skip.tests') }
 
-        testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
-        testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.1'
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: project.junitVersion
+    compile "javax.servlet:javax.servlet-api:$project.servletVersion"
+    compile "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
+    compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.4.1'
+    //other dependencies such as logging and spring are brought in transitively
+
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
+    testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.1'
+}
+
+distributions {
+    main {
+        baseName = 'shib-cas-authn3'
+        contents {
+            from { 'build/dist-tmp' }
+        }
     }
 }
+
+task prepDistLib(type: Copy) {
+    dependsOn jar
+
+    from ('build/libs')
+    into 'build/dist-tmp/edit-webapp/WEB-INF/lib'
+}
+
+task prepDistSrc(type: Copy) {
+    from ('IDP_HOME')
+    from ('LICENSE')
+    into 'build/dist-tmp/'
+}
+
+distTar.dependsOn prepDistLib, prepDistSrc
+distZip.dependsOn prepDistLib, prepDistSrc
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion

@@ -1,5 +1,6 @@
 package net.unicon.idp.externalauth;
 
+import net.shibboleth.idp.authn.AuthnEventIds;
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.ExternalAuthenticationException;
 import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
@@ -57,7 +58,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException {
         // TODO: We have the opportunity to give back more to Shib than just the PRINCIPAL_NAME_KEY. Identify additional information
         try {
             final String ticket = CommonUtils.safeGetParameter(request, artifactParameterName);
@@ -74,7 +75,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
             if (ticket == null || ticket.isEmpty()) {
                 logger.debug("Gateway/Passive returned no ticket, returning NoPassive.");
-                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "NoPassive");
+                request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, AuthnEventIds.NO_PASSIVE);
                 ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
                 return;
             }
@@ -82,7 +83,12 @@ public class ShibcasAuthServlet extends HttpServlet {
             validateCasTicket(request, response, ticket, authenticationKey, force);
 
         } catch (final ExternalAuthenticationException e) {
-            throw new ServletException("Error processing ShibCas authentication request", e);
+            logger.warn("Error processing ShibCas authentication request", e);
+            request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, AuthnEventIds.INVALID_AUTHN_CTX);
+
+        } catch (final Exception e) {
+            logger.error("Something unexpected happened", e);
+            request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, AuthnEventIds.AUTHN_EXCEPTION);
         }
     }
 
@@ -91,7 +97,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         try {
             ticketValidator.setRenew(force);
             String serviceUrl = constructServiceUrl(request, response);
-            logger.debug("validating ticket: {} with service ur:l {}", ticket, serviceUrl);
+            logger.debug("validating ticket: {} with service url: {}", ticket, serviceUrl);
             
             Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
             if (assertion == null) {

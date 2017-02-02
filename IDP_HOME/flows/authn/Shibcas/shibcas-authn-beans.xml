@@ -12,43 +12,56 @@
        default-init-method="initialize"
        default-destroy-method="destroy">
 
+    <!-- Based off of system/flows/authn/external-authn-beans.xml -->
     <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
           p:placeholderPrefix="%{" p:placeholderSuffix="}" />
+
+    <bean class="net.shibboleth.ext.spring.config.IdentifiableBeanPostProcessor" />
+    <bean class="net.shibboleth.idp.profile.impl.ProfileActionBeanPostProcessor" />
+
+    <!-- Default strategy function to obtain the external path. -->
+    <bean id="shibboleth.authn.Cas.externalAuthnPathStrategy"
+          class="com.google.common.base.Functions" factory-method="constant"
+          c:_0-ref="shibboleth.authn.Cas.externalAuthnPath" />
+
+    <bean id="ValidateExternalAuthentication"
+          class="net.shibboleth.idp.authn.impl.ValidateExternalAuthentication" scope="prototype"
+          p:matchExpression="#{getObject('shibboleth.authn.Cas.matchExpression')}"
+          p:addDefaultPrincipals="#{getObject('shibboleth.authn.Cas.addDefaultPrincipals') ?: true}"
+          p:classifiedMessages-ref="shibboleth.authn.Cas.ClassifiedMessageMap"
+          p:resultCachingPredicate="#{getObject('shibboleth.authn.Cas.resultCachingPredicate')}" />
+
+    <bean id="PopulateSubjectCanonicalizationContext"
+          class="net.shibboleth.idp.authn.impl.PopulateSubjectCanonicalizationContext" scope="prototype"
+          p:availableFlows-ref="shibboleth.PostLoginSubjectCanonicalizationFlows" />
+
+    <!-- Based off of conf/auth/external-authn-config.xml-->
 
     <bean id="shibboleth.authn.Cas.externalAuthnPath" class="java.lang.String"
           c:_0="contextRelative:Authn/ExtCas" />
 
-    <bean class="net.shibboleth.idp.profile.impl.ProfileActionBeanPostProcessor" />
-    <bean class="net.shibboleth.ext.spring.config.IdentifiableBeanPostProcessor" />
-
-    <bean id="SetRPUIInformation"
-          class="net.shibboleth.idp.ui.impl.SetRPUIInformation" scope="prototype"
-          p:activationCondition-ref="shibboleth.authn.Cas.populateUIInfo"
-          p:httpServletRequest-ref="shibboleth.HttpServletRequest">
-        <property name="fallbackLanguages">
-            <bean parent="shibboleth.CommaDelimStringArray" c:_0="%{idp.ui.fallbackLanguages:}" />
-        </property>
-    </bean>
-
-    <bean id="ValidateExternalAuthentication"
-          class="net.shibboleth.idp.authn.impl.ValidateExternalAuthentication" scope="prototype"
-          p:classifiedMessages-ref="shibboleth.authn.Cas.ClassifiedMessageMap"
-          p:resultCachingPredicate="#{getObject('shibboleth.authn.Cas.resultCachingPredicate')}" />
-
-    <util:constant id="shibboleth.authn.Cas.populateUIInfo" static-field="java.lang.Boolean.FALSE" />
 
     <util:map id="shibboleth.authn.Cas.ClassifiedMessageMap">
+        <entry key="AuthenticationException">
+            <list>
+                <value>AuthenticationException</value>
+            </list>
+        </entry>
+        <entry key="InvalidAuthenticationContext">
+            <list>
+                <value>InvalidAuthenticationContext</value>
+            </list>
+        </entry>
         <entry key="NoPassive">
             <list>
                 <value>NoPassive</value>
             </list>
         </entry>
-        <entry key="InvalidTicket">
+        <entry key="NoCredentials">
             <list>
-                <value>NoCredential</value>
+                <value>InvalidTicket</value>
             </list>
         </entry>
-
     </util:map>
 
 </beans>
