@@ -71,7 +71,7 @@ task prepDist() {
 distTar.dependsOn prepDist
 distZip.dependsOn prepDist
 
-task buildTestDocker() {
+task prepImageFiles() {
     dependsOn jar
 
     inputs.dir 'src/test/docker'
@@ -99,9 +99,8 @@ task buildTestDocker() {
     }
 }
 
-
-task buildDocker(type:Exec) {
-    dependsOn buildTestDocker
+task buildContainer(type:Exec) {
+    dependsOn prepImageFiles
 
     doFirst {
         logger.lifecycle("Building the initial images may take a long time. Have plenty of bandwidth.")
@@ -112,7 +111,7 @@ task buildDocker(type:Exec) {
 }
 
 task up(type:Exec) {
-    dependsOn buildDocker
+    dependsOn buildContainer
 
     workingDir 'build/docker'
     commandLine 'docker-compose', 'up', '-d'
