@@ -17,6 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -84,7 +85,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         } catch (final ExternalAuthenticationException e) {
             logger.warn("Error processing ShibCas authentication request", e);
-            request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, AuthnEventIds.INVALID_AUTHN_CTX);
+            loadErrorPage(request, response);
 
         } catch (final Exception e) {
             logger.error("Something unexpected happened", e);
@@ -242,5 +243,16 @@ public class ShibcasAuthServlet extends HttpServlet {
      */
     private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
         return CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+    }
+
+    private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("/no-conversation-state.jsp");
+        try {
+            requestDispatcher.forward(request, response);
+        } catch (Exception e) {
+            logger.error("Error rendering the empty conversation state (shib-cas-authn3) error view.");
+            response.resetBuffer();
+            response.setStatus(404);
+        }
     }
 }

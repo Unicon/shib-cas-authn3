@@ -1,6 +1,7 @@
 package net.unicon.idp.externalauth;
 
 import net.shibboleth.idp.authn.ExternalAuthentication;
+import net.shibboleth.idp.authn.ExternalAuthenticationException;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
@@ -70,6 +71,34 @@ public class ShibcasAuthServletTest {
     }
 
     @Test
+    public void testDoGetBadConversationId() throws Exception {
+        //Mock some objects.
+        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
+        HttpServletResponse response = createMockHttpServletResponse();
+        Assertion assertion = createMockAssertion();
+
+        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
+
+        PowerMockito.mockStatic(ExternalAuthentication.class);
+        BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
+
+        //Prep our object
+        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+
+        //Override the internal Cas20TicketValidator because we don't want it to call a real server
+        MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
+
+        //Standard request/response
+        BDDMockito.given(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM)).willReturn("false");
+        BDDMockito.given(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM)).willReturn("false");
+        shibcasAuthServlet.doGet(request, response);
+
+        //Verify
+        verify(request).setAttribute(ExternalAuthentication.PRINCIPAL_NAME_KEY, JDOE);
+    }
+
+    @Test
     public void testDoGetBadTicket() throws Exception {
         //Mock some objects.
         HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
@@ -78,7 +107,7 @@ public class ShibcasAuthServletTest {
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenThrow(new TicketValidationException("Invalid Ticket"));
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
-        BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
+        BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willThrow(new ExternalAuthenticationException());
 
         //Prep our object
         ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();

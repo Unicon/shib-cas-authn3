@@ -1,0 +1,8 @@
+{
+    "@class": "org.apereo.cas.services.RegexRegisteredService",
+    "serviceId": "^(https|imaps|http)://.*",
+    "name": "SampleService",
+    "id": 1,
+    "description": "Sample CAS client application",
+    "evaluationOrder": 0
+}

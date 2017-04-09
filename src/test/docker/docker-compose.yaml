@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  cas_server:
+    build: ./cas_server/
+    depends_on:
+     - ldap
+    ports:
+     - 8443:8443
+    volumes:
+     - ~/.m2:/root/.m2
+     - /dev/urandom:/dev/random
+
+  shib_idp:
+    build: ./shib_idp/
+    depends_on:
+     - ldap
+    environment:
+     - JETTY_MAX_HEAP=64m
+     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+    ports:
+     - 443:4443
+    volumes:
+     - /dev/urandom:/dev/random
+
+  ldap:
+    build: ./ldap/
+    ports:
+     - 389:389

@@ -18,7 +18,7 @@ Build Status
 
 Software Requirements
 -------------------------------------------------------------
-This minimum supported version of Shibboleth Identity Provider is `3.0.0`
+This minimum supported version of Shibboleth Identity Provider is `3.3.0`
 
 > A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
@@ -27,11 +27,10 @@ Installation
 
 #### Overview
 
-1. Copy the Spring Webflow files into the IDP_HOME.
+1. Copy the Spring Webflow files, jsp, and included jar files into the IDP_HOME.
 1. Update the IdP's `web.xml`. (optional)
 1. Update the IdP's `idp.properties` file.
 1. Update the IdP's `general-authn.xml` file.
-1. Copy the libraries/jars.
 1. Rebuild the war file.
 
 #### Copy the Spring Webflow files into the IDP_HOME
@@ -103,22 +102,22 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 ...
 ```
 
-#### Copy the libraries/jars
-Download [the appropriate JARs](https://github.com/Unicon/shib-cas-authn3/releases/) and copy them to `IDP_HOME/edit-webapp/WEB-INF/lib/`.
 
 #### Rebuild the war file
 From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
 
-Shibboleth SP Apache Configuration
--------------------------------------------------------------
-> It hasn't been confirmed that this is required to function in IdP v3.0
-
-* Ensure that the following command is set:
-
-```
-ShibRequestSetting authnContextClassRef urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
-```
-
 Release Notes
 -------------------------------------------------------------
 See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
+
+
+Developer Notes
+-------------------------------------------------------------
+This project includes a Docker environment to assist with development/testing. 
+
+To build and execute: `./gradlew clean; ./gradlew up`
+Then browse to: `https://idptestbed/idp/profile/SAML2/Unsolicited/SSO?providerId=https://sp.idptestbed/shibboleth`
+
+> You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address. 
+
+The IdP only had a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.

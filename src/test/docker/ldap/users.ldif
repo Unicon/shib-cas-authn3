@@ -1,0 +1,13 @@
+dn: uid=jsmith,ou=People,dc=example,dc=edu
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: inetUser
+objectClass: passwordObject
+givenName: Joe
+uid: jsmith
+sn: Smith
+cn: John Smith
+mail: jsmith@example.edu
+userPassword: password

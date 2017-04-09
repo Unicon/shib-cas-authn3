@@ -19,16 +19,22 @@ repositories {
 
 test.onlyIf { !Boolean.getBoolean('skip.tests') }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: project.junitVersion
-    compile "javax.servlet:javax.servlet-api:$project.servletVersion"
-    compile "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
-    compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
-    compile group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.4.1'
-    //other dependencies such as logging and spring are brought in transitively
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+configurations.compile.transitive = false
 
-    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.9.5'
-    testCompile group: 'org.powermock', name: 'powermock-mockito-release-full', version: '1.6.1'
+dependencies {
+    compile "org.jasig.cas.client:cas-client-core:$project.casClientVersion"
+
+    provided "javax.servlet:javax.servlet-api:$project.servletVersion"
+    provided "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    provided "commons-lang:commons-lang:$project.commonLangVersion"
+
+    testCompile "junit:junit:$project.junitVersion"
+    testCompile "org.mockito:mockito-all:$project.mockitoVersion"
+    testCompile "org.powermock:powermock-mockito-release-full:$project.powermockVersion"
 }
 
 distributions {
@@ -40,22 +46,93 @@ distributions {
     }
 }
 
-task prepDistLib(type: Copy) {
+task prepDist() {
     dependsOn jar
 
-    from ('build/libs')
-    into 'build/dist-tmp/edit-webapp/WEB-INF/lib'
+    inputs.dir 'IDP_HOME/'
+    inputs.file 'LICENSE'
+
+    outputs.dir 'build/dist-tmp/'
+
+    doLast {
+        copy {
+            from('IDP_HOME')
+            from('LICENSE')
+            into 'build/dist-tmp/'
+        }
+        copy {
+            from (configurations.compile - configurations.provided)
+            from jar
+            into 'build/dist-tmp/edit-webapp/WEB-INF/lib'
+        }
+    }
 }
 
-task prepDistSrc(type: Copy) {
-    from ('IDP_HOME')
-    from ('LICENSE')
-    into 'build/dist-tmp/'
+distTar.dependsOn prepDist
+distZip.dependsOn prepDist
+
+task buildTestDocker() {
+    dependsOn jar
+
+    inputs.dir 'src/test/docker'
+    inputs.dir 'build/libs'
+
+    outputs.dir 'build/docker'
+
+    doLast {
+        copy {
+            from "src/test/docker/"
+            into 'build/docker/'
+        }
+        copy {
+            from "build/libs/"
+            into 'build/docker/shib_idp/shibboleth-idp/webapp/WEB-INF/lib/'
+        }
+        copy {
+            from "IDP_HOME/flows/"
+            into 'build/docker/shib_idp/shibboleth-idp/flows/'
+        }
+        copy {
+            from "IDP_HOME/edit-webapp/"
+            into 'build/docker/shib_idp/shibboleth-idp/webapp/'
+        }
+    }
 }
 
-distTar.dependsOn prepDistLib, prepDistSrc
-distZip.dependsOn prepDistLib, prepDistSrc
 
+task buildDocker(type:Exec) {
+    dependsOn buildTestDocker
+
+    doFirst {
+        logger.lifecycle("Building the initial images may take a long time. Have plenty of bandwidth.")
+    }
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'build'
+}
+
+task up(type:Exec) {
+    dependsOn buildDocker
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'up', '-d'
+}
+
+task stop(type:Exec) {
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'kill'
+}
+
+task down(type:Exec) {
+    dependsOn stop
+
+    workingDir 'build/docker'
+    commandLine 'docker-compose', 'rm', '-f'
+}
+
+clean {
+    dependsOn down
+}
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion
