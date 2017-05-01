@@ -4,7 +4,7 @@ branches:
   only:
   - master
 jdk:
-- oraclejdk7
+- oraclejdk8
 cache:
   directories:
     - '$HOME/.gradle/caches'
