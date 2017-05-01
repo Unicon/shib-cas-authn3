@@ -47,16 +47,12 @@ public class ShibcasAuthServlet extends HttpServlet {
     private String serverName;
     private String casServerPrefix;
     private String ticketValidatorName;
+    private String entityIdLocation;
 
     private Cas20ServiceTicketValidator ticketValidator;
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
-
-    {
-        // By default, we start with the entity id param builder included
-        parameterBuilders.add(new EntityIdParameterBuilder());
-    }
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException {
@@ -124,6 +120,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         try {
             String serviceUrl = constructServiceUrl(request, response);
+
             if (passive) {
                 serviceUrl += "&gatewayAttempted=true";
             }
@@ -167,19 +164,23 @@ public class ShibcasAuthServlet extends HttpServlet {
         ApplicationContext ac = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         parseProperties(ac.getEnvironment());
 
-       switch (ticketValidatorName) {
-       case "cas30":
-           ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
-           break;
-       case "cas20":
-           ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
-       }
+        switch (ticketValidatorName) {
+           case "cas30":
+               ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
+               break;
+           case "cas20":
+               ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
+        }
 
-       if (ticketValidator == null) {
-           throw new ServletException("Initialization failed. Invalid shibcas.ticketValidatorName property: '"
-                   + ticketValidatorName + "'");
-       }
-        
+        if (ticketValidator == null) {
+            throw new ServletException("Initialization failed. Invalid shibcas.ticketValidatorName property: '"
+                    + ticketValidatorName + "'");
+        }
+
+        if ("append".equalsIgnoreCase(entityIdLocation)) {
+            parameterBuilders.add(new EntityIdParameterBuilder());
+        }
+
         buildTranslators(ac.getEnvironment());
         buildParameterBuilders(ac.getEnvironment());
     }
@@ -202,6 +203,9 @@ public class ShibcasAuthServlet extends HttpServlet {
         
         ticketValidatorName = environment.getProperty("shibcas.ticketValidatorName", "cas30");
         logger.debug("shibcas.ticketValidatorName: {}", ticketValidatorName);
+
+        entityIdLocation = environment.getProperty("shibcas.entityIdLocation", "append");
+        logger.debug("shibcas.entityIdLocation: {}", entityIdLocation);
     }
 
     private void buildParameterBuilders(final Environment environment) {
@@ -242,7 +246,13 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Use the CAS CommonUtils to build the CAS Service URL.
      */
     private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        return CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+
+        if ("embed".equalsIgnoreCase(entityIdLocation)) {
+            serviceUrl += (new EntityIdParameterBuilder().getParameterString(request, false));
+        }
+
+        return serviceUrl;
     }
 
     private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {

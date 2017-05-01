@@ -2,6 +2,7 @@ package net.unicon.idp.externalauth;
 
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.ExternalAuthenticationException;
+import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.authentication.AttributePrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
@@ -70,33 +71,6 @@ public class ShibcasAuthServletTest {
         verify(request).setAttribute(ExternalAuthentication.PRINCIPAL_NAME_KEY, JDOE);
     }
 
-    @Test
-    public void testDoGetBadConversationId() throws Exception {
-        //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
-        HttpServletResponse response = createMockHttpServletResponse();
-        Assertion assertion = createMockAssertion();
-
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
-        PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
-
-        PowerMockito.mockStatic(ExternalAuthentication.class);
-        BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
-
-        //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
-
-        //Override the internal Cas20TicketValidator because we don't want it to call a real server
-        MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
-
-        //Standard request/response
-        BDDMockito.given(request.getAttribute(ExternalAuthentication.FORCE_AUTHN_PARAM)).willReturn("false");
-        BDDMockito.given(request.getAttribute(ExternalAuthentication.PASSIVE_AUTHN_PARAM)).willReturn("false");
-        shibcasAuthServlet.doGet(request, response);
-
-        //Verify
-        verify(request).setAttribute(ExternalAuthentication.PRINCIPAL_NAME_KEY, JDOE);
-    }
 
     @Test
     public void testDoGetBadTicket() throws Exception {
@@ -121,8 +95,8 @@ public class ShibcasAuthServletTest {
         shibcasAuthServlet.doGet(request, response);
 
         //Verify
-        verify(request, never()).setAttribute(eq(ExternalAuthentication.PRINCIPAL_NAME_KEY), any());
-        verify(request).setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "InvalidTicket");
+        verify(request).getRequestDispatcher("/no-conversation-state.jsp");
+        verify(response).setStatus(404);
     }
 
 
@@ -255,6 +229,36 @@ public class ShibcasAuthServletTest {
     }
 
     @Test
+    public void testStartLoginRequestEmbeddedEntityId() throws Exception {
+        HttpServletRequest request = createMockHttpServletRequest();
+        BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
+
+        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        shibcasAuthServlet.init(createMockServletConfig("embed"));
+
+        shibcasAuthServlet.startLoginRequest(request, response, false, false);
+        verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1%26entityId%3Dhttp%3A%2F%2Ftest.edu%2Fsp");
+    }
+
+    @Test
+    public void testStartLoginRequestAppendedEntityId() throws Exception {
+        HttpServletRequest request = createMockHttpServletRequest();
+        BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
+
+        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
+
+        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        shibcasAuthServlet.init(createMockServletConfig("append"));
+
+        shibcasAuthServlet.startLoginRequest(request, response, false, false);
+        verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp");
+    }
+
+    @Test
     public void testStartLoginRequestPassive() throws Exception {
         HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
@@ -322,7 +326,12 @@ public class ShibcasAuthServletTest {
         return assertion;
     }
 
+
     private ServletConfig createMockServletConfig() {
+        return createMockServletConfig("");
+    }
+
+    private ServletConfig createMockServletConfig(String entityIdLocation) {
         ServletConfig config = Mockito.mock(ServletConfig.class);
         ServletContext servletContext = Mockito.mock(ServletContext.class);
         ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
@@ -336,6 +345,12 @@ public class ShibcasAuthServletTest {
         BDDMockito.given(environment.getRequiredProperty("shibcas.serverName")).willReturn("https://shibserver.example.edu");
         BDDMockito.given(environment.getRequiredProperty("shibcas.casToShibTranslators")).willReturn(null);
         BDDMockito.given(environment.getProperty("shibcas.ticketValidatorName", "cas30")).willReturn("cas30");
+
+        if (StringUtils.isNotEmpty(entityIdLocation)) {
+            BDDMockito.given(environment.getProperty("shibcas.entityIdLocation", "append")).willReturn(entityIdLocation);
+        } else {
+            BDDMockito.given(environment.getProperty("shibcas.entityIdLocation", "append")).willReturn("append");
+        }
 
         return config;
     }

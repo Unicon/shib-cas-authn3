@@ -1,11 +1,12 @@
 package net.unicon.idp.authn.provider.extra;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import javax.servlet.http.HttpServletRequest;
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Generates a querystring parameter containing the entityId
@@ -14,16 +15,25 @@ import org.slf4j.LoggerFactory;
  */
 public class EntityIdParameterBuilder implements IParameterBuilder {
     private Logger logger = LoggerFactory.getLogger(EntityIdParameterBuilder.class);
-    
+
     @Override
     public String getParameterString(final HttpServletRequest request) {
+        return getParameterString(request, true);
+    }
+
+    public String getParameterString(final HttpServletRequest request, final boolean encode) {
         final String relayingPartyId = request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM).toString();
+
         String rpId = "error-encoding-rpid";
 
-        try {
-            rpId = URLEncoder.encode(relayingPartyId, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Error encoding the relying party id.", e);
+        if (encode == true) {
+            try {
+                rpId = URLEncoder.encode(relayingPartyId, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Error encoding the relying party id.", e);
+            }
+        } else {
+            rpId = relayingPartyId;
         }
 
         return "&entityId=" + rpId;

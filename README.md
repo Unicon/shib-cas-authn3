@@ -85,6 +85,11 @@ shibcas.serverName = https://shibserver.example.edu
 
 # Specify CAS validator to use - either 'cas20' or 'cas30' (default)
 # shibcas.ticketValidatorName = cas30
+
+
+# Specify if the Relying Party/Service Provider entityId should be appended as a separate entityId query string parameter
+# or embedded in the "service" querystring parameter - `append` (default) or `embed`
+# shibcas.entityIdLocation = append
 ...
 ```
 
@@ -105,6 +110,15 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 
 #### Rebuild the war file
 From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
+
+
+#### CAS Service Registry
+By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
+can use the entityId when evaluating a service registry entry match. Using serviceIds of something like: 
+`https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://testsp.school.edu/sp`
+or
+`https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://test.unicon.net/sp`
+will match as two different entries in the service registry which will allow as CAS admin to enable MFA or use access strategies on an SP by SP basis. 
 
 Release Notes
 -------------------------------------------------------------

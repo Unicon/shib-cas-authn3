@@ -99,7 +99,7 @@ task prepImageFiles() {
     }
 }
 
-task buildContainer(type:Exec) {
+task buildImage(type:Exec) {
     dependsOn prepImageFiles
 
     doFirst {
@@ -111,7 +111,7 @@ task buildContainer(type:Exec) {
 }
 
 task up(type:Exec) {
-    dependsOn buildContainer
+    dependsOn buildImage
 
     workingDir 'build/docker'
     commandLine 'docker-compose', 'up', '-d'

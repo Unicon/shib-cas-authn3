@@ -37,7 +37,7 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
     public void doTranslation(final HttpServletRequest request, final HttpServletResponse response,
                               final Assertion assertion) {
         if (assertion == null || assertion.getPrincipal() == null) {
-            logger.error("No valida assertion or principal could be found to translate");
+            logger.error("No valid assertion or principal could be found to translate");
             return;
         }
         AttributePrincipal casPrincipal = assertion.getPrincipal();
