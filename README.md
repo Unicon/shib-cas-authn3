@@ -33,7 +33,7 @@ Installation
 1. Rebuild the WAR file
 
 #### Extract the latest release of `shib-cas-authn3` into your IDP_HOME
-1. Download and extract the compressed contents of the latest release of `shib-cas-authn3` at https://github.com/Unicon/shib-cas-authn3/releases
+1. Download and extract the compressed contents of the latest release of `shib-cas-authn3` from https://github.com/Unicon/shib-cas-authn3/releases
 1. Copy the extracted folders `edit-webapp` and `flows` into your IDP_HOME.
 
 #### Optionally define the servlet for receiving a callback from CAS
