@@ -40,9 +40,7 @@ Installation
 > The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
 This step is provided for legacy reasons.
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml`. If this file does not exist, it may be copied from `IDP_HOME/webapp/WEB-INF/web.xml`.
-
-Example snippet `web.xml`:
+Define a `ShibCasAuthServlet` servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` as shown below (if this file does not exist, it may be copied from `IDP_HOME/webapp/WEB-INF/web.xml`):
 
 ```xml
 ...
