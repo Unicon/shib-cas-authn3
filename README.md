@@ -26,21 +26,49 @@ Installation
 ---------------------------------------------------------------
 
 #### Overview
-
-1. Copy the Spring Webflow files, jsp, and included jar files into the IDP_HOME.
+1. Build the JAR files
+1. Copy the Spring Webflow files and jsp into the IDP_HOME.
 1. Update the IdP's `web.xml`. (optional)
 1. Update the IdP's `idp.properties` file.
 1. Update the IdP's `general-authn.xml` file.
 1. Rebuild the war file.
 
+#### Build the JAR files
+If you do not already have Docker Compose, please refer to [Getting Started with Docker Compose](https://docs.docker.com/compose/gettingstarted/).
+
+Run `.\gradlew\` to build the project.
+
+##### Troubleshooting
+For historic purposes, refer to the [Build Instructions](https://github.com/Unicon/shib-cas-authn2#to-build) for `shib-cas-authn2`.
+
+If you are having problems building this project due to Docker misconfiguration, try building from the `v3.2.0` tag instead:
+
+````
+> git clone https://github.com/Unicon/shib-cas-authn3.git
+> cd shib-cas-authn3
+> git checkout tags/v3.2.0
+
+> .\gradlew
+...
+:processTestResources UP-TO-DATE
+:testClasses
+:test
+:check
+:build
+
+BUILD SUCCESSFUL
+
+Total time: 23.207 secs
+````
+
 #### Copy the Spring Webflow files into the IDP_HOME
-Copy the two xml files from the IDP_HOME directory (in the src tree) to the corresponding layout in your Shibboleth IdP home directory.
+Copy the IDP_HOME/flows directory to the corresponding layout in your Shibboleth IdP home directory.
 
 #### Update the IdP's `web.xml` (optional)
 > The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
 This step is provided for legacy reasons.
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
+Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml`. If this file does not exist, it may be copied from `IDP_HOME/webapp/WEB-INF/web.xml`.
 
 Example snippet `web.xml`:
 
@@ -104,13 +132,14 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
                 p:passiveAuthenticationSupported="true"
                 p:forcedAuthenticationSupported="true"
                 p:nonBrowserSupported="false" />
+        ...
+        </util:list>
 ...
 ```
 
 
 #### Rebuild the war file
 From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
-
 
 #### CAS Service Registry
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
