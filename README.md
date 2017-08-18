@@ -34,7 +34,7 @@ Installation
 
 #### Extract the latest release of `shib-cas-authn3` into your IDP_HOME
 1. Download and extract the compressed contents of the latest release of `shib-cas-authn3` from https://github.com/Unicon/shib-cas-authn3/releases
-1. Copy the extracted folders `edit-webapp` and `flows` into your IDP_HOME.
+1. Merge the extracted folders `edit-webapp` and `flows` with those inside your IDP_HOME.
 
 #### Optionally define the servlet for receiving a callback from CAS
 > The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
