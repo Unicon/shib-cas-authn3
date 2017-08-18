@@ -28,7 +28,7 @@ Installation
 #### Overview
 1. Extract the latest release of `shib-cas-authn3` into your IDP_HOME
 1. Optionally define the servlet for receiving a callback from CAS
-1. Update the IdP's idp.properties file
+1. Update the IdP's `idp.properties` file
 1. Update the IdP's `general-authn.xml` file
 1. Rebuild the WAR file
 
@@ -59,7 +59,7 @@ Example snippet `web.xml`:
 ...
 ```
 
-#### Update the IdP's idp.properties file
+#### Update the IdP's `idp.properties` file
 
 1. Set the `idp.authn.flows` to `Shibcas`. Or, for advance cases, add `Shibcas` to the list.
 1. Add the additional properties.
