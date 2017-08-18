@@ -61,7 +61,7 @@ BUILD SUCCESSFUL
 Total time: 23.207 secs
 ````
 
-If you are missing the `cas-client-core-*.jar` file, it may be downloaded here: http://central.maven.org/maven2/org/jasig/cas/client/cas-client-core/3.3.3/cas-client-core-3.3.3.jar ([source](https://github.com/Unicon/shib-cas-authn3/blob/v3.0.0/README.md#copy-the-librariesjars))
+If you are missing the `cas-client-core-*.jar` file, see [`Releases`](https://github.com/Unicon/shib-cas-authn3/releases).
 
 #### Copy the Spring Webflow files into the IDP_HOME
 Copy the IDP_HOME/flows directory to the corresponding layout in your Shibboleth IdP home directory.
