@@ -26,47 +26,17 @@ Installation
 ---------------------------------------------------------------
 
 #### Overview
-1. Build the JAR files
-1. Copy the Spring Webflow files and jsp into the IDP_HOME.
-1. Update the IdP's `web.xml`. (optional)
-1. Update the IdP's `idp.properties` file.
-1. Update the IdP's `general-authn.xml` file.
-1. Rebuild the war file.
+1. Extract the latest release of `shib-cas-authn3` into your IDP_HOME
+1. Optionally define the servlet for receiving a callback from CAS
+1. Update the IdP's idp.properties file
+1. Update the IdP's `general-authn.xml` file
+1. Rebuild the WAR file
 
-#### Build the JAR files
-If you do not already have Docker Compose, please refer to [Getting Started with Docker Compose](https://docs.docker.com/compose/gettingstarted/).
+#### Extract the latest release of `shib-cas-authn3` into your IDP_HOME
+1. Download and extract the compressed contents of the latest release of `shib-cas-authn3` at https://github.com/Unicon/shib-cas-authn3/releases
+1. Copy the extracted folders `edit-webapp` and `flows` into your IDP_HOME.
 
-Run `.\gradlew` to build the project.
-
-##### Troubleshooting
-For historic purposes, refer to the [Build Instructions](https://github.com/Unicon/shib-cas-authn2#to-build) for `shib-cas-authn2`.
-
-If you are having problems building this project due to Docker misconfiguration, try building from the `v3.2.0` tag instead:
-
-````
-> git clone https://github.com/Unicon/shib-cas-authn3.git
-> cd shib-cas-authn3
-> git checkout tags/v3.2.0
-
-> .\gradlew
-...
-:processTestResources UP-TO-DATE
-:testClasses
-:test
-:check
-:build
-
-BUILD SUCCESSFUL
-
-Total time: 23.207 secs
-````
-
-If you are missing the `cas-client-core-*.jar` file, see [`Releases`](https://github.com/Unicon/shib-cas-authn3/releases).
-
-#### Copy the Spring Webflow files into the IDP_HOME
-Copy the IDP_HOME/flows directory to the corresponding layout in your Shibboleth IdP home directory.
-
-#### Update the IdP's `web.xml` (optional)
+#### Optionally define the servlet for receiving a callback from CAS
 > The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
 This step is provided for legacy reasons.
 
@@ -102,11 +72,11 @@ idp.authn.flows = Shibcas
 
 # CAS Client properties (usage loosely matches that of the Java CAS Client)
 ## CAS Server Properties
-shibcas.casServerUrlPrefix = https://cassserver.example.edu/cas
+shibcas.casServerUrlPrefix = https://cas.example.edu/cas
 shibcas.casServerLoginUrl = ${shibcas.casServerUrlPrefix}/login
 
 ## Shibboleth Server Properties
-shibcas.serverName = https://shibserver.example.edu
+shibcas.serverName = https://idp.example.edu
 
 # By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
 # Takes a comma separated list of fully qualified class names
@@ -123,7 +93,7 @@ shibcas.serverName = https://shibserver.example.edu
 ...
 ```
 
-#### Update the IdP's `general-authn.xml` file.
+#### Update the IdP's `general-authn.xml` file
 Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME/conf/authn/general-authn.xml`:
 
 ```xml
@@ -139,9 +109,8 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
 ...
 ```
 
-
-#### Rebuild the war file
-From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
+#### Rebuild the WAR file
+From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy and restart the service if necessary.
 
 #### CAS Service Registry
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
@@ -166,3 +135,31 @@ Then browse to: `https://idptestbed/idp/profile/SAML2/Unsolicited/SSO?providerId
 > You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address. 
 
 The IdP only had a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.
+
+
+##### Troubleshooting
+If you do not already have Docker Compose, please refer to [Getting Started with Docker Compose](https://docs.docker.com/compose/gettingstarted/).
+
+For historic purposes, refer to the [Build Instructions](https://github.com/Unicon/shib-cas-authn2#to-build) for `shib-cas-authn2`.
+
+If you are having problems building this project due to Docker misconfiguration, try building from the `v3.2.0` tag instead:
+
+````
+> git clone https://github.com/Unicon/shib-cas-authn3.git
+> cd shib-cas-authn3
+> git checkout tags/v3.2.0
+
+> .\gradlew
+...
+:processTestResources UP-TO-DATE
+:testClasses
+:test
+:check
+:build
+
+BUILD SUCCESSFUL
+
+Total time: 23.207 secs
+````
+
+If you are missing the `cas-client-core-*.jar` file, see [`Releases`](https://github.com/Unicon/shib-cas-authn3/releases).
