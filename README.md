@@ -76,12 +76,12 @@ Example snippet `web.xml`:
 ...
     <!-- Servlet for receiving a callback from an external CAS Server and continues the IdP login flow -->
     <servlet>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
+        <servlet-name>ShibcasAuthServlet</servlet-name>
         <servlet-class>net.unicon.idp.externalauth.ShibcasAuthServlet</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
+        <servlet-name>ShibcasAuthServlet</servlet-name>
         <url-pattern>/Authn/ExtCas/*</url-pattern>
     </servlet-mapping>
 ...
