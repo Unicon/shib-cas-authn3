@@ -26,40 +26,38 @@ Installation
 ---------------------------------------------------------------
 
 #### Overview
+1. Extract the latest release of `shib-cas-authn3` into your IDP_HOME
+1. Optionally define the servlet for receiving a callback from CAS
+1. Update the IdP's `idp.properties` file
+1. Update the IdP's `general-authn.xml` file
+1. Rebuild the WAR file
 
-1. Copy the Spring Webflow files, jsp, and included jar files into the IDP_HOME.
-1. Update the IdP's `web.xml`. (optional)
-1. Update the IdP's `idp.properties` file.
-1. Update the IdP's `general-authn.xml` file.
-1. Rebuild the war file.
+#### Extract the latest release of `shib-cas-authn3` into your IDP_HOME
+1. Download and extract the compressed contents of the latest release of `shib-cas-authn3` from https://github.com/Unicon/shib-cas-authn3/releases
+1. Merge the extracted folders `edit-webapp` and `flows` with those inside your IDP_HOME.
 
-#### Copy the Spring Webflow files into the IDP_HOME
-Copy the two xml files from the IDP_HOME directory (in the src tree) to the corresponding layout in your Shibboleth IdP home directory.
-
-#### Update the IdP's `web.xml` (optional)
+#### Optionally define the servlet for receiving a callback from CAS
 > The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
 This step is provided for legacy reasons.
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
-
-Example snippet `web.xml`:
+Define a `ShibCasAuthServlet` servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` as shown below (if this file does not exist, it may be copied from `IDP_HOME/webapp/WEB-INF/web.xml`):
 
 ```xml
 ...
     <!-- Servlet for receiving a callback from an external CAS Server and continues the IdP login flow -->
     <servlet>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
+        <servlet-name>ShibcasAuthServlet</servlet-name>
         <servlet-class>net.unicon.idp.externalauth.ShibcasAuthServlet</servlet-class>
         <load-on-startup>2</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>ShibCas Auth Servlet</servlet-name>
+        <servlet-name>ShibcasAuthServlet</servlet-name>
         <url-pattern>/Authn/ExtCas/*</url-pattern>
     </servlet-mapping>
 ...
 ```
 
-#### Update the IdP's idp.properties file
+#### Update the IdP's `idp.properties` file
 
 1. Set the `idp.authn.flows` to `Shibcas`. Or, for advance cases, add `Shibcas` to the list.
 1. Add the additional properties.
@@ -72,11 +70,11 @@ idp.authn.flows = Shibcas
 
 # CAS Client properties (usage loosely matches that of the Java CAS Client)
 ## CAS Server Properties
-shibcas.casServerUrlPrefix = https://cassserver.example.edu/cas
+shibcas.casServerUrlPrefix = https://cas.example.edu/cas
 shibcas.casServerLoginUrl = ${shibcas.casServerUrlPrefix}/login
 
 ## Shibboleth Server Properties
-shibcas.serverName = https://shibserver.example.edu
+shibcas.serverName = https://idp.example.edu
 
 # By default you always get the AuthenticatedNameTranslator, add additional code to cover your custom needs.
 # Takes a comma separated list of fully qualified class names
@@ -93,7 +91,7 @@ shibcas.serverName = https://shibserver.example.edu
 ...
 ```
 
-#### Update the IdP's `general-authn.xml` file.
+#### Update the IdP's `general-authn.xml` file
 Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME/conf/authn/general-authn.xml`:
 
 ```xml
@@ -104,13 +102,13 @@ Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME
                 p:passiveAuthenticationSupported="true"
                 p:forcedAuthenticationSupported="true"
                 p:nonBrowserSupported="false" />
+        ...
+        </util:list>
 ...
 ```
 
-
-#### Rebuild the war file
-From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
-
+#### Rebuild the WAR file
+From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy and restart the service if necessary.
 
 #### CAS Service Registry
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server
@@ -135,3 +133,31 @@ Then browse to: `https://idptestbed/idp/profile/SAML2/Unsolicited/SSO?providerId
 > You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address. 
 
 The IdP only had a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.
+
+
+##### Troubleshooting
+If you do not already have Docker Compose, please refer to [Getting Started with Docker Compose](https://docs.docker.com/compose/gettingstarted/).
+
+For historic purposes, refer to the [Build Instructions](https://github.com/Unicon/shib-cas-authn2#to-build) for `shib-cas-authn2`.
+
+If you are having problems building this project due to Docker misconfiguration, try building from the `v3.2.0` tag instead:
+
+````
+> git clone https://github.com/Unicon/shib-cas-authn3.git
+> cd shib-cas-authn3
+> git checkout tags/v3.2.0
+
+> .\gradlew
+...
+:processTestResources UP-TO-DATE
+:testClasses
+:test
+:check
+:build
+
+BUILD SUCCESSFUL
+
+Total time: 23.207 secs
+````
+
+If you are missing the `cas-client-core-*.jar` file, see [`Releases`](https://github.com/Unicon/shib-cas-authn3/releases).
