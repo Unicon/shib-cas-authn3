@@ -36,7 +36,7 @@ Installation
 #### Build the JAR files
 If you do not already have Docker Compose, please refer to [Getting Started with Docker Compose](https://docs.docker.com/compose/gettingstarted/).
 
-Run `.\gradlew\` to build the project.
+Run `.\gradlew` to build the project.
 
 ##### Troubleshooting
 For historic purposes, refer to the [Build Instructions](https://github.com/Unicon/shib-cas-authn2#to-build) for `shib-cas-authn2`.
