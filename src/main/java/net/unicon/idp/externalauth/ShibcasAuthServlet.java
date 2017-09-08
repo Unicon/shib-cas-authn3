@@ -35,6 +35,7 @@ import java.util.Set;
  *
  * @author chasegawa@unicon.net
  * @author jgasper@unicon.net
+ * @author aremmes (GitHub)
  */
 @WebServlet(name = "ShibcasAuthServlet", urlPatterns = {"/Authn/ExtCas/*"})
 public class ShibcasAuthServlet extends HttpServlet {
@@ -93,7 +94,7 @@ public class ShibcasAuthServlet extends HttpServlet {
                                    final String authenticationKey, final boolean force) throws ExternalAuthenticationException, IOException {
         try {
             ticketValidator.setRenew(force);
-            String serviceUrl = constructServiceUrl(request, response);
+            String serviceUrl = constructServiceUrl(request, response, true);
             logger.debug("validating ticket: {} with service url: {}", ticket, serviceUrl);
             
             Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
@@ -245,7 +246,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     /**
      * Use the CAS CommonUtils to build the CAS Service URL.
      */
-    private String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
+    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
         String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
 
         if ("embed".equalsIgnoreCase(entityIdLocation)) {
@@ -253,6 +254,18 @@ public class ShibcasAuthServlet extends HttpServlet {
         }
 
         return serviceUrl;
+    }
+
+    /**
+      * Like the above, but with a flag indicating whether we're validating a service ticket,
+      * in which case we should not modify the service URL returned by CAS CommonUtils; this
+      * avoids appending the entity ID twice when entityIdLocation=embed, since the ID is already
+      * embedded in the string during validation.
+      */
+    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket ) {
+        return isValidatingTicket
+                ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true)
+                : constructServiceUrl(request, response);
     }
 
     private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {
