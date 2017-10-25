@@ -127,6 +127,8 @@ See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
 
 Developer Notes
 -------------------------------------------------------------
+The project distributables can be built using `./gradlew`. The artifacts will be in `build/distributions`.
+
 This project includes a Docker environment to assist with development/testing. 
 
 To build and execute: `./gradlew clean; ./gradlew up`
@@ -134,4 +136,4 @@ Then browse to: `https://idptestbed/idp/profile/SAML2/Unsolicited/SSO?providerId
 
 > You'll need a `hosts` file entry that points `idptestbed` to your Docker server's IP address. 
 
-The IdP only had a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.
+The IdP only has a session of 1 minute (to test expired session/conversation key issues), so login into CAS Server quickly.

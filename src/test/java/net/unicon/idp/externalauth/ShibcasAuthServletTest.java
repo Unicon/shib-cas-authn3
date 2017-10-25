@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -37,11 +38,13 @@ public class ShibcasAuthServletTest {
     private String CONVERSATION = "conversation=e1s1";
     private String CONVERSATION_TICKET = "conversation=e1s1&ticket=ST-1234-123456789-a";
     private String CONVERSATION_TICKET_GATEWAY_ATTEMPTED = "conversation=e1s1&ticket=ST-1234-123456789-a&gatewayAttempted=true";
+    private String CONVERSATION_TICKET_EMBEDDED_ENTITYID = "conversation=e1s1&ticket=ST-1234-123456789-a&entityId=http://test.edu/sp";
     private String E1S1 = "E1S1";
     private String JDOE = "jdoe";
     private String TICKET = "ST-1234-123456789-a";
     private String URL_WITH_CONVERSATION = "https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1";
     private String URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED = "https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&gatewayAttempted=true";
+    private String URL_WITH_CONVERSATION_EMBEDDED_ENTITYID = "https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp";
 
     @Test
     public void testDoGetStandard() throws Exception {
@@ -214,6 +217,36 @@ public class ShibcasAuthServletTest {
 
 
     @Test
+    public void testConstructServiceUrlAppend() throws Exception {
+        //Mock some objects.
+        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
+        HttpServletResponse response = createMockHttpServletResponse();
+
+        //Prep our object
+        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+
+        String result = shibcasAuthServlet.constructServiceUrl(request, response);
+
+        assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1", result);
+    }
+
+    @Test
+    public void testConstructServiceUrlEmbed() throws Exception {
+        //Mock some objects.
+        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&entityId=http://test.edu/sp", TICKET, "false");
+        HttpServletResponse response = createMockHttpServletResponse();
+
+        //Prep our object
+        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        shibcasAuthServlet.init(createMockServletConfig("embed"));
+
+        String result = shibcasAuthServlet.constructServiceUrl(request, response, true);
+
+        assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp", result);
+    }
+
+
+    @Test
     public void testStartLoginRequestStandard() throws Exception {
         HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
@@ -380,6 +413,7 @@ public class ShibcasAuthServletTest {
 
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).willReturn(URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED);
+        BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION_EMBEDDED_ENTITYID)).willReturn(URL_WITH_CONVERSATION_EMBEDDED_ENTITYID);
 
         return response;
     }

@@ -3,9 +3,10 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'maven'
 
-defaultTasks 'clean', 'build'
+defaultTasks 'clean', 'distZip', 'distTar'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 group = 'net.unicon'
 version = project.version
@@ -99,7 +100,7 @@ task prepImageFiles() {
     }
 }
 
-task buildImage(type:Exec) {
+task buildImage(type: Exec) {
     dependsOn prepImageFiles
 
     doFirst {
@@ -110,28 +111,29 @@ task buildImage(type:Exec) {
     commandLine 'docker-compose', 'build'
 }
 
-task up(type:Exec) {
+task up(type: Exec) {
     dependsOn buildImage
 
     workingDir 'build/docker'
     commandLine 'docker-compose', 'up', '-d'
 }
 
-task stop(type:Exec) {
+task stop(type: Exec) {
     workingDir 'build/docker'
     commandLine 'docker-compose', 'kill'
 }
 
-task down(type:Exec) {
+task down(type: Exec) {
     dependsOn stop
 
     workingDir 'build/docker'
     commandLine 'docker-compose', 'rm', '-f'
 }
 
-clean {
-    dependsOn down
+if (new File('./build/docker/').exists()) {
+    clean.dependsOn down
 }
+
 
 task wrapper(type: Wrapper) {
     gradleVersion = project.gradleVersion
