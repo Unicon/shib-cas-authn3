@@ -124,7 +124,6 @@ Release Notes
 -------------------------------------------------------------
 See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
 
-
 Developer Notes
 -------------------------------------------------------------
 The project distributables can be built using `./gradlew`. The artifacts will be in `build/distributions`.
