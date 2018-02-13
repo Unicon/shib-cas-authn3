@@ -14,6 +14,8 @@ import org.jasig.cas.client.validation.TicketValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -78,7 +80,7 @@ public class ShibcasAuthServlet extends HttpServlet {
                 return;
             }
 
-            validateCasTicket(request, response, ticket, authenticationKey, force);
+            validatevalidateCasTicket(request, response, ticket, authenticationKey, force);
 
         } catch (final ExternalAuthenticationException e) {
             logger.warn("Error processing ShibCas authentication request", e);
@@ -90,22 +92,21 @@ public class ShibcasAuthServlet extends HttpServlet {
         }
     }
 
-    private void validateCasTicket(final HttpServletRequest request, final HttpServletResponse response, final String ticket,
-                                   final String authenticationKey, final boolean force) throws ExternalAuthenticationException, IOException {
+    private void validatevalidateCasTicket(final HttpServletRequest request, final HttpServletResponse response, final String ticket,
+                                           final String authenticationKey, final boolean force) throws ExternalAuthenticationException, IOException {
         try {
             ticketValidator.setRenew(force);
-            String serviceUrl = constructServiceUrl(request, response, true);
+            final String serviceUrl = constructServiceUrl(request, response, true);
             logger.debug("validating ticket: {} with service url: {}", ticket, serviceUrl);
-            
             Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
             if (assertion == null) {
                 throw new TicketValidationException("Validation failed. Assertion could not be retrieved for ticket " + ticket);
             }
-            for (CasToShibTranslator casToShibTranslator : translators) {
+            for (final CasToShibTranslator casToShibTranslator : translators) {
                 casToShibTranslator.doTranslation(request, response, assertion);
             }
             ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
-        } catch (final TicketValidationException e) {
+        } catch (final Exception e) {
             logger.error("Ticket validation failed, returning InvalidTicket", e);
             request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "InvalidTicket");
             ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
@@ -126,8 +127,7 @@ public class ShibcasAuthServlet extends HttpServlet {
                 serviceUrl += "&gatewayAttempted=true";
             }
 
-            String loginUrl = constructRedirectUrl(serviceUrl, force, passive)
-                    + getAdditionalParameters(request);
+            String loginUrl = constructRedirectUrl(serviceUrl, force, passive) + getAdditionalParameters(request);
 
             logger.debug("loginUrl: {}", loginUrl);
             response.sendRedirect(loginUrl);
@@ -166,16 +166,16 @@ public class ShibcasAuthServlet extends HttpServlet {
         parseProperties(ac.getEnvironment());
 
         switch (ticketValidatorName) {
-           case "cas30":
-               ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
-               break;
-           case "cas20":
-               ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
+            case "cas30":
+                ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
+                break;
+            case "cas20":
+                ticketValidator = new Cas20ServiceTicketValidator(casServerPrefix);
         }
 
         if (ticketValidator == null) {
             throw new ServletException("Initialization failed. Invalid shibcas.ticketValidatorName property: '"
-                    + ticketValidatorName + "'");
+                + ticketValidatorName + "'");
         }
 
         if ("append".equalsIgnoreCase(entityIdLocation)) {
@@ -183,7 +183,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         }
 
         buildTranslators(ac.getEnvironment());
-        buildParameterBuilders(ac.getEnvironment());
+        buildParameterBuilders(ac);
     }
 
     /**
@@ -191,7 +191,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      *
      * @param environment a Spring Application Context's Environment object (tied to the IdP's root context)
      */
-    private void parseProperties(Environment environment) {
+    private void parseProperties(final Environment environment) {
         logger.debug("reading properties from the idp.properties file");
         casServerPrefix = environment.getRequiredProperty("shibcas.casServerUrlPrefix");
         logger.debug("shibcas.casServerUrlPrefix: {}", casServerPrefix);
@@ -201,7 +201,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         serverName = environment.getRequiredProperty("shibcas.serverName");
         logger.debug("shibcas.serverName: {}", serverName);
-        
+
         ticketValidatorName = environment.getProperty("shibcas.ticketValidatorName", "cas30");
         logger.debug("shibcas.ticketValidatorName: {}", ticketValidatorName);
 
@@ -209,15 +209,20 @@ public class ShibcasAuthServlet extends HttpServlet {
         logger.debug("shibcas.entityIdLocation: {}", entityIdLocation);
     }
 
-    private void buildParameterBuilders(final Environment environment) {
-        String builders = StringUtils.defaultString(environment.getProperty("shibcas.parameterBuilders", ""));
-        for (String parameterBuilder : StringUtils.split(builders, ";")) {
+    private void buildParameterBuilders(final ApplicationContext applicationContext) {
+        final Environment environment = applicationContext.getEnvironment();
+        final String builders = StringUtils.defaultString(environment.getProperty("shibcas.parameterBuilders", ""));
+        for (final String parameterBuilder : StringUtils.split(builders, ";")) {
             try {
                 logger.debug("Loading parameter builder class {}", parameterBuilder);
-                Class clazz = Class.forName(parameterBuilder);
-                this.parameterBuilders.add(IParameterBuilder.class.cast(clazz.newInstance()));
+                final Class clazz = Class.forName(parameterBuilder);
+                final IParameterBuilder builder = IParameterBuilder.class.cast(clazz.newInstance());
+                if (builder instanceof ApplicationContextAware) {
+                    ((ApplicationContextAware) builder).setApplicationContext(applicationContext);
+                }
+                this.parameterBuilders.add(builder);
                 logger.debug("Added parameter builder {}", parameterBuilder);
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 logger.error("Error building parameter builder with name: " + parameterBuilder, e);
             }
         }
@@ -235,7 +240,11 @@ public class ShibcasAuthServlet extends HttpServlet {
             try {
                 logger.debug("Loading translator class {}", classname);
                 Class<?> c = Class.forName(classname);
-                translators.add((CasToShibTranslator) c.newInstance());
+                final CasToShibTranslator e = (CasToShibTranslator) c.newInstance();
+                if (e instanceof EnvironmentAware) {
+                    ((EnvironmentAware) e).setEnvironment(environment);
+                }
+                translators.add(e);
                 logger.debug("Added translator class {}", classname);
             } catch (Exception e) {
                 logger.error("Error building cas to shib translator with name: " + classname, e);
@@ -247,25 +256,27 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Use the CAS CommonUtils to build the CAS Service URL.
      */
     protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true);
+        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName,
+            serviceParameterName, artifactParameterName, true);
 
         if ("embed".equalsIgnoreCase(entityIdLocation)) {
             serviceUrl += (new EntityIdParameterBuilder().getParameterString(request, false));
         }
 
+
         return serviceUrl;
     }
 
     /**
-      * Like the above, but with a flag indicating whether we're validating a service ticket,
-      * in which case we should not modify the service URL returned by CAS CommonUtils; this
-      * avoids appending the entity ID twice when entityIdLocation=embed, since the ID is already
-      * embedded in the string during validation.
-      */
-    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket ) {
+     * Like the above, but with a flag indicating whether we're validating a service ticket,
+     * in which case we should not modify the service URL returned by CAS CommonUtils; this
+     * avoids appending the entity ID twice when entityIdLocation=embed, since the ID is already
+     * embedded in the string during validation.
+     */
+    protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket) {
         return isValidatingTicket
-                ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true)
-                : constructServiceUrl(request, response);
+            ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true)
+            : constructServiceUrl(request, response);
     }
 
     private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {

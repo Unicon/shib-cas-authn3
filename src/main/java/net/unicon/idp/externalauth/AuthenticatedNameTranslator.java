@@ -46,17 +46,17 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
         Collection<IdPAttributePrincipal> assertionAttributes = produceIdpAttributePrincipal(assertion.getAttributes());
         Collection<IdPAttributePrincipal> principalAttributes = produceIdpAttributePrincipal(casPrincipal.getAttributes());
-        
+
         if (!assertionAttributes.isEmpty() || !principalAttributes.isEmpty()) {
             logger.debug("Found attributes from CAS. Processing...");
-            Set<Principal> principals = new HashSet<>();
-            
+            final Set<Principal> principals = new HashSet<>();
+
             principals.addAll(assertionAttributes);
             principals.addAll(principalAttributes);
             principals.add(new UsernamePrincipal(casPrincipal.getName()));
 
             request.setAttribute(ExternalAuthentication.SUBJECT_KEY, new Subject(false, principals,
-                    Collections.emptySet(), Collections.emptySet()));
+                Collections.emptySet(), Collections.emptySet()));
             logger.info("Created an IdP subject instance with principals containing attributes for {} ", casPrincipal.getName());
 
         } else {

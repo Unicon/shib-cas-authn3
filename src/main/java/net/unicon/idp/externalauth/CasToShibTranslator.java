@@ -20,5 +20,5 @@ public interface CasToShibTranslator {
      * @param response The HttpServletResponse object
      * @param assertion The CAS Assertion after validating the CAS ticket
      */
-    void doTranslation(HttpServletRequest request, HttpServletResponse response, Assertion assertion);
+    void doTranslation(HttpServletRequest request, HttpServletResponse response, Assertion assertion) throws Exception;
 }

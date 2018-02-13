@@ -120,6 +120,30 @@ or
 `https://shibserver.example.edu/idp/Authn/ExtCas\?conversation=[a-z0-9]*&entityId=http://test.unicon.net/sp`
 will match as two different entries in the service registry which will allow as CAS admin to enable MFA or use access strategies on an SP by SP basis. 
 
+Handling REFEDS MFA Profile
+---------------------------------------------------------------
+
+Note: This feature is only available, starting with version `3.2.4`.
+
+The plugin has native support for [REFEDS MFA profile](https://refeds.org/profile/mfa). The requested authentication context class that is `https://refeds.org/profile/mfa`
+is passed along from the Shibboleth IdP over to this plugin and is then translated to multifactor authentication strategy supported by CAS (i.e. Duo Security). 
+The CAS server is notified of the required authentication method via a special `authn_method` parameter by default. Once a ticket issued and plugin begins to
+validate the service ticket, it will attempt to ensure that the CAS-produced validation payload contains and can successfully assert the required/requested
+authentication context class.
+
+The supported multifactor authentication providers are listed below:
+
+- Duo Security
+
+#### Configuration
+
+In the `idp.properties` file, ensure the following settings are set:
+
+```properties
+shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityAuthnMethodRequiredTranslator
+shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
+```
+
 Release Notes
 -------------------------------------------------------------
 See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
