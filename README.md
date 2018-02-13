@@ -126,8 +126,8 @@ Handling REFEDS MFA Profile
 Note: This feature is only available, starting with version `3.2.4`.
 
 The plugin has native support for [REFEDS MFA profile](https://refeds.org/profile/mfa). The requested authentication context class that is `https://refeds.org/profile/mfa`
-is passed along from the Shibboleth IdP over to this plugin and is then translated to multifactor authentication strategy supported by CAS (i.e. Duo Security). 
-The CAS server is notified of the required authentication method via a special `authn_method` parameter by default. Once a ticket issued and plugin begins to
+is passed along from the Shibboleth IdP over to this plugin and is then translated to a multifactor authentication strategy supported by and configured CAS (i.e. Duo Security). 
+The CAS server is notified of the required authentication method via a special `authn_method` parameter by default. Once a service ticket is issued and plugin begins to
 validate the service ticket, it will attempt to ensure that the CAS-produced validation payload contains and can successfully assert the required/requested
 authentication context class.
 
