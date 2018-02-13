@@ -133,7 +133,7 @@ authentication context class.
 
 The supported multifactor authentication providers are listed below:
 
-- Duo Security
+- Duo Security  (Requesting `authn_method=mfa-duo` and expecting validation payload attribute `authnContextClass=mfa-duo`)
 
 #### Configuration
 
