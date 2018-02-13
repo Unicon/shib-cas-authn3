@@ -64,7 +64,7 @@ Example snippet `web.xml`:
 1. Set the `idp.authn.flows` to `Shibcas`. Or, for advance cases, add `Shibcas` to the list.
 1. Add the additional properties.
 
-```
+```properties   
 ...
 # Regular expression matching login flows to enable, e.g. IPAddress|Password
 #idp.authn.flows = Password
