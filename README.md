@@ -144,6 +144,22 @@ shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityAuthnMe
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
+You also need to ensure the `Shib/cas/` flow is able to accept the requested principal in the IdP's `general-authn.xml` file, that is `https://refeds.org/profile/mfa`.
+
+```xml
+<bean id="authn/Shibcas" parent="shibboleth.AuthenticationFlow"
+  p:passiveAuthenticationSupported="true"
+  p:forcedAuthenticationSupported="true"
+  p:nonBrowserSupported="false">
+    <property name="supportedPrincipals">
+        <list>
+            <bean parent="shibboleth.SAML2AuthnContextClassRef"
+                  c:classRef="https://refeds.org/profile/mfa" />
+        </list>
+    </property>
+</bean>
+```
+
 Release Notes
 -------------------------------------------------------------
 See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
