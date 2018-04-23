@@ -7,7 +7,9 @@ import net.unicon.idp.authn.provider.extra.EntityIdParameterBuilder;
 import net.unicon.idp.authn.provider.extra.IParameterBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.jasig.cas.client.util.CommonUtils;
+import org.jasig.cas.client.validation.AbstractCasProtocolUrlBasedTicketValidator;
 import org.jasig.cas.client.validation.Assertion;
+import org.jasig.cas.client.validation.Cas10TicketValidator;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.jasig.cas.client.validation.Cas30ServiceTicketValidator;
 import org.jasig.cas.client.validation.TicketValidationException;
@@ -52,7 +54,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     private String ticketValidatorName;
     private String entityIdLocation;
 
-    private Cas20ServiceTicketValidator ticketValidator;
+    private AbstractCasProtocolUrlBasedTicketValidator ticketValidator;
 
     private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
     private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
@@ -166,6 +168,9 @@ public class ShibcasAuthServlet extends HttpServlet {
         parseProperties(ac.getEnvironment());
 
         switch (ticketValidatorName) {
+            case "10":
+                ticketValidator = new Cas10TicketValidator(casServerPrefix);
+                break;
             case "cas30":
                 ticketValidator = new Cas30ServiceTicketValidator(casServerPrefix);
                 break;
