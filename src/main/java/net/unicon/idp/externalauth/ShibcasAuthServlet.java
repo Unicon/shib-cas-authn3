@@ -100,7 +100,7 @@ public class ShibcasAuthServlet extends HttpServlet {
             ticketValidator.setRenew(force);
             final String serviceUrl = constructServiceUrl(request, response, true);
             logger.debug("validating ticket: {} with service url: {}", ticket, serviceUrl);
-            Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
+            final Assertion assertion = ticketValidator.validate(ticket, serviceUrl);
             if (assertion == null) {
                 throw new TicketValidationException("Validation failed. Assertion could not be retrieved for ticket " + ticket);
             }
@@ -168,7 +168,7 @@ public class ShibcasAuthServlet extends HttpServlet {
         parseProperties(ac.getEnvironment());
 
         switch (ticketValidatorName) {
-            case "10":
+            case "cas10":
                 ticketValidator = new Cas10TicketValidator(casServerPrefix);
                 break;
             case "cas30":

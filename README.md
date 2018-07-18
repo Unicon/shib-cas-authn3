@@ -140,7 +140,7 @@ The supported multifactor authentication providers are listed below:
 In the `idp.properties` file, ensure the following settings are set:
 
 ```properties
-shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityAuthnMethodRequiredTranslator
+shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityRefedsAuthnMethodTranslator
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
@@ -155,6 +155,8 @@ You also need to ensure the `authn/Shibcas` flow is able to accept the requested
         <list>
             <bean parent="shibboleth.SAML2AuthnContextClassRef"
                   c:classRef="https://refeds.org/profile/mfa" />
+              <bean parent="shibboleth.SAML2AuthnContextClassRef"
+                  c:classRef="urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport" />
         </list>
     </property>
 </bean>
@@ -166,7 +168,7 @@ See [here](https://github.com/Unicon/shib-cas-authn3/releases/).
 
 Developer Notes
 -------------------------------------------------------------
-The project distributables can be built using `./gradlew`. The artifacts will be in `build/distributions`.
+The project distributables can be built using `./gradlew clean build`. The artifacts will be in `build/distributions`.
 
 This project includes a Docker environment to assist with development/testing. 
 
