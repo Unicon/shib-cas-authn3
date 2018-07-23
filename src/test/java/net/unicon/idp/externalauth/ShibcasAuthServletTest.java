@@ -46,18 +46,18 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetStandard() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
-        HttpServletResponse response = createMockHttpServletResponse();
-        Assertion assertion = createMockAssertion();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
+        final HttpServletResponse response = createMockHttpServletResponse();
+        final Assertion assertion = createMockAssertion();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas20TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -75,16 +75,16 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetBadTicket() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
-        HttpServletResponse response = createMockHttpServletResponse();
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
+        final HttpServletResponse response = createMockHttpServletResponse();
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenThrow(new TicketValidationException("Invalid Ticket"));
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willThrow(new ExternalAuthenticationException());
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas20TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -103,18 +103,18 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetPassiveAuthenticated() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&gatewayAttempted=true", TICKET, "true");
-        HttpServletResponse response = createMockHttpServletResponse();
-        Assertion assertion = createMockAssertion();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&gatewayAttempted=true", TICKET, "true");
+        final HttpServletResponse response = createMockHttpServletResponse();
+        final Assertion assertion = createMockAssertion();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas20TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -131,16 +131,16 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetPassiveNotAuthenticated() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest("conversation=e1s1&gatewayAttempted=true", null, "true");
-        HttpServletResponse response = createMockHttpServletResponse();
+        final HttpServletRequest request = createDoGetHttpServletRequest("conversation=e1s1&gatewayAttempted=true", null, "true");
+        final HttpServletResponse response = createMockHttpServletResponse();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas20TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -159,18 +159,18 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetForced() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
-        HttpServletResponse response = createMockHttpServletResponse();
-        Assertion assertion = createMockAssertion();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, null);
+        final HttpServletResponse response = createMockHttpServletResponse();
+        final Assertion assertion = createMockAssertion();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas20ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas20TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -187,18 +187,18 @@ public class ShibcasAuthServletTest {
     @Test
     public void testDoGetPassiveAndForced() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET_GATEWAY_ATTEMPTED, TICKET, "true");
-        HttpServletResponse response = createMockHttpServletResponse();
-        Assertion assertion = createMockAssertion();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET_GATEWAY_ATTEMPTED, TICKET, "true");
+        final HttpServletResponse response = createMockHttpServletResponse();
+        final Assertion assertion = createMockAssertion();
 
-        Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas30ServiceTicketValidator.class);
+        final Cas20ServiceTicketValidator ticketValidator = PowerMockito.mock(Cas30ServiceTicketValidator.class);
         PowerMockito.when(ticketValidator.validate(TICKET, URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).thenReturn(assertion);
 
         PowerMockito.mockStatic(ExternalAuthentication.class);
         BDDMockito.given(ExternalAuthentication.startExternalAuthentication(request)).willReturn(E1S1);
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
         //Override the internal Cas30TicketValidator because we don't want it to call a real server
         MemberModifier.field(ShibcasAuthServlet.class, "ticketValidator").set(shibcasAuthServlet, ticketValidator);
@@ -216,13 +216,13 @@ public class ShibcasAuthServletTest {
     @Test
     public void testConstructServiceUrlAppend() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
-        HttpServletResponse response = createMockHttpServletResponse();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET, TICKET, "false");
+        final HttpServletResponse response = createMockHttpServletResponse();
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
 
-        String result = shibcasAuthServlet.constructServiceUrl(request, response);
+        final String result = shibcasAuthServlet.constructServiceUrl(request, response);
 
         assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1", result);
     }
@@ -230,14 +230,14 @@ public class ShibcasAuthServletTest {
     @Test
     public void testConstructServiceUrlEmbed() throws Exception {
         //Mock some objects.
-        HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&entityId=http://test.edu/sp", TICKET, "false");
-        HttpServletResponse response = createMockHttpServletResponse();
+        final HttpServletRequest request = createDoGetHttpServletRequest(CONVERSATION_TICKET + "&entityId=http://test.edu/sp", TICKET, "false");
+        final HttpServletResponse response = createMockHttpServletResponse();
 
         //Prep our object
-        ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = createShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig("embed"));
 
-        String result = shibcasAuthServlet.constructServiceUrl(request, response, true);
+        final String result = shibcasAuthServlet.constructServiceUrl(request, response, true);
 
         assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp", result);
     }
@@ -245,13 +245,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestStandard() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 
         shibcasAuthServlet.startLoginRequest(request, response, false, false);
@@ -260,13 +260,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestEmbeddedEntityId() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig("embed"));
 
         shibcasAuthServlet.startLoginRequest(request, response, false, false);
@@ -275,13 +275,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestAppendedEntityId() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig("append"));
 
         shibcasAuthServlet.startLoginRequest(request, response, false, false);
@@ -290,13 +290,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestPassive() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Passive
@@ -306,13 +306,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestForced() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Forced
@@ -322,13 +322,13 @@ public class ShibcasAuthServletTest {
 
     @Test
     public void testStartLoginRequestPassiveAndForced() throws Exception {
-        HttpServletRequest request = createMockHttpServletRequest();
+        final HttpServletRequest request = createMockHttpServletRequest();
         BDDMockito.given(request.getQueryString()).willReturn(CONVERSATION);
 
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
 
-        ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
+        final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Passive and Forced
@@ -336,8 +336,8 @@ public class ShibcasAuthServletTest {
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1%26gatewayAttempted%3Dtrue&renew=true&gateway=true&entityId=http%3A%2F%2Ftest.edu%2Fsp");
     }
 
-    private HttpServletRequest createDoGetHttpServletRequest(String queryString, String ticket, String gatewayAttempted) {
-        HttpServletRequest request = createMockHttpServletRequest();
+    private HttpServletRequest createDoGetHttpServletRequest(final String queryString, final String ticket, final String gatewayAttempted) {
+        final HttpServletRequest request = createMockHttpServletRequest();
 
         BDDMockito.given(request.getQueryString()).willReturn(queryString);
         BDDMockito.given(request.getParameter("ticket")).willReturn(ticket);
@@ -347,8 +347,8 @@ public class ShibcasAuthServletTest {
     }
 
     private Assertion createMockAssertion() {
-        Assertion assertion = Mockito.mock(Assertion.class);
-        AttributePrincipal attributePrincipal = Mockito.mock(AttributePrincipal.class);
+        final Assertion assertion = Mockito.mock(Assertion.class);
+        final AttributePrincipal attributePrincipal = Mockito.mock(AttributePrincipal.class);
 
         BDDMockito.given(attributePrincipal.getName()).willReturn(JDOE);
         BDDMockito.given(assertion.getPrincipal()).willReturn(attributePrincipal);
@@ -361,11 +361,11 @@ public class ShibcasAuthServletTest {
         return createMockServletConfig("");
     }
 
-    private ServletConfig createMockServletConfig(String entityIdLocation) {
-        ServletConfig config = Mockito.mock(ServletConfig.class);
-        ServletContext servletContext = Mockito.mock(ServletContext.class);
-        ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
-        Environment environment = Mockito.mock(Environment.class);
+    private ServletConfig createMockServletConfig(final String entityIdLocation) {
+        final ServletConfig config = Mockito.mock(ServletConfig.class);
+        final ServletContext servletContext = Mockito.mock(ServletContext.class);
+        final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
+        final Environment environment = Mockito.mock(Environment.class);
         
         BDDMockito.given(config.getServletContext()).willReturn(servletContext);
         BDDMockito.given(servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE)).willReturn(applicationContext);
@@ -387,7 +387,7 @@ public class ShibcasAuthServletTest {
 
     private HttpServletRequest createMockHttpServletRequest() {
         try {
-            HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+            final HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 
             BDDMockito.given(request.getScheme()).willReturn("http");
             BDDMockito.given(request.getMethod()).willReturn("GET");
@@ -400,13 +400,13 @@ public class ShibcasAuthServletTest {
             BDDMockito.given(request.getAttribute(ExternalAuthentication.RELYING_PARTY_PARAM)).willReturn("http://test.edu/sp");
 
             return request;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private HttpServletResponse createMockHttpServletResponse() {
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+        final HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION)).willReturn(URL_WITH_CONVERSATION);
         BDDMockito.given(response.encodeURL(URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED)).willReturn(URL_WITH_CONVERSATION_GATEWAY_ATTEMPTED);
@@ -416,7 +416,7 @@ public class ShibcasAuthServletTest {
     }
 
     private ShibcasAuthServlet createShibcasAuthServlet() throws ServletException {
-        ShibcasAuthServlet shibcasAuthServlet;
+        final ShibcasAuthServlet shibcasAuthServlet;
         shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 

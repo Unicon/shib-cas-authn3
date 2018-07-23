@@ -31,6 +31,7 @@ dependencies {
 
     provided "javax.servlet:javax.servlet-api:$project.servletVersion"
     provided "net.shibboleth.idp:idp-authn-api:$project.shibIdpVersion"
+    provided "net.shibboleth.idp:idp-saml-api:$project.shibIdpVersion"
     provided "commons-lang:commons-lang:$project.commonLangVersion"
 
     testCompile "junit:junit:$project.junitVersion"

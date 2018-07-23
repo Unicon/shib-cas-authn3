@@ -31,21 +31,21 @@ import java.util.Set;
  * @author jgasper@unicon.net
  */
 public class AuthenticatedNameTranslator implements CasToShibTranslator {
-    private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthenticatedNameTranslator.class);
 
     @Override
     public void doTranslation(final HttpServletRequest request, final HttpServletResponse response,
-                              final Assertion assertion) {
+                              final Assertion assertion, final String authenticationKey) {
         if (assertion == null || assertion.getPrincipal() == null) {
             logger.error("No valid assertion or principal could be found to translate");
             return;
         }
-        AttributePrincipal casPrincipal = assertion.getPrincipal();
+        final AttributePrincipal casPrincipal = assertion.getPrincipal();
         logger.debug("principalName found and being passed on: {}", casPrincipal.getName());
 
         // Pass authenticated principal back to IdP to finish its part of authentication request processing
-        Collection<IdPAttributePrincipal> assertionAttributes = produceIdpAttributePrincipal(assertion.getAttributes());
-        Collection<IdPAttributePrincipal> principalAttributes = produceIdpAttributePrincipal(casPrincipal.getAttributes());
+        final Collection<IdPAttributePrincipal> assertionAttributes = produceIdpAttributePrincipal(assertion.getAttributes());
+        final Collection<IdPAttributePrincipal> principalAttributes = produceIdpAttributePrincipal(casPrincipal.getAttributes());
 
         if (!assertionAttributes.isEmpty() || !principalAttributes.isEmpty()) {
             logger.debug("Found attributes from CAS. Processing...");
@@ -76,12 +76,12 @@ public class AuthenticatedNameTranslator implements CasToShibTranslator {
     }
 
 
-    private Collection<IdPAttributePrincipal> produceIdpAttributePrincipal(Map<String, Object> casAttributes) {
-        Set<IdPAttributePrincipal> principals = new HashSet<>();
+    private Collection<IdPAttributePrincipal> produceIdpAttributePrincipal(final Map<String, Object> casAttributes) {
+        final Set<IdPAttributePrincipal> principals = new HashSet<>();
         for (final Map.Entry<String, Object> entry : casAttributes.entrySet()) {
-            IdPAttribute attr = new IdPAttribute(entry.getKey());
+            final IdPAttribute attr = new IdPAttribute(entry.getKey());
 
-            List<StringAttributeValue> attributeValues = new ArrayList<>();
+            final List<StringAttributeValue> attributeValues = new ArrayList<>();
             if (entry.getValue() instanceof Collection) {
                 for (final Object value : (Collection) entry.getValue()) {
                     attributeValues.add(new StringAttributeValue(value.toString()));

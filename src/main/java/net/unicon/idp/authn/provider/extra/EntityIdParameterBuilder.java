@@ -29,7 +29,7 @@ public class EntityIdParameterBuilder implements IParameterBuilder {
         if (encode == true) {
             try {
                 rpId = URLEncoder.encode(relayingPartyId, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
+            } catch (final UnsupportedEncodingException e) {
                 logger.error("Error encoding the relying party id.", e);
             }
         } else {

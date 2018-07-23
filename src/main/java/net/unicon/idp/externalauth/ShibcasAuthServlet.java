@@ -56,8 +56,8 @@ public class ShibcasAuthServlet extends HttpServlet {
 
     private AbstractCasProtocolUrlBasedTicketValidator ticketValidator;
 
-    private Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
-    private Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
+    private final Set<CasToShibTranslator> translators = new HashSet<CasToShibTranslator>();
+    private final Set<IParameterBuilder> parameterBuilders = new HashSet<IParameterBuilder>();
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException {
@@ -105,17 +105,16 @@ public class ShibcasAuthServlet extends HttpServlet {
                 throw new TicketValidationException("Validation failed. Assertion could not be retrieved for ticket " + ticket);
             }
             for (final CasToShibTranslator casToShibTranslator : translators) {
-                casToShibTranslator.doTranslation(request, response, assertion);
+                casToShibTranslator.doTranslation(request, response, assertion, authenticationKey);
             }
-            ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
         } catch (final Exception e) {
             logger.error("Ticket validation failed, returning InvalidTicket", e);
             request.setAttribute(ExternalAuthentication.AUTHENTICATION_ERROR_KEY, "InvalidTicket");
-            ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
         }
+        ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
     }
 
-    protected void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, Boolean force, Boolean passive) {
+    protected void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, final Boolean force, final Boolean passive) {
         // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
         // we will set both and let CAS sort it out, but log a warning
         if (Boolean.TRUE.equals(passive) && Boolean.TRUE.equals(force)) {
@@ -124,16 +123,13 @@ public class ShibcasAuthServlet extends HttpServlet {
 
         try {
             String serviceUrl = constructServiceUrl(request, response);
-
             if (passive) {
                 serviceUrl += "&gatewayAttempted=true";
             }
 
-            String loginUrl = constructRedirectUrl(serviceUrl, force, passive) + getAdditionalParameters(request);
-
+            final String loginUrl = constructRedirectUrl(serviceUrl, force, passive) + getAdditionalParameters(request);
             logger.debug("loginUrl: {}", loginUrl);
             response.sendRedirect(loginUrl);
-
         } catch (final IOException e) {
             logger.error("Unable to redirect to CAS from ShibCas", e);
         }
@@ -142,7 +138,7 @@ public class ShibcasAuthServlet extends HttpServlet {
     /**
      * Uses the CAS CommonUtils to build the CAS Redirect URL.
      */
-    private String constructRedirectUrl(String serviceUrl, boolean renew, boolean gateway) {
+    private String constructRedirectUrl(final String serviceUrl, final boolean renew, final boolean gateway) {
         return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway);
     }
 
@@ -153,18 +149,18 @@ public class ShibcasAuthServlet extends HttpServlet {
      * @return an ampersand delimited list of querystring parameters
      */
     private String getAdditionalParameters(final HttpServletRequest request) {
-        StringBuilder builder = new StringBuilder();
-        for (IParameterBuilder paramBuilder : parameterBuilders) {
+        final StringBuilder builder = new StringBuilder();
+        for (final IParameterBuilder paramBuilder : parameterBuilders) {
             builder.append(paramBuilder.getParameterString(request));
         }
         return builder.toString();
     }
 
     @Override
-    public void init(ServletConfig config) throws ServletException {
+    public void init(final ServletConfig config) throws ServletException {
         super.init(config);
 
-        ApplicationContext ac = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        final ApplicationContext ac = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         parseProperties(ac.getEnvironment());
 
         switch (ticketValidatorName) {
@@ -237,21 +233,21 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Attempt to build the set of translators from the fully qualified class names set in the properties. If nothing has been set
      * then default to the AuthenticatedNameTranslator only.
      */
-    private void buildTranslators(Environment environment) {
+    private void buildTranslators(final Environment environment) {
         translators.add(new AuthenticatedNameTranslator());
 
-        String casToShibTranslators = StringUtils.defaultString(environment.getProperty("shibcas.casToShibTranslators", ""));
-        for (String classname : StringUtils.split(casToShibTranslators, ';')) {
+        final String casToShibTranslators = StringUtils.defaultString(environment.getProperty("shibcas.casToShibTranslators", ""));
+        for (final String classname : StringUtils.split(casToShibTranslators, ';')) {
             try {
                 logger.debug("Loading translator class {}", classname);
-                Class<?> c = Class.forName(classname);
+                final Class<?> c = Class.forName(classname);
                 final CasToShibTranslator e = (CasToShibTranslator) c.newInstance();
                 if (e instanceof EnvironmentAware) {
                     ((EnvironmentAware) e).setEnvironment(environment);
                 }
                 translators.add(e);
                 logger.debug("Added translator class {}", classname);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.error("Error building cas to shib translator with name: " + classname, e);
             }
         }
@@ -285,10 +281,10 @@ public class ShibcasAuthServlet extends HttpServlet {
     }
 
     private void loadErrorPage(final HttpServletRequest request, final HttpServletResponse response) {
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher("/no-conversation-state.jsp");
+        final RequestDispatcher requestDispatcher = request.getRequestDispatcher("/no-conversation-state.jsp");
         try {
             requestDispatcher.forward(request, response);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.error("Error rendering the empty conversation state (shib-cas-authn3) error view.");
             response.resetBuffer();
             response.setStatus(404);

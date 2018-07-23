@@ -1,7 +1,11 @@
 package net.unicon.idp.externalauth;
 
 import net.shibboleth.idp.authn.ExternalAuthentication;
+import net.shibboleth.idp.authn.context.AuthenticationContext;
+import net.shibboleth.idp.authn.context.RequestedPrincipalContext;
+import net.shibboleth.idp.saml.authn.principal.AuthnContextClassRefPrincipal;
 import org.jasig.cas.client.validation.Assertion;
+import org.opensaml.profile.context.ProfileRequestContext;
 import org.opensaml.saml.saml2.core.AuthnContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +14,9 @@ import org.springframework.core.env.Environment;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is {@link CasDuoSecurityRefedsAuthnMethodTranslator}.
@@ -30,7 +37,7 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
     }
 
     @Override
-    public void doTranslation(final HttpServletRequest request, final HttpServletResponse response, final Assertion assertion) throws Exception {
+    public void doTranslation(final HttpServletRequest request, final HttpServletResponse response, final Assertion assertion, final String authenticationKey) throws Exception {
         final Object attribute = request.getAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM);
         if (attribute == null) {
             logger.debug("No authentication method parameter is found in the request attributes");
@@ -41,6 +48,7 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
         if (!assertion.getPrincipal().getAttributes().containsKey("authnContextClass")) {
             logger.debug("No authentication context class is provided by CAS; Overriding context class to {}", AuthnContext.PPT_AUTHN_CTX);
             request.setAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM, AuthnContext.PPT_AUTHN_CTX);
+            overrideAuthnContextClass(request, authenticationKey);
             return;
         }
 
@@ -49,10 +57,26 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
 
         if (clazz.equals("mfa-duo")) {
             request.setAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM, REFEDS);
+            overrideAuthnContextClass(request, authenticationKey);
             logger.info("Validation payload successfully asserts the authentication context class for mfa-duo; Context class is set to {}", REFEDS);
             return;
         }
         logger.debug("Authentication context class [{}] provided by CAS is not one by Duo Security. "
             + "The requested authentication method to be used shall be {}", clazz, authnMethod);
+    }
+
+    private void overrideAuthnContextClass(final HttpServletRequest request, final String authenticationKey) throws Exception {
+        final ProfileRequestContext prc = ExternalAuthentication.getProfileRequestContext(authenticationKey, request);
+        final AuthenticationContext authnContext = prc.getSubcontext(AuthenticationContext.class, true);
+        final RequestedPrincipalContext principalCtx = authnContext.getSubcontext(RequestedPrincipalContext.class, true);
+
+        if (principalCtx != null) {
+            final List<Principal> principals = new ArrayList<>();
+            final String clazz = request.getAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM).toString();
+            final Principal principal = new AuthnContextClassRefPrincipal(clazz);
+            principals.add(principal);
+            principalCtx.setRequestedPrincipals(principals);
+        }
+
     }
 }
