@@ -38,17 +38,30 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
 
     @Override
     public void doTranslation(final HttpServletRequest request, final HttpServletResponse response, final Assertion assertion, final String authenticationKey) throws Exception {
-        final Object attribute = request.getAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM);
+
+        final ProfileRequestContext prc = ExternalAuthentication.getProfileRequestContext(authenticationKey, request);
+        final AuthenticationContext authnContext = prc.getSubcontext(AuthenticationContext.class, true);
+        if (authnContext == null) {
+            logger.debug("No authentication context is available");
+            return;
+        }
+        final RequestedPrincipalContext principalCtx = authnContext.getSubcontext(RequestedPrincipalContext.class, true);
+        if (principalCtx == null || principalCtx.getRequestedPrincipals().isEmpty()) {
+            logger.debug("No requested principal context is available in the authentication context");
+            return;
+        }
+
+        final Principal principal = new AuthnContextClassRefPrincipal(REFEDS);
+        final Principal attribute = principalCtx.getRequestedPrincipals().stream().filter(p -> p.equals(principal)).findFirst().orElse(null);
         if (attribute == null) {
             logger.debug("No authentication method parameter is found in the request attributes");
             return;
         }
-        final String authnMethod = attribute.toString();
+        final String authnMethod = attribute.getName();
         logger.debug("Requested authn method provided by IdP is {}", authnMethod);
         if (!assertion.getPrincipal().getAttributes().containsKey("authnContextClass")) {
             logger.debug("No authentication context class is provided by CAS; Overriding context class to {}", AuthnContext.PPT_AUTHN_CTX);
-            request.setAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM, AuthnContext.PPT_AUTHN_CTX);
-            overrideAuthnContextClass(request, authenticationKey);
+            overrideAuthnContextClass(AuthnContext.PPT_AUTHN_CTX, request, authenticationKey);
             return;
         }
 
@@ -56,25 +69,27 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
         logger.debug("Located asserted authentication context class [{}]", clazz);
 
         if (clazz.equals("mfa-duo")) {
-            request.setAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM, REFEDS);
-            overrideAuthnContextClass(request, authenticationKey);
+            overrideAuthnContextClass(REFEDS, request, authenticationKey);
             logger.info("Validation payload successfully asserts the authentication context class for mfa-duo; Context class is set to {}", REFEDS);
             return;
         }
         logger.debug("Authentication context class [{}] provided by CAS is not one by Duo Security. "
-            + "The requested authentication method to be used shall be {}", clazz, authnMethod);
+            + "The requested authentication method to be used shall be {} and is left unmodified", clazz, authnMethod);
     }
 
-    private void overrideAuthnContextClass(final HttpServletRequest request, final String authenticationKey) throws Exception {
+    private void overrideAuthnContextClass(final String clazz, final HttpServletRequest request, final String authenticationKey) throws Exception {
         final ProfileRequestContext prc = ExternalAuthentication.getProfileRequestContext(authenticationKey, request);
         final AuthenticationContext authnContext = prc.getSubcontext(AuthenticationContext.class, true);
+        if (authnContext == null) {
+            throw new IllegalArgumentException("No authentication method parameter is found in the request attributes");
+        }
         final RequestedPrincipalContext principalCtx = authnContext.getSubcontext(RequestedPrincipalContext.class, true);
 
         if (principalCtx != null) {
             final List<Principal> principals = new ArrayList<>();
-            final String clazz = request.getAttribute(ExternalAuthentication.AUTHN_METHOD_PARAM).toString();
             final Principal principal = new AuthnContextClassRefPrincipal(clazz);
             principals.add(principal);
+            logger.debug("Overriding the principal authn context class ref to {}", principals);
             principalCtx.setRequestedPrincipals(principals);
         }
 
