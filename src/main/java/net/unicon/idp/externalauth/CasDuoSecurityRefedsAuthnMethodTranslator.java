@@ -41,14 +41,16 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
         }
         final RequestedPrincipalContext principalCtx = authnContext.getSubcontext(RequestedPrincipalContext.class, true);
         if (principalCtx == null || principalCtx.getRequestedPrincipals().isEmpty()) {
-            logger.debug("No requested principal context is available in the authentication context");
+            logger.debug("No requested principal context is available in the authentication context; Overriding class to {}", AuthnContext.PPT_AUTHN_CTX);
+            overrideAuthnContextClass(AuthnContext.PPT_AUTHN_CTX, request, authenticationKey);
             return;
         }
 
         final Principal principal = new AuthnContextClassRefPrincipal(REFEDS);
         final Principal attribute = principalCtx.getRequestedPrincipals().stream().filter(p -> p.equals(principal)).findFirst().orElse(null);
         if (attribute == null) {
-            logger.debug("No authentication method parameter is found in the request attributes");
+            logger.debug("No authn context class ref principal is found in the requested principals; overriding to {}", AuthnContext.PPT_AUTHN_CTX);
+            overrideAuthnContextClass(AuthnContext.PPT_AUTHN_CTX, request, authenticationKey);
             return;
         }
         final String authnMethod = attribute.getName();
@@ -69,6 +71,7 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
         }
         logger.debug("Authentication context class [{}] provided by CAS is not one by Duo Security. "
             + "The requested authentication method to be used shall be {} and is left unmodified", clazz, authnMethod);
+        overrideAuthnContextClass(clazz.toString(), request, authenticationKey);
     }
 
     private void overrideAuthnContextClass(final String clazz, final HttpServletRequest request, final String authenticationKey) throws Exception {
