@@ -14,7 +14,7 @@ import java.net.URLEncoder;
  * @author jgasper@unicon.net
  */
 public class EntityIdParameterBuilder implements IParameterBuilder {
-    private Logger logger = LoggerFactory.getLogger(EntityIdParameterBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(EntityIdParameterBuilder.class);
 
     @Override
     public String getParameterString(final HttpServletRequest request) {

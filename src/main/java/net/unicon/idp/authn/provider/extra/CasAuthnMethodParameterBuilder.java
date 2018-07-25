@@ -9,14 +9,13 @@ import org.springframework.context.ApplicationContextAware;
 
 import javax.servlet.http.HttpServletRequest;
 
-
 /**
  * Generates a querystring parameter containing the authn_method parameter.
  *
- * @author mmoayyed@unicon.net
+ * @author Misagh Moayyed
  */
 public abstract class CasAuthnMethodParameterBuilder implements IParameterBuilder, ApplicationContextAware {
-    private Logger logger = LoggerFactory.getLogger(CasAuthnMethodParameterBuilder.class);
+    private final Logger logger = LoggerFactory.getLogger(CasAuthnMethodParameterBuilder.class);
     protected ApplicationContext applicationContext;
 
     @Override

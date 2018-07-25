@@ -18,12 +18,6 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This is {@link CasDuoSecurityRefedsAuthnMethodTranslator}.
- *
- * @author Misagh Moayyed
- * @since 5.3.0
- */
 public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTranslator, EnvironmentAware {
     private final Logger logger = LoggerFactory.getLogger(CasDuoSecurityRefedsAuthnMethodTranslator.class);
 

@@ -43,7 +43,7 @@ import java.util.Set;
  */
 @WebServlet(name = "ShibcasAuthServlet", urlPatterns = {"/Authn/ExtCas/*"})
 public class ShibcasAuthServlet extends HttpServlet {
-    private Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
+    private final Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
     private static final long serialVersionUID = 1L;
     private static final String artifactParameterName = "ticket";
     private static final String serviceParameterName = "service";
