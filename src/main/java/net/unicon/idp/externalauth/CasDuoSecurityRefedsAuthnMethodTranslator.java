@@ -84,14 +84,15 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
             throw new IllegalArgumentException("No authentication method parameter is found in the request attributes");
         }
         final RequestedPrincipalContext principalCtx = authnContext.getSubcontext(RequestedPrincipalContext.class, true);
-
+        logger.debug("Overriding the principal authn context class ref to {}", clazz);
         if (principalCtx != null) {
             final List<Principal> principals = new ArrayList<>();
             final Principal principal = new AuthnContextClassRefPrincipal(clazz);
             principals.add(principal);
-            logger.debug("Overriding the principal authn context class ref to {}", principals);
             principalCtx.setRequestedPrincipals(principals);
+            logger.error("The final requested authn context class ref principals are {}", principals);
+        } else {
+            logger.error("No requested principal context class is available");
         }
-
     }
 }
