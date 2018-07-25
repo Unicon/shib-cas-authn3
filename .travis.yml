@@ -9,4 +9,4 @@ cache:
   directories:
     - '$HOME/.gradle/caches'
     
-script: ./gradlew
+script: ./gradlew clean build
