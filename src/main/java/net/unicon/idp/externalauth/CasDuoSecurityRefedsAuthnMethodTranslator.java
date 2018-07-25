@@ -3,6 +3,9 @@ package net.unicon.idp.externalauth;
 import net.shibboleth.idp.authn.ExternalAuthentication;
 import net.shibboleth.idp.authn.context.AuthenticationContext;
 import net.shibboleth.idp.authn.context.RequestedPrincipalContext;
+import net.shibboleth.idp.authn.principal.PrincipalEvalPredicate;
+import net.shibboleth.idp.authn.principal.PrincipalEvalPredicateFactory;
+import net.shibboleth.idp.authn.principal.PrincipalSupportingComponent;
 import net.shibboleth.idp.saml.authn.principal.AuthnContextClassRefPrincipal;
 import org.jasig.cas.client.validation.Assertion;
 import org.opensaml.profile.context.ProfileRequestContext;
@@ -12,11 +15,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTranslator, EnvironmentAware {
     private final Logger logger = LoggerFactory.getLogger(CasDuoSecurityRefedsAuthnMethodTranslator.class);
@@ -87,6 +94,31 @@ public class CasDuoSecurityRefedsAuthnMethodTranslator implements CasToShibTrans
             final Principal principal = new AuthnContextClassRefPrincipal(clazz);
             principals.add(principal);
             principalCtx.setRequestedPrincipals(principals);
+            principalCtx.setOperator("exact");
+            principalCtx.setMatchingPrincipal(principal);
+
+            principalCtx.getPrincipalEvalPredicateFactoryRegistry().register(AuthnContextClassRefPrincipal.class, "exact", new PrincipalEvalPredicateFactory() {
+                @Nonnull
+                @Override
+                public PrincipalEvalPredicate getPredicate(@Nonnull final Principal candidate) {
+                    return new PrincipalEvalPredicate() {
+
+                        @Override
+                        public Principal getMatchingPrincipal() {
+                            return principal;
+                        }
+
+                        @Override
+                        public boolean apply(@Nullable final PrincipalSupportingComponent input) {
+                            final Set supported = input != null
+                                ? input.getSupportedPrincipals(principal.getClass())
+                                : new HashSet();
+                            return supported.stream().anyMatch(p -> principal.equals(p));
+                        }
+                    };
+                }
+            });
+
             logger.info("The final requested authn context class ref principals are {}", principals);
         } else {
             logger.error("No requested principal context class is available");
