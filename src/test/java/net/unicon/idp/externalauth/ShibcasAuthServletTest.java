@@ -254,7 +254,7 @@ public class ShibcasAuthServletTest {
         final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig());
 
-        shibcasAuthServlet.startLoginRequest(request, response, false, false);
+        shibcasAuthServlet.startLoginRequest(request, response, false, false, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp");
     }
 
@@ -269,7 +269,7 @@ public class ShibcasAuthServletTest {
         final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig("embed"));
 
-        shibcasAuthServlet.startLoginRequest(request, response, false, false);
+        shibcasAuthServlet.startLoginRequest(request, response, false, false, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1%26entityId%3Dhttp%3A%2F%2Ftest.edu%2Fsp");
     }
 
@@ -284,7 +284,7 @@ public class ShibcasAuthServletTest {
         final ShibcasAuthServlet shibcasAuthServlet = new ShibcasAuthServlet();
         shibcasAuthServlet.init(createMockServletConfig("append"));
 
-        shibcasAuthServlet.startLoginRequest(request, response, false, false);
+        shibcasAuthServlet.startLoginRequest(request, response, false, false, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp");
     }
 
@@ -300,7 +300,7 @@ public class ShibcasAuthServletTest {
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Passive
-        shibcasAuthServlet.startLoginRequest(request, response, false, true);
+        shibcasAuthServlet.startLoginRequest(request, response, false, true, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1%26gatewayAttempted%3Dtrue&gateway=true&entityId=http%3A%2F%2Ftest.edu%2Fsp");
     }
 
@@ -316,7 +316,7 @@ public class ShibcasAuthServletTest {
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Forced
-        shibcasAuthServlet.startLoginRequest(request, response, true, false);
+        shibcasAuthServlet.startLoginRequest(request, response, true, false, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1&renew=true&entityId=http%3A%2F%2Ftest.edu%2Fsp");
        }
 
@@ -332,7 +332,7 @@ public class ShibcasAuthServletTest {
         shibcasAuthServlet.init(createMockServletConfig());
 
         //Passive and Forced
-        shibcasAuthServlet.startLoginRequest(request, response, true, true);
+        shibcasAuthServlet.startLoginRequest(request, response, true, true, "");
         verify(response).sendRedirect("https://cassserver.example.edu/cas/login?service=https%3A%2F%2Fshibserver.example.edu%2Fidp%2FAuthn%2FExtCas%3Fconversation%3De1s1%26gatewayAttempted%3Dtrue&renew=true&gateway=true&entityId=http%3A%2F%2Ftest.edu%2Fsp");
     }
 

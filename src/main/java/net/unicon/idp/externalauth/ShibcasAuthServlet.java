@@ -71,7 +71,7 @@ public class ShibcasAuthServlet extends HttpServlet {
 
             if ((ticket == null || ticket.isEmpty()) && (gatewayAttempted == null || gatewayAttempted.isEmpty())) {
                 logger.debug("ticket and gatewayAttempted are not set; initiating CAS login redirect");
-                startLoginRequest(request, response, force, passive);
+                startLoginRequest(request, response, force, passive, authenticationKey);
                 return;
             }
 
@@ -114,7 +114,8 @@ public class ShibcasAuthServlet extends HttpServlet {
         ExternalAuthentication.finishExternalAuthentication(authenticationKey, request, response);
     }
 
-    protected void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response, final Boolean force, final Boolean passive) {
+    protected void startLoginRequest(final HttpServletRequest request, final HttpServletResponse response,
+                                     final Boolean force, final Boolean passive, String authenticationKey) {
         // CAS Protocol - http://www.jasig.org/cas/protocol indicates not setting gateway if renew has been set.
         // we will set both and let CAS sort it out, but log a warning
         if (Boolean.TRUE.equals(passive) && Boolean.TRUE.equals(force)) {
@@ -127,7 +128,7 @@ public class ShibcasAuthServlet extends HttpServlet {
                 serviceUrl += "&gatewayAttempted=true";
             }
 
-            final String loginUrl = constructRedirectUrl(serviceUrl, force, passive) + getAdditionalParameters(request);
+            final String loginUrl = constructRedirectUrl(serviceUrl, force, passive) + getAdditionalParameters(request, authenticationKey);
             logger.debug("loginUrl: {}", loginUrl);
             response.sendRedirect(loginUrl);
         } catch (final IOException e) {
@@ -148,10 +149,10 @@ public class ShibcasAuthServlet extends HttpServlet {
      * @param request The original servlet request
      * @return an ampersand delimited list of querystring parameters
      */
-    private String getAdditionalParameters(final HttpServletRequest request) {
+    private String getAdditionalParameters(final HttpServletRequest request, final String authenticationKey) {
         final StringBuilder builder = new StringBuilder();
         for (final IParameterBuilder paramBuilder : parameterBuilders) {
-            builder.append(paramBuilder.getParameterString(request));
+            builder.append(paramBuilder.getParameterString(request, authenticationKey));
         }
         return builder.toString();
     }

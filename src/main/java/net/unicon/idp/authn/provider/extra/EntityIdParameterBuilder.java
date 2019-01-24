@@ -17,7 +17,7 @@ public class EntityIdParameterBuilder implements IParameterBuilder {
     private final Logger logger = LoggerFactory.getLogger(EntityIdParameterBuilder.class);
 
     @Override
-    public String getParameterString(final HttpServletRequest request) {
+    public String getParameterString(final HttpServletRequest request, final String authenticationKey) {
         return getParameterString(request, true);
     }
 
