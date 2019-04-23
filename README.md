@@ -28,7 +28,10 @@ Installation
 #### Overview
 
 1. Copy the Spring Webflow files, jsp, and included jar files into the IDP_HOME.
-1. Update the IdP's `web.xml`. (optional)
+1. Download and extract the "latest release" zip or tar from releases. The internal folder structure matches file locations in your IdP.
+1. Copy the Spring Webflow files (shibcas-autn-beans.xml and shibcas-authn-flow.xml) to your IDP_HOME/flows/authn/Shibcas folder. Note you may have to create the Shibcas folder.
+1. Copy the no-conversation-state.jsp file to your IDP_HOME/edit-webapp
+1. Copy two included jar files (cas-client-core-x.x.x.jar and shib-casuathenticator-x.x.x.jar) into the IDP_HOME/edit-webapp/WEB-INF/lib.1. Update the IdP's `web.xml`. (optional)
 1. Update the IdP's `idp.properties` file.
 1. Update the IdP's `general-authn.xml` file.
 1. Rebuild the war file.
