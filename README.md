@@ -27,21 +27,14 @@ Installation
 
 #### Overview
 
-1. Copy the Spring Webflow files, jsp, and included jar files into the IDP_HOME.
-1. Download and extract the "latest release" zip or tar from releases. The internal folder structure matches file locations in your IdP.
-1. Copy the Spring Webflow files (shibcas-autn-beans.xml and shibcas-authn-flow.xml) to your IDP_HOME/flows/authn/Shibcas folder. Note you may have to create the Shibcas folder.
-1. Copy the no-conversation-state.jsp file to your IDP_HOME/edit-webapp
-1. Copy two included jar files (cas-client-core-x.x.x.jar and shib-casuathenticator-x.x.x.jar) into the IDP_HOME/edit-webapp/WEB-INF/lib.1. Update the IdP's `web.xml`. (optional)
-1. Update the IdP's `idp.properties` file.
-1. Update the IdP's `general-authn.xml` file.
-1. Rebuild the war file.
+- Download and extract the "latest release" zip or tar from releases. The internal folder structure matches file locations in your IdP.
+- Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
+- Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the IDP_HOME/edit-webapp/WEB-INF/lib.
+- Update the IdP's `web.xml`.
+- Update the IdP's `idp.properties` file.
+- Rebuild the war file.
 
-#### Copy the Spring Webflow files into the IDP_HOME
-Copy the two xml files from the IDP_HOME directory (in the src tree) to the corresponding layout in your Shibboleth IdP home directory.
-
-#### Update the IdP's `web.xml` (optional)
-> The servlet will register itself with the container when running under a Servlet 3.0 compliant container (such as Jetty 9).
-This step is provided for legacy reasons.
+#### Update the IdP's `web.xml`
 
 Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
 
@@ -57,21 +50,21 @@ Example snippet `web.xml`:
     </servlet>
     <servlet-mapping>
         <servlet-name>ShibCas Auth Servlet</servlet-name>
-        <url-pattern>/Authn/ExtCas/*</url-pattern>
+        <url-pattern>/Authn/External/*</url-pattern>
     </servlet-mapping>
 ...
 ```
 
 #### Update the IdP's idp.properties file
 
-1. Set the `idp.authn.flows` to `Shibcas`. Or, for advance cases, add `Shibcas` to the list.
+1. Set the `idp.authn.flows` to `External`. Or, for advance cases, add `External` to the list.
 1. Add the additional properties.
 
 ```properties   
 ...
 # Regular expression matching login flows to enable, e.g. IPAddress|Password
 #idp.authn.flows = Password
-idp.authn.flows = Shibcas
+idp.authn.flows = External
 
 # CAS Client properties (usage loosely matches that of the Java CAS Client)
 ## CAS Server Properties
@@ -96,24 +89,10 @@ shibcas.serverName = https://shibserver.example.edu
 ...
 ```
 
-#### Update the IdP's `general-authn.xml` file.
-Register the module with the IdP by adding the `authn/Shibcas` bean in `IDP_HOME/conf/authn/general-authn.xml`:
-
-```xml
-...
-    <util:list id="shibboleth.AvailableAuthenticationFlows">
-
-        <bean id="authn/Shibcas" parent="shibboleth.AuthenticationFlow"
-                p:passiveAuthenticationSupported="true"
-                p:forcedAuthenticationSupported="true"
-                p:nonBrowserSupported="false" />
-...
-```
-
 
 #### Rebuild the war file
-From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
 
+From the `IDP_HOME/bin` directory, run `./build.sh` or `build.bat` to rebuild the `idp.war`. Redeploy if necessary.
 
 #### CAS Service Registry
 By setting `shibcas.entityIdLocation=embed`, shib-cas-authn will embed the entityId in the service string so that CAS Server

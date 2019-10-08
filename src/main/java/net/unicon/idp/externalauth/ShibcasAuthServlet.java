@@ -41,7 +41,7 @@ import java.util.Set;
  * @author jgasper@unicon.net
  * @author aremmes (GitHub)
  */
-@WebServlet(name = "ShibcasAuthServlet", urlPatterns = {"/Authn/ExtCas/*"})
+@WebServlet(name = "ShibcasAuthServlet", urlPatterns = {"/Authn/External/*"})
 public class ShibcasAuthServlet extends HttpServlet {
     private final Logger logger = LoggerFactory.getLogger(ShibcasAuthServlet.class);
     private static final long serialVersionUID = 1L;
@@ -140,7 +140,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Uses the CAS CommonUtils to build the CAS Redirect URL.
      */
     private String constructRedirectUrl(final String serviceUrl, final boolean renew, final boolean gateway) {
-        return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway);
+        return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway, null);
     }
 
     /**
