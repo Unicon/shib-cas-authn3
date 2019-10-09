@@ -1,16 +1,19 @@
 ## A Shibboleth IdP v3.X plugin for authentication via an external CAS Server
 
-> This project was developed as part of Unicon's [Open Source Support program](https://unicon.net/support). Professional support/integration assistance for this module is available. For more information, visit <https://unicon.net/opensource/shibboleth>.
-
-This is a Shibboleth IDP external authentication plugin that delegates the authentication to an external 
+This is a Shibboleth IdP external authentication plugin that delegates the authentication to an external 
 Central Authentication Server. The biggest advantage of using this component over the plain 
 `REMOTE_USER` header solution provided by Shibboleth is the ability to utilize a full range 
 of native CAS protocol features such as `renew` and `gateway`, plus the ability to share with CAS the 
 EntityID of the relying application.
 
-The plugin consists of 2 components:
-* A library (.jar) file that provides an IDP side servlet that acts as a bridge between CAS and the IDP
-* Spring Webflow definition file (and bean definition file) that invokes the shib-cas-authn3 library.
+The plugin takes advantage of and extends the Shibboleth IdP's external authentication flow, and consists of a number of JAR artifacts that bridge the gap between Shibboleth and CAS.
+
+Maintenance Status
+-------------------------------------------------------------
+
+Maintenance of this project is sponsored by Unicon's [Open Source Support program](https://unicon.net/support). Professional support/integration assistance for this module is available. For more information, visit <https://unicon.net/opensource/shibboleth>.
+
+Also, please do note that the Shibboleth IdP v3 has support for the CAS protocol and Apereo CAS server v5+ also has support for the SAML2 protocol. Unless justified otherwise, a better approach long-term would be to consolidate down to one platform removing the need to deploy and configure this plugin.
 
 Build Status
 -------------------------------------------------------------
@@ -27,9 +30,9 @@ Installation
 
 #### Overview
 
-- Download and extract the "latest release" zip or tar from releases. The internal folder structure matches file locations in your IdP.
+- Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn3/releases).
 - Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
-- Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the IDP_HOME/edit-webapp/WEB-INF/lib.
+- Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Update the IdP's `web.xml`.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
