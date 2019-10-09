@@ -129,10 +129,10 @@ shibcas.casToShibTranslators = net.unicon.idp.externalauth.CasDuoSecurityRefedsA
 shibcas.parameterBuilders = net.unicon.idp.authn.provider.extra.CasMultifactorRefedsToDuoSecurityAuthnMethodParameterBuilder
 ```
 
-You also need to ensure the `authn/Shibcas` flow is able to accept the requested principal in the IdP's `general-authn.xml` file, that is `https://refeds.org/profile/mfa`.
+You also need to ensure the `authn/External` flow is able to accept the requested principal in the IdP's `general-authn.xml` file, that is `https://refeds.org/profile/mfa`.
 
 ```xml
-<bean id="authn/Shibcas" parent="shibboleth.AuthenticationFlow"
+<bean id="authn/External" parent="shibboleth.AuthenticationFlow"
   p:passiveAuthenticationSupported="true"
   p:forcedAuthenticationSupported="true"
   p:nonBrowserSupported="false">
