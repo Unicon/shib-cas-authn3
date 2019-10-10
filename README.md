@@ -21,7 +21,8 @@ Build Status
 
 Software Requirements
 -------------------------------------------------------------
-This minimum supported version of Shibboleth Identity Provider is `3.3.0`
+
+This minimum supported version of Shibboleth Identity Provider is `3.3.0`. As of version `3.3.0`, the minimum supported version of Shibboleth Identity Provider is `3.4.6` which contains a fix for *Denial of service via External authentication flows*. See [this link](https://wiki.shibboleth.net/confluence/display/IDP30/SecurityAdvisories) for more details.
 
 > A Shibboleth IdP v2.X plugin can be found at <https://github.com/Unicon/shib-cas-authn2>.
 
@@ -36,6 +37,9 @@ Installation
 - Update the IdP's `web.xml`.
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
+
+**NOTE:** You should **ALWAYS** refers to the `README.md` that is packaged with the release for instructions.
+
 
 #### Update the IdP's `web.xml`
 
