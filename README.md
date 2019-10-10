@@ -38,7 +38,7 @@ Installation
 - Update the IdP's `idp.properties` file.
 - Rebuild the war file.
 
-**NOTE:** You should **ALWAYS** refers to the `README.md` that is packaged with the release for instructions.
+**NOTE:** You should **ALWAYS** refers to the `README.md` file that is [packaged with the release](https://github.com/Unicon/shib-cas-authn3/releases) for instructions.
 
 
 #### Update the IdP's `web.xml`
