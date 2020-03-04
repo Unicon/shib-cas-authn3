@@ -29,9 +29,17 @@ This minimum supported version of Shibboleth Identity Provider is `3.3.0`. As of
 Installation
 ---------------------------------------------------------------
 
-#### Overview
+#### Install Overview for versions 3.3.0+ and IdP 3.4.6+
 
 - Download and extract the "latest release" zip or tar [from releases](https://github.com/Unicon/shib-cas-authn3/releases).
+- Copy the two jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib` directory.
+- Update the IdP's `web.xml`.
+- Update the IdP's `idp.properties` file.
+- Rebuild the war file.
+
+#### Install Overview for previous versions before 3.3.0 and IdP v3.4.6
+
+- Download and extract one of the releases before 3.3.0 as a zip or tar [from releases](https://github.com/Unicon/shib-cas-authn3/releases).
 - Copy the no-conversation-state.jsp file to your `IDP_HOME/edit-webapp`
 - Copy two included jar files (`cas-client-core-x.x.x.jar` and `shib-casuathenticator-x.x.x.jar`) into the `IDP_HOME/edit-webapp/WEB-INF/lib`.
 - Update the IdP's `web.xml`.
@@ -43,7 +51,7 @@ Installation
 
 #### Update the IdP's `web.xml`
 
-Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/webapp/WEB-INF/web.xml`, if necessary.)
+Add the ShibCas Auth Servlet entry in `IDP_HOME/edit-webapp/WEB-INF/web.xml` (Copy from `IDP_HOME/dist/webapp/WEB-INF/web.xml`, if necessary.)
 
 Example snippet `web.xml`:
 
