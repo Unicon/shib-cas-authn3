@@ -140,7 +140,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Uses the CAS CommonUtils to build the CAS Redirect URL.
      */
     private String constructRedirectUrl(final String serviceUrl, final boolean renew, final boolean gateway) {
-        return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway, null);
+        return CommonUtils.constructRedirectUrl(casLoginUrl, "service", serviceUrl, renew, gateway);
     }
 
     /**
