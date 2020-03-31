@@ -258,13 +258,13 @@ public class ShibcasAuthServlet extends HttpServlet {
      * Use the CAS CommonUtils to build the CAS Service URL.
      */
     protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response) {
-        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName,
-            serviceParameterName, artifactParameterName, true);
+        String serviceUrl = CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, false);
 
         if ("embed".equalsIgnoreCase(entityIdLocation)) {
             serviceUrl += (new EntityIdParameterBuilder().getParameterString(request, false));
         }
 
+        logger.debug("constructServiceUrl: " + serviceUrl);
 
         return serviceUrl;
     }
@@ -277,7 +277,7 @@ public class ShibcasAuthServlet extends HttpServlet {
      */
     protected String constructServiceUrl(final HttpServletRequest request, final HttpServletResponse response, final boolean isValidatingTicket) {
         return isValidatingTicket
-            ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, true)
+            ? CommonUtils.constructServiceUrl(request, response, null, serverName, serviceParameterName, artifactParameterName, false)
             : constructServiceUrl(request, response);
     }
 

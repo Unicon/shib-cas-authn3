@@ -239,7 +239,7 @@ public class ShibcasAuthServletTest {
 
         final String result = shibcasAuthServlet.constructServiceUrl(request, response, true);
 
-        assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&entityId=http%3A%2F%2Ftest.edu%2Fsp", result);
+        assertEquals("https://shibserver.example.edu/idp/Authn/ExtCas?conversation=e1s1&entityId=http://test.edu/sp", result);
     }
 
 
